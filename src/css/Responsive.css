@@ -1,0 +1,6 @@
+/* Media Query: Para pantallas menores a 700px */
+@media (max-width: 700px) {
+    .grid-container {
+        grid-template-columns: 1fr; /* Cambia a una sola columna */
+    }
+}

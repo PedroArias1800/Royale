@@ -1,0 +1,58 @@
+{
+    "Parfum": [
+        {
+            "title": "Sauvage",
+            "img": "Sauvage Dior.webp",
+            "ml": "100",
+            "price": "100.00",
+            "marca": "Dior",
+            "description": "Concebido como una oda a la naturaleza, Sauvage es un acto de creación inspirado en espacios abiertos. Composiciones marcadas por una frescura bruta, que combinan poder y nobleza.",
+            "genero": "Caballeros"
+        },
+        {
+            "title": "La Panthere",
+            "img": "Cartier La Panthere Parfum.webp",
+            "ml": "100",
+            "price": "100.00",
+            "marca": "Cartier",
+            "description": "El Panthère Parfum de Cartier es una fragancia de la familia olfativa Chipre Floral para mujeres. Esta fragancia es nueva. Panthère Parfum se lanzó en 2020. La nariz detrás de esta fragancia es Mathilde Laurent.",
+            "genero": "Damas"
+        },
+        {
+            "title": "Phantom",
+            "img": "Phantom Paco Rabanne.webp",
+            "ml": "100",
+            "price": "100.00",
+            "marca": "Paco Rabanne",
+            "description": "La luz del día se atenúa. El cielo se vuelve azul. Déjate seducir por la irresistible llamada de crepúsculo con el nuevo PHANTOM Intense de Rabanne. Más Intenso, más audaz, impulsado por tu lado más atrevido.",
+            "genero": "Caballeros"
+        },
+        {
+            "title": "Irresistible",
+            "img": "Givenchy Irresistible.webp",
+            "ml": "100",
+            "price": "100.00",
+            "marca": "Givenchy",
+            "description": "Irresistible Eau de Parfum de Givenchy es una fragancia femenina que definitivamente te invita a dejarte llevar. Una fragancia floral amaderada afrutada, que juega con el contraste entre dos acordes opuestos, la exquisita rosa y la radiante madera blanca.",
+            "genero": "Damas"
+        },
+        {
+            "title": "Eros",
+            "img": "Versage Eros.webp",
+            "ml": "100",
+            "price": "100.00",
+            "marca": "Versage",
+            "description": "El nuevo eau de parfum Eros, masculino y atrevido, es una fragancia sensual que fusiona notas amaderadas, orientales y frescas para crear un potente perfume que evoca a Eros, el dios del amor. «Imaginé un hombre heroico y apasionado, casi un dios griego.",
+            "genero": "Caballeros"
+        },
+        {
+            "title": "Sunflowers",
+            "img": "Elizabeth Arden Sunflowers.webp",
+            "ml": "100",
+            "price": "100.00",
+            "marca": "Elizabeth Arden",
+            "description": "Lleve el sol a cada momento sin importar el clima cuando use este spray Sunflowers eau de toilette, lanzado por Elizabeth Arden en 1993. Este aroma presenta un torbellino de notas tentadoras para hacer que tu corazón cante y ayudarte a encontrar tu lugar feliz.",
+            "genero": "Damas"
+        }
+    ]
+}

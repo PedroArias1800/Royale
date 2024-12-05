@@ -1,0 +1,253 @@
+*,
+::after,
+::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --color-negro: #373636;
+  --color-negro-hover: #222227;
+  --color-dorado: #fdd05e;
+  --color-dorado-hover: #c79a28;
+  --color-rojo: #d60a5f;
+  --color-rojo-2: #8d093f;
+  --color-rojo-hover: #ee0d6b;
+  --color-rojo-hover-2: #ff006a;
+}
+
+html,
+body {
+  margin: 0px;
+  /* background-color: #211f20; */
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 1.1rem;
+  color: white;
+}
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #222227;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+  border-radius: 15rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+}
+
+
+
+.headerGeneral{
+    height: 15vh !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100% !important;
+    background: linear-gradient(to bottom, var(--color-dorado-hover), var(--color-dorado));
+}
+.LinkMasBuscados{
+  height: 70%;
+  margin-left: 3%;
+}
+.logoRoyale{
+  height: 100%;
+}
+.navHeader{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 60%;
+}
+.navHeader a{
+  margin: 0;
+  text-shadow: 2px 2px 4px black;
+  color: white;
+  text-decoration: transparent;
+  text-underline-offset: 8px;
+  transition: all .35s;
+}
+.navHeader a:hover{
+  text-decoration: underline;
+}
+.navHeader svg{
+  margin: 0;
+  filter: drop-shadow(2px 2px 2px black);
+  text-decoration: transparent;
+  text-underline-offset: 8px;
+  transition: all .35s;
+}
+
+.content{
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.bodyContent{
+  height: 85vh;
+  width: 50vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto 0;
+}
+.bodyContent h1{
+  text-align: center;
+  text-shadow: 2px 2px 4px black;
+}
+.bodyContent a{
+  max-width: 250px;
+  min-width: 200px;
+  width: 20vw;
+  padding: 1vh 5vw;
+  text-align: center;
+  margin: 0 auto;
+  color: white;
+  text-decoration: none;
+  text-shadow: 2px 2px 4px black;
+  border-radius: 5px;
+  cursor: pointer;
+  filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.3));
+  transition: all 0.35s;  
+}
+.bodyContent a:hover{
+  filter: drop-shadow(0px 0px 2px black);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+  width: 100%; /* Para que se ajuste en pantallas pequeñas */
+  height: 80vh;
+}
+
+.grid-item {
+  color: white;
+  text-align: center;
+  padding: 50px 10%;
+  font-size: 1.2em;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+.grid-item div{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100% !important;
+  height: 100%;
+}
+.grid-item div a{
+  max-width: 200px;
+  min-width: 150px;
+  width: 10vw;
+  padding: .8vh 0vw;
+  color: white;
+  text-decoration: none;
+  font-size: large;
+  text-shadow: 2px 2px 4px black;
+  cursor: pointer;
+  background-color: var(--color-negro-hover);
+  filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.3));
+  transition: all 0.35s;  
+}
+.grid-item div a:hover{
+  background-color: var(--color-negro);
+}
+
+
+/* Más Buscados */
+.MasBuscados {
+  text-decoration: none;
+  color: white;
+  position: relative;
+  height: 100vh;
+  overflow: hidden; /* Asegura que no se salga el pseudo-elemento */
+}
+
+.MasBuscados::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/index/PerfumesMasBuscados.webp');
+  background-size: cover;
+  background-position: center;
+  filter: blur(15px); /* Ajusta la intensidad del desenfoque */
+  z-index: -1; /* Envía el pseudo-elemento detrás del contenido */
+}
+.MasBuscadosTitle{
+  text-align: center;
+  height: 20vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: xx-large;
+  font-weight: bold;
+}
+
+
+/* Footer */
+/* Footer Styles */
+.footer {
+  background-color: #1a1a1a;
+  color: #f4f4f4;
+  padding: 20px 0;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-logo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+}
+
+.footer-logo img {
+  width: 160px;
+  margin-bottom: 10px;border-radius: 10px;
+}
+
+.footer-description {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #cccccc;
+}
+
+.footer-links {
+  margin: 15px 0;
+}
+
+.footer-links a {
+  color: #f4f4f4;
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover {
+  color: var(--color-dorado-hover);
+}
+
+.footer-rights {
+  font-size: 12px;
+  color: #999999;
+  margin-top: 15px;
+}

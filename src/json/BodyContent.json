@@ -1,0 +1,28 @@
+{
+    "BodyContent": [
+        {
+            "title": "Messi Fragrances<br/><b>OfficialLionel Messi</b>",
+            "align": "49vw",
+            "img": "MessiParfum.webp",
+            "url": "/parfum/1",
+            "color": "#477d93",
+            "color2": "#1c5770"
+        },
+        {
+            "title": "El Regalo Perfecto<br/>Para<br/><b>Mamá</b>",
+            "align": "0",
+            "img": "Banners1.jpg",
+            "url": "/parfum/1",
+            "color": "#d60a5f",
+            "color2": "#8d093f"
+        },
+        {
+            "title": "Cyber Monday<br/><b>Royale</b>",
+            "align": "49vw",
+            "img": "Banners2.jpg",
+            "url": "/parfum/2",
+            "color": "#fdd05e",
+            "color2": "#c79a28"
+        }
+    ]
+}
