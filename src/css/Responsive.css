@@ -1,6 +1,197 @@
-/* Media Query: Para pantallas menores a 700px */
-@media (max-width: 700px) {
-    .grid-container {
-        grid-template-columns: 1fr; /* Cambia a una sola columna */
+@media only screen and (max-width: 850px) {
+    .grid-container{
+        display: block !important;
+        height: 100vh !important;
+    }
+    .grid-container section{
+        height: 50vh;
+    }
+    .navHeader{
+        display: none !important;
+    }
+    .navHeaderRes{
+        display: flex;
+        justify-content: right;
+        gap: 20px;
+        padding-right: 20px;
+        align-items: center;
+        width: 60%;
+    }
+    .navHeaderRes a{
+    margin: 0;
+    color: white;
+    text-decoration: transparent;
+    text-underline-offset: 8px;
+    transition: all .35s;
+    }
+    .navHeaderRes a:hover{
+    text-decoration: underline;
+    }
+    .navHeaderRes svg{
+    margin: 0;
+    text-decoration: transparent;
+    text-underline-offset: 8px;
+    transition: all .35s;
+    width: 33px;
+    height: 33px;
+    cursor: pointer;
+    }  
+
+    /* Contenedor general */
+    .hamburger-menu {
+        display: block !important;
+        margin-right: 20px;
+    }
+    
+    /* Estilo del ícono hamburguesa */
+    .hamburger-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 25px;
+        background: none;
+        border: none;
+        cursor: pointer;
+        position: relative;
+    }
+    
+    .hamburger-icon span {
+        display: block;
+        width: 100%;
+        height: 4px;
+        background-color: #ffffff;
+        border-radius: 5px;
+        transition: all 0.3s;
+    }
+    
+    /* Animación cuando está abierto */
+    .hamburger-icon.open span:nth-child(1) {
+        transform: translateY(10px) rotate(45deg);
+    }
+    
+    .hamburger-icon.open span:nth-child(2) {
+        opacity: 0;
+    }
+    
+    .hamburger-icon.open span:nth-child(3) {
+        transform: translateY(-10px) rotate(-45deg);
+    }
+    
+    /* Menú desplegable */
+    .menuDesplegable {
+        position: fixed;
+        color: white;
+        background: linear-gradient(to bottom, #720c33, var(--color-rojo));
+        box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+        width: 40vw;
+        height: 100vh;
+        overflow: hidden;
+        transition: right 0.3s ease-in-out;
+        z-index: 1050;
+        height: 100vh;
+        display: none;
+    }
+    .menu-open{
+        display: block !important;
+        right: 0;
+        overflow: hidden;
+        top: 0;
+    }
+
+    .menuDesplegable form{
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 10vh;
+        
+    }
+    .menuDesplegable form input[type='text']{
+        width: 32vw;
+        border-radius: 2px;
+    }
+    .menuDesplegable form svg{
+        width: 100px;
+    }
+    .hamburger-icon-mini{
+        margin: 40px 0 6vh 10px;
+    }
+    .derechosReservadosMini{
+        position: absolute;
+        bottom: 20px;
+        margin: 0 auto;
+        font-size: small;
+        text-align: center;
+    }
+    
+    /* Menú abierto */
+    .menuDesplegable ul {
+        list-style: none;
+        margin: 0 !important;
+        padding: 0 20px;
+    }
+    
+    .menuDesplegable ul li {
+        margin: 3vh 0;
+    }
+    
+    .menuDesplegable ul li a {
+        text-decoration: none;
+        transition: color 0.3s;
+        color: white;
+    }
+    
+    .menuDesplegable a{
+        margin: 0;
+        color: white;
+        text-decoration: transparent;
+        text-underline-offset: 8px;
+        transition: all .35s;
+    }
+    .menuDesplegable a:hover{
+        text-decoration: underline;
+    }
+    .menuDesplegable svg{
+        margin: 0;
+        text-decoration: transparent;
+        text-underline-offset: 8px;
+        transition: all .35s;
+    }
+
+    .invalid-input {
+        border: 2px solid red; /* Borde rojo para marcar el input como inválido */
+    }
+    
+    input:invalid {
+        outline: none; /* Evita el borde de foco predeterminado */
+    }
+    .semiFooter{
+        height: auto !important;
+        background-color: var(--color-negro);
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 4fr)) !important;
+        padding: 10vh 0 !important;
+        justify-items: center; /* Centra horizontalmente */
+        align-items: top; /* Centra verticalmente */
+    }
+    .semiFooter div{
+        margin: 2vh 0;
+    }
+    .imgRedesSociales{
+        max-width: 100%;
+    }
+    .logoRoyaleFooter{
+        max-width: 100px;
+    }
+    .card{
+        width: 48% !important;
+    }
+    .card img{
+        min-height: 250px !important;
+        max-height: 250px !important;
+    }
+    .bodyContent a{
+        min-width: 50px !important;
+        max-width: 200px !important;
     }
 }

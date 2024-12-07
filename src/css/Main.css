@@ -50,7 +50,7 @@ body {
     justify-content: space-between;
     align-items: center;
     width: 100% !important;
-    background: linear-gradient(to bottom, var(--color-dorado-hover), var(--color-dorado));
+    background: linear-gradient(to bottom, #720c33, var(--color-rojo));
 }
 .LinkMasBuscados{
   height: 70%;
@@ -67,7 +67,6 @@ body {
 }
 .navHeader a{
   margin: 0;
-  text-shadow: 2px 2px 4px black;
   color: white;
   text-decoration: transparent;
   text-underline-offset: 8px;
@@ -78,7 +77,6 @@ body {
 }
 .navHeader svg{
   margin: 0;
-  filter: drop-shadow(2px 2px 2px black);
   text-decoration: transparent;
   text-underline-offset: 8px;
   transition: all .35s;
@@ -196,10 +194,60 @@ body {
 }
 
 
-/* Footer */
+/* SemiFooter */
+.semiFooter{
+  height: 50vh;
+  background-color: var(--color-negro);
+  display: flex;
+  justify-content: space-evenly;
+  padding: 15vh 0;
+}
+.semiFooter h3{
+  font-size: large;
+}
+.semiFooter p{
+  font-size: small;
+}
+.semiFooter div div a{
+  text-decoration: none;
+  color: white;
+}
+.semiFooter a{
+  color: white;
+  font-size: small;
+}
+.semiFooter h3{
+  margin-bottom: 4vh;
+}
+.semiFooter div div svg path{
+  margin: 0;
+  filter: drop-shadow(2px 2px 2px black);
+  text-decoration: transparent;
+  text-underline-offset: 8px;
+  transition: all .35s;
+  width: 50px;
+}
+.imgRedesSociales{
+  display: grid;
+  grid-template-columns: auto auto auto;
+  height: auto;
+  gap: 20%;
+}
+.imgRedesSociales a svg{
+  height: auto;
+}
+.semiFooterContacto{
+  display: block;
+  grid-template-columns: 2fr 1fr;
+}
+.logoRoyaleFooter{
+  width: 100%;
+  height: 100%;
+}
+
 /* Footer Styles */
 .footer {
-  background-color: #1a1a1a;
+  background-color: var(--color-negro-hover);
   color: #f4f4f4;
   padding: 20px 0;
   text-align: center;
@@ -221,7 +269,6 @@ body {
 
 .footer-logo img {
   width: 160px;
-  margin-bottom: 10px;border-radius: 10px;
 }
 
 .footer-description {
@@ -234,15 +281,18 @@ body {
   margin: 15px 0;
 }
 
-.footer-links a {
+.footer-links button{
   color: #f4f4f4;
+  background-color: transparent;
+  border: transparent;
   text-decoration: none;
   margin: 0 10px;
   font-size: 14px;
   transition: color 0.3s;
+  cursor: pointer;
 }
 
-.footer-links a:hover {
+.footer-links button:hover {
   color: var(--color-dorado-hover);
 }
 
@@ -250,4 +300,108 @@ body {
   font-size: 12px;
   color: #999999;
   margin-top: 15px;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: var(--color-negro-hover);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  height: 70vh;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.modal-content p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  height: 70%;
+}
+
+.accept-button {
+  background-color: var(--color-rojo-2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all .35s ease;
+  min-width: 150px;
+  max-width: 200px;
+  margin: auto 0 0 auto;
+}
+.accept-button:hover {
+  background-color: var(--color-rojo);
+}
+
+
+/* Información de Cards */
+.infoCards{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.infoCards p{
+  font-size: .9rem;
+}
+.card h2{
+  white-space: nowrap;          /* Evita que el texto salte de línea */
+  overflow: hidden;             /* Oculta el texto que desborda */
+  text-overflow: ellipsis; 
+}
+/* .discountPriceIcon path{
+  background: linear-gradient(to bottom, #720c33, var(--color-rojo)) !important;
+} */
+.discountPrice{
+  position: relative;
+  justify-content: right;
+}
+.discountPrice svg{
+  position: absolute;
+  right: -45px;
+  top: 0;
+  height:60px;
+}
+.discountPrice svg path{
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: rotate(90deg);
+  color: var(--color-rojo);
+}
+.discountPrice p{
+  font-size: 16px;
+  margin: auto;
+  position: absolute;
+  top: 10px;
+  right: 0;
+  color: white;
+}
+.cardsMarca{
+  color: #808080b0;
+  position: absolute;
+  bottom: 0;
 }

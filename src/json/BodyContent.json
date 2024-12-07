@@ -1,9 +1,9 @@
 {
     "BodyContent": [
         {
-            "title": "Messi Fragrances<br/><b>OfficialLionel Messi</b>",
-            "align": "49vw",
-            "img": "MessiParfum.webp",
+            "title": "Messi Fragrances<br/><b>Official Lionel Messi</b>",
+            "align": "auto",
+            "img": "MessiParfum.jpg",
             "url": "/parfum/1",
             "color": "#477d93",
             "color2": "#1c5770"
@@ -18,7 +18,7 @@
         },
         {
             "title": "Cyber Monday<br/><b>Royale</b>",
-            "align": "49vw",
+            "align": "auto",
             "img": "Banners2.jpg",
             "url": "/parfum/2",
             "color": "#fdd05e",
