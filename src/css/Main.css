@@ -229,12 +229,22 @@ body {
 }
 .imgRedesSociales{
   display: grid;
-  grid-template-columns: auto auto auto;
   height: auto;
-  gap: 20%;
+  gap: 2% 20%;
 }
 .imgRedesSociales a svg{
-  height: auto;
+  height: 100%;
+}
+.imgRedesSociales a{
+  width: 20%;
+  display: flex;
+  justify-content: left;
+  gap: 20px;
+  align-items: center;
+}
+.imgRedesSociales a p{
+  font-size: medium;
+  margin: auto;
 }
 .semiFooterContacto{
   display: block;
@@ -381,15 +391,15 @@ body {
 }
 .discountPrice svg{
   position: absolute;
-  right: -45px;
-  top: 0;
-  height:60px;
+  top: -8px;
+  right: 6.7px;
+  height: 60px;
+  transform: rotate(90deg);
 }
 .discountPrice svg path{
   position: absolute;
   right: 0;
   top: 0;
-  transform: rotate(90deg);
   color: var(--color-rojo);
 }
 .discountPrice p{
@@ -397,11 +407,14 @@ body {
   margin: auto;
   position: absolute;
   top: 10px;
-  right: 0;
+  right: 2px;
   color: white;
 }
 .cardsMarca{
   color: #808080b0;
   position: absolute;
   bottom: 0;
+}
+.cardWidth100{
+  width: 100% !important;
 }

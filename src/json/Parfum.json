@@ -7,6 +7,7 @@
             "genero": "Caballeros",
             "types": [
                 {
+                    "id": "1",
                     "version": "Eau De Parfum",
                     "ml": "50",
                     "img": "Sauvage Dior.webp",
@@ -22,6 +23,7 @@
             "genero": "Damas",
             "types": [
                 {
+                    "id": "2",
                     "version": "Parfum",
                     "ml": "50",
                     "img": "Cartier La Panthere Parfum.webp",
@@ -29,6 +31,7 @@
                     "oldPrice": "159.99"
                 },
                 {
+                    "id": "3",
                     "version": "Parfum",
                     "ml": "100",
                     "img": "Cartier La Panthere Parfum.webp",
@@ -44,6 +47,7 @@
             "genero": "Caballeros",
             "types": [
                 {
+                    "id": "4",
                     "version": "Parfum",
                     "ml": "100",
                     "img": "Phantom Paco Rabanne.webp",
@@ -59,6 +63,7 @@
             "genero": "Damas",
             "types": [
                 {
+                    "id": "5",
                     "version": "Eau De Parfum",
                     "ml": "50",
                     "img": "Givenchy Irresistible.webp",
@@ -74,6 +79,7 @@
             "genero": "Caballeros",
             "types": [
                 {
+                    "id": "6",
                     "version": "Parfum",
                     "ml": "100",
                     "img": "Versage Eros.webp",
@@ -89,6 +95,7 @@
             "genero": "Damas",
             "types": [
                 {
+                    "id": "7",
                     "version": "Parfum",
                     "ml": "100",
                     "img": "Elizabeth Arden Sunflowers.webp",

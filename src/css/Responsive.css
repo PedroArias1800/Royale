@@ -1,3 +1,14 @@
+:root{
+    --color-negro: #373636;
+    --color-negro-hover: #222227;
+    --color-dorado: #fdd05e;
+    --color-dorado-hover: #c79a28;
+    --color-rojo: #d60a5f;
+    --color-rojo-2: #8d093f;
+    --color-rojo-hover: #ee0d6b;
+    --color-rojo-hover-2: #ff006a;
+  }
+
 @media only screen and (max-width: 850px) {
     .grid-container{
         display: block !important;
@@ -85,7 +96,6 @@
         background: linear-gradient(to bottom, #720c33, var(--color-rojo));
         box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
         width: 40vw;
-        height: 100vh;
         overflow: hidden;
         transition: right 0.3s ease-in-out;
         z-index: 1050;
@@ -169,16 +179,13 @@
         height: auto !important;
         background-color: var(--color-negro);
         display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 4fr)) !important;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 4fr)) !important;
         padding: 10vh 0 !important;
         justify-items: center; /* Centra horizontalmente */
         align-items: top; /* Centra verticalmente */
     }
     .semiFooter div{
         margin: 2vh 0;
-    }
-    .imgRedesSociales{
-        max-width: 100%;
     }
     .logoRoyaleFooter{
         max-width: 100px;
@@ -193,5 +200,31 @@
     .bodyContent a{
         min-width: 50px !important;
         max-width: 200px !important;
+        padding: 1vh 2vw !important;
+    }
+}
+@media only screen and (max-width: 800px) {
+    .app{
+        display: block;
+    }
+    .filters{
+        max-width: 100% !important ;
+        width: 100vw;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 2fr)) !important;
+        font-size: small;
+        min-height: 20px !important;
+    }
+    .headerFilter{
+        display: none;
+    }
+    .subirTop{
+        margin: 0vw !important;
+        right: 20px;
+        z-index: 2000; 
+        background-color: var(--color-rojo)
+    }
+    .subirTop svg{
+        color: white;
     }
 }

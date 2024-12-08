@@ -38,16 +38,27 @@ export const Footer = () => {
             <div>
                 <h3>REDES SOCIALES</h3>
                 <section className='imgRedesSociales'>
-                    <Link to="https://www.instagram.com/royalepanama1/profilecard/?igsh=MXNja3JyeWZ4a3RqYg==" target='_blank'><FontAwesomeIcon icon={faInstagram} /></Link>
-                    <Link to="#"><FontAwesomeIcon icon={faTwitter} /></Link>
-                    <Link to="#"><FontAwesomeIcon icon={faWhatsapp} /></Link>
+                    <Link to="https://www.instagram.com/royalepanama1/profilecard/?igsh=MXNja3JyeWZ4a3RqYg==" target='_blank'>
+                        <FontAwesomeIcon icon={faInstagram} />
+                        <p>@RoyalePanama1</p>
+                    </Link>
+                    <Link to="#">
+                        <FontAwesomeIcon icon={faTwitter} />
+                        <p>@RoyalePanama1</p>
+                    </Link>
+                    <Link to="#">
+                        <FontAwesomeIcon icon={faWhatsapp} />
+                        <p>RoyalePanama1</p>
+                    </Link>
                 </section>
             </div>
             <div>
                 <h3>CONTACTO</h3>
-                <div className='semiFooterContacto'>
-                    <Link to="#"><FontAwesomeIcon icon={faWhatsapp} />+507 6666-6666</Link><br/>
-                    <Link to="#"><FontAwesomeIcon icon={faEnvelope} />royalepanama1@gmail.com</Link>
+                <div className='imgRedesSociales'>
+                    <Link to="#">
+                        <FontAwesomeIcon icon={faEnvelope} style={{"width": '70%'}}/>
+                        <p>royalepanama1@gmail.com</p>
+                    </Link>
                 </div>
             </div>
             <div>
