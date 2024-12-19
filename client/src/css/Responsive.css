@@ -256,6 +256,10 @@
     .esconder2{
         display: block !important;
     }
+    .bodyContent img{
+        width: auto !important;
+        margin: 0 !important;
+    }
 }
 @media only screen and (max-width: 450px) {
     .card{

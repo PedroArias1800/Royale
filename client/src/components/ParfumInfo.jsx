@@ -1,10 +1,20 @@
 import { faBookmark } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { ParfumContext } from "../context/ParfumContext";
+import { Alert } from '../components/Alert'
 
 export const ParfumInfo = ({ product }) => {
   const [cart, setCart] = useState([]);
   const [selectedType, setSelectedType] = useState();
+  const [alertMessage, setAlertMessage] = useState("");
+
+  const { addToCart } = useContext(ParfumContext);
+
+  const handleAddToCart = (productId, typesId) => {
+    addToCart(productId, typesId, 1);
+    setAlertMessage("Añadido al carrito");
+  };
 
   useEffect(() => {
     if (product && product.types && product.types.length > 0) {
@@ -25,27 +35,15 @@ export const ParfumInfo = ({ product }) => {
     setSelectedType(type);
   };
 
-  const handleAddToCart = () => {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existing = cart.find((item) => item.types_id === product.types_id);
-
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      cart.push({ ...product, quantity: 1 });
-    }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    const event = new Event("cartUpdated");
-    window.dispatchEvent(event);
-  };
-
   if (!product || !selectedType) {
     return <p>Cargando...</p>;
   }
 
   return (
     <div className="parfumInfo">
+      <div className='mostrarAlerta'>
+        <Alert message={alertMessage} onClose={() => setAlertMessage("")} class/>
+      </div>
       <div className="parfumContainer">
         <div className="parfumImgGrande">
           <div className="discountPrice">
@@ -67,18 +65,20 @@ export const ParfumInfo = ({ product }) => {
           <h3>
             {product.brand} {product.title}
           </h3>
-          <p className="parfumGenero">
-            {product.gender === 1 ? "Damas" : "Caballeros"}
-          </p>
-          <div style={{ display: "flex", gap: "5px" }}>
-            <p
-              className="price"
-              style={{ textDecoration: "line-through", margin: "auto 0" }}
-            >
-              ${selectedType.old_price}
-            </p>
-            <p className="price" style={{ color: "red", margin: "auto 0" }}>
-              ${selectedType.price}
+          <div className='precioGenero'>
+            <div style={{ display: "flex", gap: "5px" }}>
+              <p
+                className="price"
+                style={{ textDecoration: "line-through", margin: "auto 0" }}
+              >
+                ${selectedType.old_price}
+              </p>
+              <p className="price" style={{ color: "red", margin: "auto 0" }}>
+                ${selectedType.price}
+              </p>
+            </div>
+            <p className="parfumGenero">
+              {product.gender === 1 ? "Damas" : "Caballeros"}
             </p>
           </div>
           <hr />
@@ -107,7 +107,7 @@ export const ParfumInfo = ({ product }) => {
           </div>
           <p className="parfumDescription esconder2">{product.description}</p>
           <div className="enviarCesta">
-            <button onClick={handleAddToCart}>Añadir a la Cesta</button>
+            <button onClick={() => handleAddToCart(product.id, selectedType.types_id)}>Añadir a la Cesta</button>
           </div>
         </div>
       </div>

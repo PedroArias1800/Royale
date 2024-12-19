@@ -1,32 +1,64 @@
 .cart{
     color: black;
-    width: 94vw;
     padding: 3vh 3vw;
     display: flex;
     justify-content: center;
     align-items: top;
+    font-size: medium;
+}
+.cart h2, .cart h3{
+    font-size: x-large;
 }
 .productCart{
-    width: 60vw;
     display: flex;
     justify-content: left;
+    padding: 2%;
+    box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.325);
+    margin: 2% 0;
 }
 .divImgProductCart{
-    width: 30%;
+    width: 25%;
+}
+.cardResume h2{
+    margin-bottom: 5vh;
+}
+.cartSection1{
+    width: 70vw;
 }
 .divImgProductCart img{
     width: 100%;
-    max-width: 200px;
+    max-width: 160px;
     min-width: 100px;
 }
+.titleProduct{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.titleProduct a{
+    color: #685d5d;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: all .35s;
+}
+.titleProduct a:hover{
+    text-decoration-color: #685d5d;
+}
 .divInfoProductCart{
-    width: 70%;
+    padding: 2%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    flex-direction: column;
 }
 .productCardInfo2{
     width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: end;
+    margin-top: auto;
 }
 .cardInfo1{
     display: flex;
@@ -34,29 +66,113 @@
     align-items: center;
     width: 40%;
 }
-
+.editQuantity{
+    display: flex;
+    justify-content: right;
+    align-items: end;
+    gap: 20px;
+    width: 50%;
+}
+.editQuantity p{
+    font-size: large;
+    margin: auto 0 !important;
+}
 .cardInfo2{
     display: flex;
     justify-content: space-between;
-    align-items: end;
+    align-items: center;
+    width: 30%;
+    gap: 2px;
+    font-size: x-large;
+}
+.cardInfo2 button{
+    width: 100%;
+    background-color: var(--color-rojo);
+    border: 0px;
+    border-radius: 5px;
+    color: white;
+    transition: all .35s ease;
+}
+.cardInfo2 button:hover{
+    background-color: var(--color-rojo-hover);
+}
+.cardDiscount{
+    background-color: var(--color-rojo);
+    color: white;
+    padding: 3%;
+    border-radius: 5px;
+}
+.cardInfo1 p{
+    margin: 0;
 }
 .editCantidad{
     display: flex;
     justify-content: center;
     align-items: center;
 }
-.cart {
+.cestaVacia{
+    padding: 20vh 0;
+}
+.div1{
+    width: 100%;
+    margin: auto;
     display: flex;
-    flex-direction: row;
-    height: 100vh; /* O la altura deseada para todo el contenedor */
-    overflow: hidden; /* Esto es importante para evitar que el scroll afecte todo el contenedor */
-  }
+    justify-content: center;
+    gap: 20px;
+    align-items: center;
+}
+.div1 svg{
+    font-size: xx-large;
+}
+.div1 h2{
+    margin: 0;
+}
+.div2{
+    display: flex;
+    margin: 5vh 0;
+    width: 100%;
+}
+.div2 a{
+    text-align: center;
+    font-size: 1.2em;
+    text-decoration: none;
+    border: 0px;
+    padding: .5vh 2vw;
+    width: 30%;
+    margin: auto;
+    border-radius: 8px;
+    color: white;
+    background-color: var(--color-rojo);
+    transition: all .35s;
+}
+.div2 a:hover{
+    background-color: var(--color-rojo-hover);
+}
+.comprar{
+    text-align: center;
+    font-size: 1em;
+    text-decoration: none;
+    border: 0px;
+    padding: .5vh 2vw;
+    width: 100%;
+    margin: auto;
+    border-radius: 8px;
+    color: white;
+    background-color: var(--color-rojo);
+    transition: all .35s;
+}
+.comprar:hover{
+    background-color: var(--color-rojo-hover);
+}
+
   
-  .listCart {
+.listCart {
+    height: 77vh;
     flex: 1;
+    padding: 2%;
     overflow-y: auto; /* Permite el scroll solo para la lista de productos */
     max-height: 100vh; /* Esto asegura que el scroll se active cuando el contenido de los productos exceda la altura */
-  }
+}
   
   .resumenCart {
     position: sticky;
@@ -65,7 +181,6 @@
     padding: 20px;
     border: 1px solid #ddd;
     width: 300px; /* O cualquier tamaño fijo que desees */
-    height: 100vh; /* Fija el resumen al tamaño de la ventana */
   }
   
 .liResumen{
@@ -73,3 +188,49 @@
     justify-content: space-between;
     align-items: center;
 }
+
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modalContent {
+    text-align: center;
+    width: 40%;
+    margin: auto;
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+  
+  .modalActions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding-top: 2%;
+  }
+  
+  .modalActions button {
+    padding: 10px 20px;
+    background-color: var(--color-rojo);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all .35s ease;
+  }
+  
+  .modalActions button:hover {
+    background-color: var(--color-rojo-hover);
+  }
+  

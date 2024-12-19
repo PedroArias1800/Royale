@@ -1,144 +1,117 @@
-import React, { useEffect, useState } from 'react';
-import { useParfum } from '../context/ParfumContext';
+import React, { useContext, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
+import { Link } from 'react-router-dom';
+import { ParfumContext } from "../context/ParfumContext";
 
 export const CartSummary = ({ product }) => {
-    const [cart, setCart] = useState([]);
-    const { products } = useParfum();
+  // Estado para mostrar el modal de confirmación
+  const [showModal, setShowModal] = useState(false);
+  const [nodeDrop, setNodeDrop] = useState({});
 
-    useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-        setCart(storedCart);
-      }, []);
-    
-      const updateCart = (updatedCart) => {
-        setCart(updatedCart);
-        localStorage.setItem('cart', JSON.stringify(updatedCart));
-      };
-    
-      const incrementQuantity = (idVersion) => {
-        const updatedCart = cart.map((item) =>
-          item.idVersion === idVersion ? { ...item, quantity: item.quantity + 1 } : item
-        );
-        updateCart(updatedCart);
-      };
-    
-      const decrementQuantity = (idVersion) => {
-        const updatedCart = cart
-          .map((item) =>
-            item.idVersion === idVersion && item.quantity > 1
-              ? { ...item, quantity: item.quantity - 1 }
-              : item
-          )
-          .filter((item) => item.quantity > 0);
-        updateCart(updatedCart);
-      };
+  // Obtén las funciones y el estado del carrito del contexto
+  const { cart, addToCart, decreaseQuantity, removeFromCart } = useContext(ParfumContext);
 
-    // // Efecto para encontrar el producto actual
-    // useEffect(() => {
-    //     if (!productIn) return;
+  // Encuentra la cantidad del producto en el carrito
+  const currentItem = cart.find(
+    (item) => item.id === product.parfum_id.toString() && item.types_id === product.types_id.toString()
+  );
+  const cantidad = currentItem ? currentItem.quantity : 1;
 
-    //     const productData = products.Parfum.find((item) => item.id === productIn.id);
+  // Incrementar la cantidad
+  const incrementQuantity = () => {
+    addToCart(product.parfum_id.toString(), product.types_id.toString(), 1); // Incrementa en 1
+  };
 
-    //     if (productData) {
-    //         const filteredType = productData.types.find((type) => type.idVersion === productIn.idVersion);
+  // Disminuir la cantidad
+  const decrementQuantity = () => {
+    decreaseQuantity(product.parfum_id.toString(), product.types_id.toString()); // Disminuye la cantidad
+  };
 
-    //         if (filteredType) {
-    //             const updatedProductData = {
-    //                 ...productData,
-    //                 types: filteredType,
-    //             };
+  // Eliminar el producto del carrito
+  const handleRemove = (event) => {
+    // Mostrar el modal de confirmación
+    setNodeDrop(event)
+    setShowModal(true);
+  };
 
-    //             setProductActual(updatedProductData);
-    //         } else {
-    //             setProductActual(null);
-    //         }
-    //     } else {
-    //         setProductActual(null);
-    //     }
-    // }, [productIn, products]);
+  // Confirmar la eliminación del producto
+  const confirmRemove = () => {
+    // Eliminar el producto del carrito en el contexto
+    removeFromCart(product.parfum_id.toString(), product.types_id.toString());
 
-    // // Efecto para actualizar el carrito y localStorage
-    // useEffect(() => {
-    //     if (!productIn || !productActual) return;
+    // Eliminar el contenedor HTML del producto
+    const productContainer = nodeDrop.target.closest('.productCart');
+    if (productContainer) {
+      productContainer.remove();
+    }
 
-    //     setCart((prevCart) => {
-    //         const updatedCart = prevCart.map((item) => {
-    //             if (item.id === productIn.id && item.idVersion === productIn.idVersion) {
-    //                 return { ...item, cantidad: productIn.cantidad };
-    //             }
-    //             return item;
-    //         });
+    // Cerrar el modal después de la eliminación
+    setShowModal(false);
+  };
 
-    //         localStorage.setItem('cart', JSON.stringify(updatedCart));
-    //         return updatedCart;
-    //     });
-    // }, [productIn, productActual, setCart]);
+  // Cancelar la eliminación y cerrar el modal
+  const cancelRemove = () => {
+    setShowModal(false);
+  };
 
-    // const handleMoreCantidad = () => {
-    //     if (!productIn) return;
-    //     const updatedProductIn = {
-    //         ...productIn,
-    //         cantidad: Math.min(productIn.cantidad + 1, 10),
-    //     };
-    //     setProductIn(updatedProductIn);
-    // };
-
-    // const handleSubCantidad = () => {
-    //     if (!productIn) return;
-    //     const updatedProductIn = {
-    //         ...productIn,
-    //         cantidad: Math.max(productIn.cantidad - 1, 1),
-    //     };
-    //     setProductIn(updatedProductIn);
-    // };
-
-
-    const removeFromCart = (idVersion) => {
-        const updatedCart = cart.filter((item) => item.idVersion !== idVersion);
-        updateCart(updatedCart);
-      };
-
-    return (
-        <div className='productCart'>
-            <div className='divImgProductCart'>
-                <img
-                    src={`/parfum/${product.types.img}`}
-                    alt={`Imagen de ${product.marca} ${product.title}`}
-                />
-            </div>
-            <div className='divInfoProductCart'>
-                <h3>
-                    {product.marca} {product.title} - {product.genero}
-                </h3>
-                <h5>
-                    Versión {product.types.version} - {product.types.ml}ml
-                </h5>
-                <div className='productCardInfo2'>
-                    <div className='cardInfo1'>
-                        <p>${product.types.price}</p>
-                        <p>${product.types.oldPrice}</p>
-                        <p>
-                            {Math.ceil(
-                                -100 + (100 / product.types.oldPrice) * product.types.price
-                            )}
-                            %
-                        </p>
-                    </div>
-                    <div className='cardInfo2'>
-                        <p>Cantidad:</p>
-                        <div className='editCantidad'>
-                            <button onClick={() => incrementQuantity(product.idVersion)}>+</button>
-                            <p>{productIn.cantidad}</p>
-                            <button onClick={() => decrementQuantity(product.idVersion)}>-</button>
-                        </div>
-                        <button onClick={() => removeFromCart(product.idVersion)}>
-                            <FontAwesomeIcon icon={faTrash} />
-                        </button>
-                    </div>
-                </div>
-            </div>
+  return (
+    <div className='originalProductCart'>
+      <div className="productCart">
+        <div className="divImgProductCart">
+          <Link to={`/parfum?id=${product.parfum_id}`}>
+            <img
+              src={`/parfum/${product.img}`}
+              alt={`Imagen de ${product.brand} ${product.title}`}
+            />
+          </Link>
         </div>
-    );
+        <div className="divInfoProductCart">
+          <div className='titleProduct'>
+            <h3>
+              {product.brand_name} {product.title}
+            </h3>
+            <Link to={`/search?type=${product.gender}`}>
+              {product.gender === 1 ? 'Damas' : 'Caballeros'}
+            </Link>
+          </div>
+          <h5>
+            Versión {product.version_name} - {product.ml}ml
+          </h5>
+          <div className="productCardInfo2">
+            <div className="cardInfo1">
+              <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${product.price.toFixed(2)}</p>
+              <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${product.old_price.toFixed(2)}</p>
+              <p className='cardDiscount'>
+                {Math.ceil(-100 + (100 / product.old_price.toFixed(2)) * product.price.toFixed(2))}%
+              </p>
+            </div>
+            <div className='editQuantity'>
+              <p>Cantidad: {cantidad}</p>
+              <div className="cardInfo2">
+                <button onClick={incrementQuantity}>+</button>
+                <button onClick={decrementQuantity}>-</button>
+                <button onClick={handleRemove}>
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Modal de confirmación */}
+      {showModal && (
+        <div className="modal">
+          <div className="modalContent">
+            <h3>¿Estás seguro de que deseas eliminar este producto?</h3>
+            <div className="modalActions">
+              <button onClick={confirmRemove}>Sí</button>
+              <button onClick={cancelRemove}>No</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };

@@ -3,19 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faUser, faHeart, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useContext } from 'react';
+import { ParfumContext } from "../context/ParfumContext";
 
 export const Header = () => {
   const formRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
   const [isInputValid, setIsInputValid] = useState(true); // Estado para la validación del input
-  const [cart, setCart] = useState([]);
 
-  useEffect(() => {
-    const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-    setCart(storedCart);
-  }, []);
-
+  const { getTotalQuantity } = useContext(ParfumContext);
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -39,9 +35,7 @@ export const Header = () => {
   const handleFocus = () => {
     setIsInputValid(true); // Restablece el estado a válido cuando el input recibe el foco
   };
-
-  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-
+  
 return (
     <div className='headerGeneral' id='Top'>
         <HashLink to={'/#MasBuscados'} className="LinkMasBuscados">
@@ -52,11 +46,11 @@ return (
             <Link to="#"><FontAwesomeIcon icon={faHeart} /> Lista de Deseos</Link>
             <Link to="/cart" className='cart-icon'>
               <FontAwesomeIcon icon={faCartShopping} /> Mi cesta
-              { totalItems > 0 && (
-                <span className="cart-item-count">{totalItems}</span>
+              { getTotalQuantity() > 0 && (
+                <span className="cart-item-count">{getTotalQuantity()}</span>
               )}
             </Link>
-            <Link to="#"><FontAwesomeIcon icon={faMagnifyingGlass} /></Link>
+            <Link to="/search"><FontAwesomeIcon icon={faMagnifyingGlass} /></Link>
         </nav>
         <div style={{'display': 'none'}} className="hamburger-menu">
           <button 
@@ -96,8 +90,8 @@ return (
               <li>
                 <Link to="/cart" className='cart-icon'>
                   <FontAwesomeIcon icon={faCartShopping} /> Mi cesta
-                  { totalItems > 0 && (
-                    <span className="cart-item-count">{totalItems}</span>
+                  { getTotalQuantity() > 0 && (
+                    <span className="cart-item-count">{getTotalQuantity()}</span>
                   )}
                 </Link>
               </li>

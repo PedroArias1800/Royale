@@ -96,6 +96,15 @@ body {
   justify-content: center;
   margin: auto 0;
 }
+.bodyContent img{
+  height: 40vh;
+  width: 40vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 auto;
+  filter: drop-shadow(0px 0px 10px white);
+}
 .bodyContent h1{
   text-align: center;
   text-shadow: 2px 2px 4px black;

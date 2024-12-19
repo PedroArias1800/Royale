@@ -1,62 +1,70 @@
-import React, { useMemo, useEffect, useState } from 'react';
-import { useParfum } from '../context/ParfumContext';
+import React, { useMemo, useContext } from 'react';
+import { ParfumContext } from "../context/ParfumContext";
 
-export const CartResume = () => {
-    const [cart, setCart] = useState([]);
+export const CartResume = ({ products }) => {
+  const { cart } = useContext(ParfumContext);  // Obtenemos el carrito desde el contexto
+  
+  const { totalItems, subTotal, totalPrice, totalSavings } = useMemo(() => {
+    let subTotal = 0; 
+    let totalPrice = 0; 
+    let totalItems = 0;
+    let totalSavings = 0;
 
-    useEffect(() => {
-        const storedCart = JSON.parse(localStorage.getItem('cart')) || [];
-        setCart(storedCart);
-      }, []);
+    // Obtenemos el carrito desde localStorage
+    
+    // Recorremos los productos en el carrito
+    cart.forEach((item) => {
+      // Buscamos el producto correspondiente en el array 'products'
+      const product = products.find(
+        (prod) => prod.parfum_id.toString() === item.id.toString() && prod.types_id.toString() === item.types_id.toString()
+      );
+      
+      if (product) {
+        const quantity = item.quantity; // Cantidad desde localStorage
+        const price = product.price || 0;  // Precio del producto
+        const oldPrice = product.old_price || 0;  // Precio anterior
 
-    const { products } = useParfum();
+        // Calculamos el subTotal y el total de cada producto
+        subTotal += oldPrice * quantity;
+        totalPrice += price * quantity; // El total antes de aplicar descuento
+        totalItems += quantity; // Contamos las unidades
 
-    // Calcular los totales directamente con useMemo para optimizar
-    const { totalItems, subTotal, totalPrice, totalSavings } = useMemo(() => {
-        let subTotal = 0; // Precio original (oldPrice)
-        let totalPrice = 0; // Precio final (price)
-        let totalItems = 0;
+        // Calculamos el ahorro
+        totalSavings += (oldPrice - price) * quantity;
+      }
+    });
 
-        cart.forEach((item) => {
-            const productData = products.Parfum.find((product) => product.id === item.id);
-            if (productData) {
-                const filteredType = productData.types.find((type) => type.idVersion === item.idVersion);
-                if (filteredType) {
-                    subTotal += filteredType.oldPrice * item.cantidad;
-                    totalPrice += filteredType.price * item.cantidad;
-                    totalItems += item.cantidad;
-                }
-            }
-        });
+    // El total de ahorros es la diferencia entre el subTotal y el totalPrice
+    totalSavings = subTotal - totalPrice;
 
-        const totalSavings = subTotal - totalPrice;
+    return { totalItems, subTotal, totalPrice, totalSavings };
+  }, [cart, products]); // Dependemos de 'cart' y 'products'
 
-        return { totalItems, subTotal, totalPrice, totalSavings };
-    }, [cart, products]);
-
-    return (
-        <div className='cardResume'>
-            <h2>Resumen del Pedido</h2>
-            <div>
-                <div className='liResumen'>
-                    <p>Sub Total</p>
-                    <p>${subTotal.toFixed(2)}</p>
-                </div>
-                <div className='liResumen'>
-                    <p>Promociones</p>
-                    <p>-${totalSavings.toFixed(2)}</p>
-                </div>
-                <hr />
-                <div className='liResumen'>
-                    <p>Total</p>
-                    <p>${totalPrice.toFixed(2)}</p>
-                </div>
-                <div className='liResumen'>
-                    <p>Has Ahorrado</p>
-                    <p>${totalSavings.toFixed(2)}</p>
-                </div>
-            </div>
-            <button className='comprar'>{`Comprar Ahora (${totalItems})`}</button>
+  return (
+    <div className='cardResume'>
+      <h2>Resumen del Pedido</h2>
+      <div>
+        <div className='liResumen'>
+          <p>Sub Total</p>
+          <p>${subTotal.toFixed(2)}</p>
         </div>
-    );
+        <div className='liResumen'>
+          <p>Promociones</p>
+          <p style={{'color': 'red'}}>-${totalSavings.toFixed(2)}</p>
+        </div>
+        <hr />
+        <div className='liResumen'>
+          <p>Total</p>
+          <p>${totalPrice.toFixed(2)}</p>
+        </div>
+        <div className='liResumen'>
+          <p>Has Ahorrado</p>
+          <p style={{'color': 'var(--color-rojo)'}}>${totalSavings.toFixed(2)}</p>
+        </div>
+      </div>
+      <div className='div2'>
+        <button className='comprar'>{`Comprar Ahora (${totalItems})`}</button>
+      </div>
+    </div>
+  );
 };

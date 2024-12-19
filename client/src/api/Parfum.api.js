@@ -8,12 +8,3 @@ export const getParfumsRequest = async () =>
 
 export const getParfumsBodyRequest = async () => 
     await axios.get('http://localhost:4001/parfums/body');
-
-// export const insertProductRequest = async (product) => 
-//     await axios.post('http://localhost:4001/product', product);
-
-// export const updateProductRequest = async (id, product) =>
-//     await axios.put(`http://localhost:4001/product/${id}`, product);
-
-// export const deleteProductRequest = async (id) => 
-//     await axios.delete(`http://localhost:4001/product${id}`);
