@@ -1,0 +1,440 @@
+*,
+::after,
+::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --color-negro: #373636;
+  --color-negro-hover: #222227;
+  --color-dorado: #fdd05e;
+  --color-dorado-hover: #c79a28;
+  --color-rojo: #d60a5f;
+  --color-rojo-2: #8d093f;
+  --color-rojo-hover: #ee0d6b;
+  --color-rojo-hover-2: #ff006a;
+}
+
+html,
+body {
+  margin: 0px;
+  /* background-color: #211f20; */
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 1.1rem;
+  color: white;
+}
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #222227;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+  border-radius: 15rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+}
+
+
+
+.headerGeneral{
+    height: 15vh !important;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100% !important;
+    background: linear-gradient(to bottom, #720c33, var(--color-rojo));
+}
+.LinkMasBuscados{
+  height: 70%;
+  margin-left: 3%;
+}
+.logoRoyale{
+  height: 100%;
+}
+.navHeader{
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 60%;
+}
+.navHeader a{
+  margin: 0;
+  color: white;
+  text-decoration: transparent;
+  text-underline-offset: 8px;
+  transition: all .35s;
+}
+.navHeader a:hover{
+  text-decoration: underline;
+}
+.navHeader svg{
+  margin: 0;
+  text-decoration: transparent;
+  text-underline-offset: 8px;
+  transition: all .35s;
+}
+
+.content{
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+}
+
+.bodyContent{
+  height: 85vh;
+  width: 50vw;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto 0;
+}
+.bodyContent h1{
+  text-align: center;
+  text-shadow: 2px 2px 4px black;
+}
+.bodyContent a{
+  max-width: 250px;
+  min-width: 200px;
+  width: 20vw;
+  padding: 1vh 5vw;
+  text-align: center;
+  margin: 0 auto;
+  color: white;
+  text-decoration: none;
+  text-shadow: 2px 2px 4px black;
+  border-radius: 5px;
+  cursor: pointer;
+  filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.3));
+  transition: all 0.35s;  
+}
+.bodyContent a:hover{
+  filter: drop-shadow(0px 0px 2px black);
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* Dos columnas de igual tamaño */
+  width: 100%; /* Para que se ajuste en pantallas pequeñas */
+  height: 80vh;
+}
+
+.grid-item {
+  color: white;
+  text-align: center;
+  padding: 50px 10%;
+  font-size: 1.2em;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+.grid-item div{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100% !important;
+  height: 100%;
+}
+.grid-item div a{
+  max-width: 200px;
+  min-width: 150px;
+  width: 10vw;
+  padding: .8vh 0vw;
+  color: white;
+  text-decoration: none;
+  font-size: large;
+  text-shadow: 2px 2px 4px black;
+  cursor: pointer;
+  background-color: var(--color-negro-hover);
+  filter: drop-shadow(0px 0px 5px rgba(0, 0, 0, 0.3));
+  transition: all 0.35s;  
+}
+.grid-item div a:hover{
+  background-color: var(--color-negro);
+}
+
+
+/* Más Buscados */
+.MasBuscados {
+  text-decoration: none;
+  color: white;
+  position: relative;
+  height: 100vh;
+  overflow: hidden; /* Asegura que no se salga el pseudo-elemento */
+}
+
+.MasBuscados::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/index/PerfumesMasBuscados.webp');
+  background-size: cover;
+  background-position: center;
+  filter: blur(15px); /* Ajusta la intensidad del desenfoque */
+  z-index: -1; /* Envía el pseudo-elemento detrás del contenido */
+}
+.MasBuscadosTitle{
+  text-align: center;
+  height: 20vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: xx-large;
+  font-weight: bold;
+}
+
+
+/* SemiFooter */
+.semiFooter{
+  height: 50vh;
+  background-color: var(--color-negro);
+  display: flex;
+  justify-content: space-evenly;
+  padding: 15vh 0;
+}
+.semiFooter h3{
+  font-size: large;
+}
+.semiFooter p{
+  font-size: small;
+}
+.semiFooter div div a{
+  text-decoration: none;
+  color: white;
+}
+.semiFooter a{
+  color: white;
+  font-size: small;
+}
+.semiFooter h3{
+  margin-bottom: 4vh;
+}
+.semiFooter div div svg path{
+  margin: 0;
+  filter: drop-shadow(2px 2px 2px black);
+  text-decoration: transparent;
+  text-underline-offset: 8px;
+  transition: all .35s;
+  width: 50px;
+}
+.imgRedesSociales{
+  display: grid;
+  height: auto;
+  gap: 2% 20%;
+}
+.imgRedesSociales a svg{
+  height: 100%;
+}
+.imgRedesSociales a{
+  width: 20%;
+  display: flex;
+  justify-content: left;
+  gap: 20px;
+  align-items: center;
+}
+.imgRedesSociales a p{
+  font-size: medium;
+  margin: auto;
+}
+.semiFooterContacto{
+  display: block;
+  grid-template-columns: 2fr 1fr;
+}
+.logoRoyaleFooter{
+  width: 100%;
+  height: 100%;
+}
+
+/* Footer Styles */
+.footer {
+  background-color: var(--color-negro-hover);
+  color: #f4f4f4;
+  padding: 20px 0;
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+.footer-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.footer-logo{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+}
+
+.footer-logo img {
+  width: 160px;
+}
+
+.footer-description {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #cccccc;
+}
+
+.footer-links {
+  margin: 15px 0;
+}
+
+.footer-links button{
+  color: #f4f4f4;
+  background-color: transparent;
+  border: transparent;
+  text-decoration: none;
+  margin: 0 10px;
+  font-size: 14px;
+  transition: color 0.3s;
+  cursor: pointer;
+}
+
+.footer-links button:hover {
+  color: var(--color-dorado-hover);
+}
+
+.footer-rights {
+  font-size: 12px;
+  color: #999999;
+  margin-top: 15px;
+}
+
+/* Modal overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal content */
+.modal-content {
+  background-color: var(--color-negro-hover);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 500px;
+  height: 70vh;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+.modal-content h2 {
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.modal-content p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  height: 70%;
+}
+
+.accept-button {
+  background-color: var(--color-rojo-2);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all .35s ease;
+  min-width: 150px;
+  max-width: 200px;
+  margin: auto 0 0 auto;
+}
+.accept-button:hover {
+  background-color: var(--color-rojo);
+}
+
+
+/* Información de Cards */
+.infoCards{
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.infoCards p{
+  font-size: .9rem;
+}
+.card h2{
+  white-space: nowrap;          /* Evita que el texto salte de línea */
+  overflow: hidden;             /* Oculta el texto que desborda */
+  text-overflow: ellipsis; 
+}
+/* .discountPriceIcon path{
+  background: linear-gradient(to bottom, #720c33, var(--color-rojo)) !important;
+} */
+.discountPrice{
+  position: relative;
+  justify-content: right;
+}
+.discountPrice svg{
+  position: absolute;
+  top: -8px;
+  right: 6.7px;
+  height: 60px;
+  transform: rotate(90deg);
+}
+.discountPrice svg path{
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: var(--color-rojo);
+}
+.discountPrice p{
+  font-size: 16px;
+  margin: auto;
+  position: absolute;
+  top: 10px;
+  right: 2px;
+  color: white;
+}
+.cardsMarca{
+  color: #808080b0;
+  position: absolute;
+  bottom: 0;
+}
+.cardWidth100{
+  width: 100% !important;
+}
+
+.cart-icon{
+  position: relative;
+}
+
+.cart-item-count{
+  position: absolute;
+  font-size: 15px !important;
+  right: -2vw;
+  top: -2vh;
+  color: black;
+  border-radius: 50%;
+  padding: 4px 10px;
+  font-size: 12px;
+  transition: all .35s;
+  background-color: #edcf85;
+}
+.cart-icon:hover .cart-item-count{
+  background-color: var(--color-dorado);
+}

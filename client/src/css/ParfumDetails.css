@@ -1,0 +1,105 @@
+.linkWay{
+    color: #685d5d;
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    padding: 1% 5%;
+    font-size: .7em;
+}
+.linkWay a{
+    color: #685d5d;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    transition: all .35s;
+}
+.linkWay a:hover{
+    text-decoration-color: #685d5d;
+}
+.linkWay p{
+    margin: auto 0;
+}
+.parfumInfo{
+    width: 100%;
+    padding: 0 2%;
+}
+.parfumContainer{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: start;
+    gap: 40px;
+    color: black;
+    height: auto;
+    padding-bottom: 2%;
+}
+.parfumImgGrande{
+    width: 40%;
+}
+.parfumImgGrande img{
+    border-radius: 5px;
+    width: 100%;
+}
+.parfumInfoGrande{
+    position: relative;
+    height: 100% !important;
+    width: 40%;
+}
+.enviarCesta{
+    padding: 2% 0;
+    width: 100%;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+}
+.enviarCesta button{
+    max-width: 60vw;
+    max-width: 40vw;
+    border: 0px;
+    width: 60%;
+    padding: .5vh 2vw;
+    border-radius: 8px;
+    color: white;
+    background-color: var(--color-rojo);
+    transition: all .35s;
+}
+.enviarCesta button:hover{
+    background-color: var(--color-rojo-hover);
+}
+.vistaPrevia{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)) !important;
+    justify-content: center;
+}
+.vistaPreviaVersion{
+    display: flex;
+    justify-content: top;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    padding: 5% 0;
+}
+.vistaPreviaVersion img{
+    max-width: 100px;
+    min-width: 100px;
+    border-radius: 10px;
+}
+.vistaPreviaVersion p{
+    margin: 0;
+    font-size: .8em;
+}
+.parfumDescription{
+    margin-top: auto;
+    text-align: justify;
+    margin: 5vh 0;
+}
+.esconder{
+    display: none;
+}
+.vistaPreviaVersion.selected img {
+    border: 2px solid var(--color-rojo); /* Color llamativo */
+    border-radius: 5px; /* Opcional: bordes redondeados */
+    filter: drop-shadow(0px 0px 5px var(--color-rojo));
+}
+  

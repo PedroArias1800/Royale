@@ -1,0 +1,38 @@
+import AOS from 'aos';
+import { useEffect } from "react";
+import { Index } from "./Pages/Index";
+import { Route, Routes } from "react-router-dom";
+import { Search } from "./Pages/Search";
+import { ParfumContextProvider } from "./context/ParfumContext";
+import { NotFound } from "./Pages/NotFound";
+import { ParfumDetails } from "./Pages/ParfumDetails";
+import { Header } from "./components/Header";
+import { Footer } from "./components/Footer";
+import { Cart } from "./Pages/Cart.";
+
+/* Css */
+import "./css/Responsive.css";
+import 'aos/dist/aos.css';
+
+const App = () => {
+
+  useEffect(() => {
+    AOS.init();
+  }, []);
+
+  return (
+    <ParfumContextProvider>
+      <Header />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/parfum" element={<ParfumDetails />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Footer />
+    </ParfumContextProvider>
+  );
+};
+
+export default App;

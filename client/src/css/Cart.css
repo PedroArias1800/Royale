@@ -1,0 +1,75 @@
+.cart{
+    color: black;
+    width: 94vw;
+    padding: 3vh 3vw;
+    display: flex;
+    justify-content: center;
+    align-items: top;
+}
+.productCart{
+    width: 60vw;
+    display: flex;
+    justify-content: left;
+}
+.divImgProductCart{
+    width: 30%;
+}
+.divImgProductCart img{
+    width: 100%;
+    max-width: 200px;
+    min-width: 100px;
+}
+.divInfoProductCart{
+    width: 70%;
+}
+.productCardInfo2{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+.cardInfo1{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 40%;
+}
+
+.cardInfo2{
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+}
+.editCantidad{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.cart {
+    display: flex;
+    flex-direction: row;
+    height: 100vh; /* O la altura deseada para todo el contenedor */
+    overflow: hidden; /* Esto es importante para evitar que el scroll afecte todo el contenedor */
+  }
+  
+  .listCart {
+    flex: 1;
+    overflow-y: auto; /* Permite el scroll solo para la lista de productos */
+    max-height: 100vh; /* Esto asegura que el scroll se active cuando el contenido de los productos exceda la altura */
+  }
+  
+  .resumenCart {
+    position: sticky;
+    top: 0; /* Esto lo mantiene fijo en la parte superior de la ventana */
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ddd;
+    width: 300px; /* O cualquier tamaño fijo que desees */
+    height: 100vh; /* Fija el resumen al tamaño de la ventana */
+  }
+  
+.liResumen{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}

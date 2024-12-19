@@ -1,0 +1,30 @@
+{
+  "name": "royale",
+  "version": "1.0.0",
+  "description": "Desarrollo de una plataforma web para comercio electrónico en el Stack Mern",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server/index.js",
+    "start": "node server/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PedroArias1800/Royale.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/PedroArias1800/Royale/issues"
+  },
+  "homepage": "https://github.com/PedroArias1800/Royale#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "morgan": "^1.10.0",
+    "mysql2": "^3.11.5",
+    "nodemon": "^3.1.9"
+  }
+}

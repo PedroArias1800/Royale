@@ -1,0 +1,121 @@
+{
+    "Parfum": [
+        {
+            "id": "1",
+            "brand": "Dior",
+            "title": "Sauvage",
+            "description": "Concebido como una oda a la naturaleza, Sauvage es un acto de creación inspirado en espacios abiertos. Composiciones marcadas por una frescura bruta, que combinan poder y nobleza.",
+            "genero": "Caballeros",
+            "types": [
+                {
+                    "idVersion": "1",
+                    "version": "Eau De Parfum",
+                    "ml": "50",
+                    "img": "Sauvage Dior.webp",
+                    "price": "100.00",
+                    "oldPrice": "179.99"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "brand": "Cartier",
+            "title": "La Panthere",
+            "description": "El Panthère Parfum de Cartier es una fragancia de la familia olfativa Chipre Floral para mujeres. Esta fragancia es nueva. Panthère Parfum se lanzó en 2020. La nariz detrás de esta fragancia es Mathilde Laurent.",
+            "genero": "Damas",
+            "types": [
+                {
+                    "idVersion": "2",
+                    "version": "Parfum",
+                    "ml": "50",
+                    "img": "Cartier La Panthere Parfum.webp",
+                    "price": "100.00",
+                    "oldPrice": "159.99"
+                },
+                {
+                    "idVersion": "3",
+                    "version": "Parfum",
+                    "ml": "100",
+                    "img": "Cartier La Panthere Parfum.webp",
+                    "price": "100.00",
+                    "oldPrice": "159.99"
+                }
+            ]
+        },
+        {
+            "id": "3",
+            "brand": "Paco Rabanne",
+            "title": "Phantom",
+            "description": "La luz del día se atenúa. El cielo se vuelve azul. Déjate seducir por la irresistible llamada de crepúsculo con el nuevo PHANTOM Intense de Rabanne. Más Intenso, más audaz, impulsado por tu lado más atrevido.",
+            "genero": "Caballeros",
+            "types": [
+                {
+                    "idVersion": "4",
+                    "version": "Toillet",
+                    "ml": "50",
+                    "img": "Phantom Paco Rabanne.webp",
+                    "price": "70.00",
+                    "oldPrice": "99.99"
+                },
+                {
+                    "idVersion": "5",
+                    "version": "Parfum",
+                    "ml": "100",
+                    "img": "Phantom Paco Rabanne.webp",
+                    "price": "110.00",
+                    "oldPrice": "159.99"
+                },
+                {
+                    "idVersion": "6",
+                    "version": "Eau de Parfum",
+                    "ml": "100",
+                    "img": "Phantom Paco Rabanne.webp",
+                    "price": "125.00",
+                    "oldPrice": "189.99"
+                },
+                {
+                    "idVersion": "7",
+                    "version": "Elixir",
+                    "ml": "200",
+                    "img": "Phantom Paco Rabanne.webp",
+                    "price": "150.00",
+                    "oldPrice": "209.99"
+                }
+            ]
+        },
+        {
+            "id": "4",
+            "brand": "Givenchy",
+            "title": "Irresistible",
+            "description": "Irresistible Eau de Parfum de Givenchy es una fragancia femenina que definitivamente te invita a dejarte llevar. Una fragancia floral amaderada afrutada, que juega con el contraste entre dos acordes opuestos, la exquisita rosa y la radiante madera blanca.",
+            "genero": "Damas",
+            "types": [
+                {
+                    "idVersion": "5",
+                    "version": "Eau De Parfum",
+                    "ml": "50",
+                    "img": "Givenchy Irresistible.webp",
+                    "price": "100.00",
+                    "oldPrice": "159.99"
+                }
+            ]
+        },
+        {
+            "id": "5",
+            "brand": "Versage",
+            "title": "Eros",
+            "description": "El nuevo eau de parfum Eros, masculino y atrevido, es una fragancia sensual que fusiona notas amaderadas, orientales y frescas para crear un potente perfume que evoca a Eros, el dios del amor. «Imaginé un hombre heroico y apasionado, casi un dios griego.",
+            "genero": "Caballeros",
+            "types": [
+                {
+                    "idVersion": "6",
+                    "version": "Parfum",
+                    "ml": "100",
+                    "img": "Versage Eros.webp",
+                    "price": "100.00",
+                    "oldPrice": "159.99"
+                }
+            ]
+        }
+    ]
+}

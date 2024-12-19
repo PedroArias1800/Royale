@@ -1,0 +1,259 @@
+*,
+::after,
+::before {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root{
+  --color-negro: #373636;
+  --color-negro-hover: #222227;
+  --color-dorado: #fdd05e;
+  --color-dorado-hover: #c79a28;
+  --color-rojo: #d60a5f;
+  --color-rojo-2: #8d093f;
+  --color-rojo-hover: #ee0d6b;
+  --color-rojo-hover-2: #ff006a;
+}
+
+html,
+body {
+  margin: 0px;
+  /* background-color: #211f20; */
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  font-size: 1.1rem;
+  color: white;
+}
+::-webkit-scrollbar {
+  width: 0.5rem;
+}
+
+::-webkit-scrollbar-track {
+  background-color: #222227;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+  border-radius: 15rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+}
+
+.product-card {
+  width: 100%;
+  margin: 0 auto;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 300px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  color: #373636;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+}
+
+.product-card__image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.product-card__details {
+  padding: 16px;
+}
+
+.product-card__name {
+  font-size: 1.2em;
+  margin: 0.5em 0;
+}
+
+.product-card__description {
+  font-size: 0.9em;
+  color: #555;
+}
+
+.product-card__price {
+  font-size: 1.1em;
+  color: #28a745;
+  margin: 0.5em 0;
+}
+
+.product-card__button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+  transition: background-color 0.2s;
+}
+
+.product-card__button:hover {
+  background-color: #0056b3;
+}
+.product-list {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  padding: 16px;
+}
+.app{
+  display: flex;
+  justify-content: space-between;
+  align-items: top;
+}
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 30vw;
+  min-height: 85vh;
+}
+.subirTop{
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 100;
+  background-color: var(--color-rojo);
+  padding: .7% 1%;
+  min-height: 50px;
+  max-height: 50px;
+  min-width: 50px;
+  max-width: 50px;
+  border-radius: 50%;
+  transform: rotate(180deg);
+  cursor: pointer;
+}
+.subirTop svg{
+  width: 100%;
+  height: 100%;
+  color: white;
+  margin: auto !important;
+}
+
+.filters__group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filters__group label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filters__group input,
+.filters__group select {
+  padding: 8px;
+  font-size: 1em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+.filters__group select {
+  padding: 8px;
+  font-size: 1.2  em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+
+/* Estilos propios */
+.header2{
+  justify-content: space-between !important;
+}
+.searcherBar{
+  gap: 10px;
+  width: 70% !important;
+  margin: auto;
+  padding-bottom: 1vh;
+  border-bottom: 2px solid white;
+}
+.searcherBar input{
+  width: 100% !important;
+  margin: auto;
+  border-bottom: 2px solid red;
+}
+input[type="text"] {
+  all: unset; /* Resetea la mayoría de las propiedades del input */
+  box-sizing: border-box; /* Asegura que padding y border se incluyan en las dimensiones */
+  font-family: inherit; /* Hereda la fuente del elemento padre */
+  font-size: 1rem; /* Asegura un tamaño de fuente estándar */
+  padding: 0.5rem; /* Añade un espacio interno */
+  border: 1px solid #ccc; /* Añade un borde básico */
+  border-radius: 4px; /* Bordes ligeramente redondeados */
+  outline: none; /* Quita el borde de enfoque por defecto */
+  background-color: #fff; /* Fondo blanco */
+  color: #000; /* Texto negro */
+}
+
+input[type="text"]:focus {
+  border-color: #007bff; /* Cambia el color del borde en foco */
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.5); /* Añade un efecto de sombra */
+}
+.search{
+    color: white;
+    background-color: #222227;
+}
+.headerFilter{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.headerFilter h5{
+  margin: auto 0;
+}
+.headerFilter svg{
+  cursor: pointer;
+  height: 20px;
+  transition: transform 0.3s ease-in-out;
+}
+.desplegar{
+  transform: rotate(-180deg);
+  transition: transform 0.3s ease-in-out;
+}
+.filters{
+  color: white;
+  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.527);
+  background: linear-gradient(to bottom, var(--color-rojo), var(--color-rojo-2));
+}
+.priceMinMax{
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.priceMinMax input{
+  width: 100%;
+}
+.resetFilters{
+  all: unset; /* Resetea la mayoría de las propiedades del input */
+  box-sizing: border-box; /* Asegura que padding y border se incluyan en las dimensiones */
+  font-family: inherit; /* Hereda la fuente del elemento padre */
+  font-size: .85rem; /* Asegura un tamaño de fuente estándar */
+  padding: 0.5rem; /* Añade un espacio interno */
+  border-radius: 4px; /* Bordes ligeramente redondeados */
+  outline: none; /* Quita el borde de enfoque por defecto */
+  background-color: #edcf85; /* Fondo blanco */
+  color: #000; /* Texto negro */
+  transition: .35s ease;
+}
+.resetFilters:hover{
+  background-color: var(--color-dorado); /* Fondo blanco */
+}
+#search{
+  font-size: 1em;
+  padding: .55em 5%;
+}
