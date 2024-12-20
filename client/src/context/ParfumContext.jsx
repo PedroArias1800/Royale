@@ -30,7 +30,7 @@ export const ParfumContextProvider = ({ children }) => {
           );
           if (existingProduct) {
             return prevCart.map((item) =>
-              item.id === productId && item.types_id === typesId
+              item.id === productId && item.types_id === typesId && item.quantity < 10
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             );
@@ -68,9 +68,30 @@ export const ParfumContextProvider = ({ children }) => {
     
       const getTotalQuantity = () => 
         cart.reduce((total, item) => total + item.quantity, 0)
+
+
+      // Modal
+      const [isModalOpen, setIsModalOpen] = useState(false);
+      const [modalContent, setModalContent] = useState({ title: '', text: '' });
+
+      const openModal = (type) => {
+          const content = {
+              title: type === 'privacy' ? 'Privacidad de Datos' : 'Términos y Condiciones',
+              text:
+                  type === 'privacy'
+                      ? 'Esta es la política de privacidad, donde explicamos cómo manejamos tus datos personales.'
+                      : 'Estos son los términos y condiciones, donde detallamos las reglas para usar nuestro sitio web.',
+          };
+          setModalContent(content);
+          setIsModalOpen(true);
+      };
+
+      const closeModal = () => {
+          setIsModalOpen(false);
+      };
         
 
-    return <ParfumContext.Provider value={{ cart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity }}>
+    return <ParfumContext.Provider value={{ cart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal }}>
         {children}
     </ParfumContext.Provider>
 

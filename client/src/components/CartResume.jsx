@@ -1,8 +1,13 @@
-import React, { useMemo, useContext } from 'react';
+import React, { useMemo, useContext, useState } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
+import { PaymentModal } from './PaymentModal';
 
 export const CartResume = ({ products }) => {
   const { cart } = useContext(ParfumContext);  // Obtenemos el carrito desde el contexto
+  const [isModalOpen, setModalOpen] = useState(false);
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => setModalOpen(false);
+
   
   const { totalItems, subTotal, totalPrice, totalSavings } = useMemo(() => {
     let subTotal = 0; 
@@ -40,6 +45,12 @@ export const CartResume = ({ products }) => {
     return { totalItems, subTotal, totalPrice, totalSavings };
   }, [cart, products]); // Dependemos de 'cart' y 'products'
 
+  const handleFormSubmit = (data) => {
+    console.log("Datos enviados:", data);
+    // Aquí puedes enviar los datos a tu backend
+    handleCloseModal();
+  };
+
   return (
     <div className='cardResume'>
       <h2>Resumen del Pedido</h2>
@@ -63,7 +74,13 @@ export const CartResume = ({ products }) => {
         </div>
       </div>
       <div className='div2'>
-        <button className='comprar'>{`Comprar Ahora (${totalItems})`}</button>
+        <button className='comprar' onClick={handleOpenModal}>{`Comprar Ahora (${totalItems})`}</button>
+        <PaymentModal 
+        isOpen={isModalOpen} 
+        onClose={handleCloseModal} 
+        onSubmit={handleFormSubmit}
+        
+      />
       </div>
     </div>
   );

@@ -78,12 +78,9 @@ return (
         </div>
           <ul>
               <li>
-                  <form ref={formRef} action='/search' method="post">
-                      <input type="text" placeholder='Sauvage Dior' required 
-                      className={isInputValid ? '' : 'invalid-input'} 
-                      onFocus={handleFocus}/>
-                      <FontAwesomeIcon icon={faMagnifyingGlass} onClick={submitForm} />
-                  </form>
+                  <Link to="/search">
+                      <FontAwesomeIcon icon={faMagnifyingGlass} onClick={toggleMenu} />
+                  </Link>
               </li>
               <li><Link to="#"><FontAwesomeIcon icon={faUser} /> Iniciar Sesión</Link></li>
               <li><Link to="#"><FontAwesomeIcon icon={faHeart} /> Lista de Deseos</Link></li>

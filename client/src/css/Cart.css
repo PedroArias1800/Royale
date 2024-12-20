@@ -1,3 +1,14 @@
+:root{
+    --color-negro: #373636;
+    --color-negro-hover: #222227;
+    --color-dorado: #fdd05e;
+    --color-dorado-hover: #c79a28;
+    --color-rojo: #d60a5f;
+    --color-rojo-2: #8d093f;
+    --color-rojo-hover: #ee0d6b;
+    --color-rojo-hover-2: #ff006a;
+  }
+
 .cart{
     color: black;
     padding: 3vh 3vw;
@@ -234,3 +245,162 @@
     background-color: var(--color-rojo-hover);
   }
   
+
+
+  /* Payment Modal */
+.modal-overlay2 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0; /* Inicia invisible */
+  visibility: hidden; /* Inicia oculto */
+  transition: opacity 0.3s ease, visibility 0s 0.3s; /* Transición de opacidad */
+}
+
+.modal-overlay2.open {
+  opacity: 1; /* Hace visible el overlay */
+  visibility: visible; /* Muestra el overlay */
+  transition: opacity 0.3s ease; /* Transición de opacidad */
+}
+
+.modal-content2 {
+  background-color: var(--color-negro-hover);
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  transform: scale(0.9); /* Empieza pequeño */
+  opacity: 0; /* Comienza invisible */
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-content2.open {
+  transform: scale(1); /* Escala el modal */
+  opacity: 1; /* Hace visible el modal */
+}
+
+/* Animación de cierre */
+.modal-content2.close {
+  transform: scale(0.9); /* Hace que se reduzca */
+  opacity: 0; /* Lo hace invisible */
+}
+
+.modal-overlay2.close {
+  opacity: 0; /* Desvanece el overlay */
+  visibility: hidden; /* No visible */
+  transition: opacity 0.3s ease, visibility 0s 0.3s; /* Transición de opacidad */
+}
+
+
+  .modalPaymentTitle{
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    margin-bottom: 5vh;
+  }
+  
+  .modalPaymentTitle h2{
+    margin: 0;
+  }
+  
+  .close-btn2 {
+    background: transparent;
+    border: none;
+    font-size: 18px;
+    color: white;
+    transition: all .35s ease;
+  }
+  .close-btn2:hover, .inputsChecks button:hover {
+    color: var(--color-dorado)
+  }
+  
+  .payment-form2 .form-group2 {
+    margin-bottom: 15px;
+  }
+  
+  .payment-form2 .form-group2 label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .payment-form2 .form-group2 input[type="text"],
+  .payment-form2 .form-group2 input[type="email"],
+  .payment-form2 .form-group2 input[type="tel"],
+  .payment-form2 .form-group2 input[type="text"] {
+    width: 100%;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  .payment-form2 .form-group2 input[type="checkbox"] {
+    width: 1.2em;
+    height: 1.2em;
+    transform: translateY(0.1em);
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+  .payment-form2 .form-group2 label {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    font-size: small; /* Asegura que el texto tenga un tamaño consistente */
+  }
+
+  .payment-form2 input{
+    font-size: 17px;
+  }
+  
+
+  .inputsChecks{
+    display: flex;
+    justify-content: left;
+    align-items: center;
+    font-size: small;
+    margin-bottom: 10px !important;
+  }
+  .inputsChecks button{
+    border: 0px;
+    background-color: transparent;
+    color: white;
+    text-decoration: underline;
+    margin-left: 10px;
+    transition: all .35s ease;
+  }
+  
+  .submit-btn2{
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    margin-top: 4vh;
+  }
+  .pagar {
+    background-color: var(--color-rojo-2);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    width: 150px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all .35s ease;
+  }
+  
+  .pagar:hover {
+    background-color: var(--color-rojo);
+  }
+  .form-group3{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+  }

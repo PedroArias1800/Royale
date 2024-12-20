@@ -149,6 +149,8 @@
         text-decoration: none;
         transition: color 0.3s;
         color: white;
+        display: block !important;
+        width: 100% !important;
     }
     
     .menuDesplegable a{
@@ -235,6 +237,15 @@
     .esconder2{
         display: none;
     }
+    .cart{
+        display: block !important;
+    }
+    .cartSection1{
+        width: 100% !important;
+    }
+    .resumenCart{
+        margin: auto;
+    }
 
 }
 
@@ -259,6 +270,41 @@
     .bodyContent img{
         width: auto !important;
         margin: 0 !important;
+    }
+    .resumenCart{
+        margin: 2vh auto auto auto;
+    }
+    .listCart{
+        height: auto !important;
+    }
+    .productCardInfo2{
+        display: flex !important;
+        justify-content: center;
+        align-items: end;
+        flex-direction: column;
+    }
+    .cardInfo1, .editQuantity{
+        justify-content: right !important;
+        gap: 5%;
+        margin-top: 1%;
+        width: 90% !important;
+    }
+    .divImgProductCart{
+        width: 80% !important;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .divImgProductCart a{
+        display: block !important;
+        width: 100% !important;
+    }
+    .divImgProductCart img{
+        max-width: 100% !important;
+        padding: 5%;
+    }
+    .listCart h3, h5, p{
+        font-size: medium;
     }
 }
 @media only screen and (max-width: 450px) {

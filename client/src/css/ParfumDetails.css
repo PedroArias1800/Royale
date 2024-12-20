@@ -21,6 +21,7 @@
     margin: auto 0;
 }
 .parfumInfo{
+    position: relative;
     width: 100%;
     padding: 0 2%;
 }

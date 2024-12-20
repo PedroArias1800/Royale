@@ -6,23 +6,24 @@ import { getParfumsRequest } from '../api/Parfum.api.js';
 import '../css/Search.css';
 
 export const Search = () => {
-  // Obtén los parámetros de la URL
   const location = useLocation();
-  const params = new URLSearchParams(location.search); // Para leer los parámetros de consulta
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const type = params.get('type');
 
-  const id = params.get('id'); // Obtiene el valor de "id" de la URL
-  const type = params.get('type'); // Obtiene el valor de "type" de la URL
-
-  const [products, setProducts] = useState([]); // Inicializamos como array vacío
+  const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
+  const [brands, setBrands] = useState([]); // Marcas disponibles
 
+  // Cargar productos desde la API
   useEffect(() => {
     async function loadParfums() {
       try {
         const response = await getParfumsRequest();
-        console.log(response.data);
         setProducts(response.data);
-        setFilteredProducts(response.data); // Inicializamos con todos los productos
+        setFilteredProducts(response.data); // Inicializa con todos los productos
+        const uniqueBrands = [...new Set(response.data.map((product) => product.brand))];
+        setBrands(uniqueBrands);
       } catch (error) {
         console.error("Error al cargar los perfumes:", error);
         setProducts([]);
@@ -32,9 +33,19 @@ export const Search = () => {
     loadParfums();
   }, []);
 
-  // Obtener marcas de manera segura
-  const brands = products.length > 0 ? [...new Set(products.map((product) => product.brand))] : [];
+  // Filtro inicial basado en el parámetro "type"
+  useEffect(() => {
+    if (!products || products.length === 0) return;
 
+    const gender = type === "1" ? "Damas" : type === "2" ? "Caballeros" : null;
+
+    if (gender) {
+      const filtered = products.filter((product) => product.gender === gender);
+      setFilteredProducts(filtered);
+    }
+  }, [products, type]); // Ejecutar solo cuando se cargan productos o cambia el tipo
+
+  // Lógica para manejar los filtros personalizados
   const handleFilter = ({ search, gender, minPrice, maxPrice, brand }) => {
     if (!products || products.length === 0) return;
 
@@ -58,16 +69,10 @@ export const Search = () => {
     setFilteredProducts(filtered);
   };
 
-  useEffect(() => {
-    window.scrollTo(0, 0); // Desplazar al inicio
-  }, []);
-
   return (
-    <>
-      <div className="app">
-        <Filter onFilter={handleFilter} brands={brands} id={id} type={type} />
-        <ProductList products={{ Parfum: filteredProducts }} />
-      </div>
-    </>
+    <div className="app">
+      <Filter onFilter={handleFilter} brands={brands} id={id} type={type} />
+      <ProductList products={{ Parfum: filteredProducts }} />
+    </div>
   );
 };

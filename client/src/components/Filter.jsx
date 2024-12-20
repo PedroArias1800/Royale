@@ -20,12 +20,14 @@ export const Filter = ({ onFilter, brands, type }) => {
 
   // Establecer el género solo cuando llega "type"
   useEffect(() => {
-    if (type === 1) {
-        setGender("Damas");
+    if (type === '1') {
+      setGender('Damas');
+    } else if (type === '2') {
+      setGender('Caballeros');
     } else {
-        setGender("Caballeros");
+      setGender('');
     }
-  }, [type]); // Solo se ejecuta cuando 'type' cambia
+  }, [type]);
 
   // Llamar a onFilter solo si los valores han cambiado
   useEffect(() => {

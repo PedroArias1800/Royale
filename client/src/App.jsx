@@ -9,6 +9,8 @@ import { ParfumDetails } from "./Pages/ParfumDetails";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { Cart } from "./Pages/Cart.";
+import { PrivacyTermModal } from './components/PrivacyTermModal.jsx';
+
 
 /* Css */
 import "./css/Responsive.css";
@@ -30,6 +32,7 @@ const App = () => {
         <Route path="/cart" element={<Cart />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <PrivacyTermModal />
       <Footer />
     </ParfumContextProvider>
   );
