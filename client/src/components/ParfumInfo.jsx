@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React, { useState, useEffect, useContext } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
 import { Alert } from '../components/Alert'
+import { Link } from 'react-router-dom';
 
 export const ParfumInfo = ({ product }) => {
   const [cart, setCart] = useState([]);
@@ -13,7 +14,7 @@ export const ParfumInfo = ({ product }) => {
 
   const handleAddToCart = (productId, typesId) => {
     addToCart(productId, typesId, 1);
-    setAlertMessage("Añadido al carrito");
+    setAlertMessage("¡Producto añadido al carrito!");
   };
 
   useEffect(() => {
@@ -42,7 +43,7 @@ export const ParfumInfo = ({ product }) => {
   return (
     <div className="parfumInfo">
       <div className='mostrarAlerta'>
-        <Alert message={alertMessage} onClose={() => setAlertMessage("")} class/>
+        <Alert message={alertMessage} color={'--color-dorado'} color2={'--color-dorado-hover'} onClose={() => setAlertMessage("")}/>
       </div>
       <div className="parfumContainer">
         <div className="parfumImgGrande">
@@ -56,7 +57,7 @@ export const ParfumInfo = ({ product }) => {
             </p>
             <img
               src={`/parfum/${selectedType.img}`}
-              alt={`Imágen de ${product.brand} ${product.title} versión ${selectedType.version}`}
+              alt={`Imágen de ${product.brand} ${product.title} versión ${selectedType.version} - ${selectedType.ml} mililitros.`}
             />
           </div>
           <p className="parfumDescription esconder">{product.description}</p>
@@ -77,14 +78,16 @@ export const ParfumInfo = ({ product }) => {
                 ${selectedType.price}
               </p>
             </div>
-            <p className="parfumGenero">
-              {product.gender === 1 ? "Damas" : "Caballeros"}
+            <p>
+              <Link to={`/search?type=${product.gender}`} className="parfumGenero">
+                {product.gender === 1 ? "Damas" : "Caballeros"}
+              </Link>
             </p>
           </div>
           <hr />
           <div>
             <h5>
-              Versión: {selectedType.version_name} - {selectedType.ml} ml.
+              {selectedType.version_name} Version - {selectedType.ml} ml.
             </h5>
             <div className="vistaPrevia">
               {product.types.map((type, index) => (
@@ -98,9 +101,9 @@ export const ParfumInfo = ({ product }) => {
                 >
                   <img
                     src={`/parfum/${type.img}`}
-                    alt={`Imágen de la versión ${type.version_name}`}
+                    alt={`Imágen de ${type.ml} ml`}
                   />
-                  <p>{type.version_name}</p>
+                  <p>{type.ml} ml</p>
                 </div>
               ))}
             </div>

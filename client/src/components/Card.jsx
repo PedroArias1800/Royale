@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 
-export const Card = ({element, cardsRef, index}) => {
+export const Card = ({element, cardsRef, index, width100}) => {
 
     const [width, setWidth] = useState(false);
 
@@ -21,7 +21,7 @@ export const Card = ({element, cardsRef, index}) => {
       };
 
     return (
-        <Link to={`/parfum?id=${element.id}`} className={`card ${width ? 'cardWidth100' : ''} `} key={index} ref={(el) => (cardsRef.current[index] = el)}>
+        <Link to={`/parfum?id=${element.id}`} className='card si' key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`}}>
             <div className='discountPrice'>
               <FontAwesomeIcon icon={faBookmark} style={gradientStyle}/>
               <p>{(Math.ceil(-100+(100/element.types[0].old_price*element.types[0].price)))}%</p>
@@ -38,7 +38,7 @@ export const Card = ({element, cardsRef, index}) => {
               </div>
             </div>
             <div className='infoCards'>
-              <p>{element.types[0].version_name} Version {element.types[0].ml} ml.</p>
+              <p>{element.types[0].version_name} Version</p>
             </div>
             <p className='cardsMarca'>{element.brand}</p>
         </Link>

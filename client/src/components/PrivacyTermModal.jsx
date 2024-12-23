@@ -10,7 +10,7 @@ export const PrivacyTermModal = () => {
         <div className="modal-overlay">
             <div className="modal-content">
                 <h2>{modalContent.title}</h2>
-                <p>{modalContent.text}</p>
+                <p dangerouslySetInnerHTML={{ __html: modalContent.text }}></p>
                 <button onClick={closeModal} className="accept-button">
                     Aceptar
                 </button>

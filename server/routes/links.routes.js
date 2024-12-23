@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { sendWhatsapp } from '../controllers/links.controller.js';
+import { sendWhatsapp, sendWhatsappQA } from '../controllers/links.controller.js';
 
 const router = Router();
 

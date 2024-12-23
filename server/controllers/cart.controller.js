@@ -26,7 +26,7 @@ export const postCart = async (req, res) => {
         LEFT JOIN 
             types t ON t.parfum_id_fk = p.parfum_id
         INNER JOIN 
-            version v ON v.version_id = t.version_id_fk
+            version v ON v.version_id = p.version_id_fk
         WHERE 
             ${placeholders}
         ORDER BY 

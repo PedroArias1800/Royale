@@ -8,13 +8,13 @@
     padding: 1% 5%;
     font-size: .7em;
 }
-.linkWay a{
+.linkWay a, .parfumGenero{
     color: #685d5d;
     text-decoration: underline;
     text-decoration-color: transparent;
     transition: all .35s;
 }
-.linkWay a:hover{
+.linkWay a:hover, .parfumGenero:hover{
     text-decoration-color: #685d5d;
 }
 .linkWay p{

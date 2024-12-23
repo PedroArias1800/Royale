@@ -227,6 +227,10 @@
     .subirTop svg{
         color: white;
     }
+    .product-list{
+        justify-content: center;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 220px)) !important;
+    }
 }
 
 @media only screen and (max-width: 900px) {
@@ -306,9 +310,17 @@
     .listCart h3, h5, p{
         font-size: medium;
     }
+    .product-list{
+        justify-content: center;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 220px)) !important;
+    }
 }
 @media only screen and (max-width: 450px) {
     .card{
         width: 100% !important;
+    }
+    .product-list{
+        justify-content: center;
+        grid-template-columns: repeat(auto-fit, minmax(250px, auto)) !important;
     }
 }

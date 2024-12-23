@@ -1,16 +1,16 @@
 :root{
   --color-dorado: #fed879;
   --color-dorado-hover: #c79a28;
+  --color-rojo-alert: #fe7979;
+  --color-rojo-alert-hover: #c72828;
 }
 
 .alert {
   font-size: medium;
   position: fixed;
-  width: 18vw;
+  width: 350px;
   top: 20px;
   right: 0px;
-  background-color: var(--color-dorado);
-  border: 2px solid var(--color-dorado-hover);
   color: black;
   padding: 10px 20px;
   border-radius: 5px 0 0 5px;

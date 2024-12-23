@@ -27,7 +27,9 @@
   text-align: left;
   height: 100%;
   text-decoration: none;
+  width: 340px; /* O un valor específico para limitar el tamaño */
 }
+
 
 .card img {
   width: 100%;
@@ -39,7 +41,11 @@
 .card h2 {
   font-size: 1.2em;
   margin: 10px 0;
+  white-space: nowrap !important; /* Evitar que el texto se divida en varias líneas */
+  overflow: hidden !important;    /* Ocultar el texto que exceda el ancho del contenedor */
+  text-overflow: ellipsis !important; /* Mostrar los puntos suspensivos si el texto es muy largo */
 }
+
 
 .card .price {
   font-size: .8em;

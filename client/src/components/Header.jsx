@@ -42,8 +42,8 @@ return (
           <img src={LogoRoyale} alt="Logo de Royale" className='logoRoyale'/>
         </HashLink>
         <nav className='navHeader'>
-            <Link to="#"><FontAwesomeIcon icon={faUser} /> Iniciar Sesión</Link>
-            <Link to="#"><FontAwesomeIcon icon={faHeart} /> Lista de Deseos</Link>
+            <Link to="/search?type=1"><FontAwesomeIcon icon={faUser} /> Damas</Link>
+            <Link to="/search?type=2"><FontAwesomeIcon icon={faHeart} /> Caballeros</Link>
             <Link to="/cart" className='cart-icon'>
               <FontAwesomeIcon icon={faCartShopping} /> Mi cesta
               { getTotalQuantity() > 0 && (
@@ -82,8 +82,8 @@ return (
                       <FontAwesomeIcon icon={faMagnifyingGlass} onClick={toggleMenu} />
                   </Link>
               </li>
-              <li><Link to="#"><FontAwesomeIcon icon={faUser} /> Iniciar Sesión</Link></li>
-              <li><Link to="#"><FontAwesomeIcon icon={faHeart} /> Lista de Deseos</Link></li>
+              <li><Link to="/search?type=1"><FontAwesomeIcon icon={faUser} /> Damas</Link></li>
+              <li><Link to="/search?type=2"><FontAwesomeIcon icon={faHeart} /> Caballeros</Link></li>
               <li>
                 <Link to="/cart" className='cart-icon'>
                   <FontAwesomeIcon icon={faCartShopping} /> Mi cesta

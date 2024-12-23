@@ -1,10 +1,15 @@
 import axios from 'axios'
+const URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 export const getParfumVersionRequest = async (id) => 
-    await axios.get(`http://localhost:4001/parfum?id=${id}`);
+    await axios.get(`${URL}/parfum?id=${id}`);
 
-export const getParfumsRequest = async () => 
-    await axios.get('http://localhost:4001/parfums');
+export const getParfumsRequest = async (limit) => 
+    await axios.get(`${URL}/parfums`, {
+        headers: {
+            'limit': limit
+        }
+    });
 
 export const getParfumsBodyRequest = async () => 
-    await axios.get('http://localhost:4001/parfums/body');
+    await axios.get(`${URL}/parfums/body`);

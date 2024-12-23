@@ -194,10 +194,14 @@
     width: 300px; /* O cualquier tamaño fijo que desees */
   }
   
-.liResumen{
+  .liResumen{
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin: 7% 0;
+}
+.liResumen p{
+  margin: 0;
 }
 
 

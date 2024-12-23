@@ -6,12 +6,12 @@ import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { postCartRequest } from '../api/Cart.api.js';
 import { ParfumContext } from "../context/ParfumContext";
+import { Alert } from '../components/Alert.jsx';
 
 export const Cart = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isEmpty, setIsEmpty] = useState(false); // Nuevo estado para saber si el carrito está vacío
-  const { getTotalQuantity } = useContext(ParfumContext);
+  const { getTotalQuantity, alertMessage, color, color2, setAlertMessage } = useContext(ParfumContext);
 
   // Cargar el carrito del localStorage y obtener los datos desde la API
   useEffect(() => {
@@ -36,9 +36,13 @@ export const Cart = () => {
     fetchCartProducts();
   }, []);
 
+
   return (
     <div className='cart'>
       <section className='cartSection1'>
+        <div className='mostrarAlerta'>
+          <Alert message={alertMessage} color={color} color2={color2} onClose={() => setAlertMessage("")}/>
+        </div>
         <h2>TODOS LOS ARTÍCULOS ({getTotalQuantity() || 0})</h2>
         {loading ? (
           <p>Cargando...</p>

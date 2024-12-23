@@ -29,7 +29,7 @@ export const parfumVersion = async (req, res) => {
             LEFT JOIN 
                 types t ON t.parfum_id_fk = p.parfum_id
             INNER JOIN 
-                version v ON v.version_id = t.version_id_fk
+                version v ON v.version_id = p.version_id_fk
             WHERE 
                 p.parfum_id = ?
             ORDER BY 
@@ -83,6 +83,8 @@ export const parfumVersion = async (req, res) => {
 
 
 export const allParfums = async (req, res) => {
+    let { limit } = req.headers
+    limit = parseInt(limit, 10);
     try {
         const [rows] = await pool.query(`
             SELECT 
@@ -93,7 +95,6 @@ export const allParfums = async (req, res) => {
                 p.gender,
                 t.types_id,
                 v.version_name,
-                t.ml,
                 t.img,
                 t.price,
                 t.old_price
@@ -104,10 +105,12 @@ export const allParfums = async (req, res) => {
             LEFT JOIN 
                 types t ON t.parfum_id_fk = p.parfum_id
             INNER JOIN 
-                version v ON v.version_id = t.version_id_fk
+                version v ON v.version_id = p.version_id_fk
+            WHERE
+                p.status = 1
             ORDER BY 
-                p.parfum_id, t.ml = 100 DESC, t.types_id ASC;
-        `);
+                RAND()
+            LIMIT ?;`, [limit]);
 
         // Agrupar perfumes con sus respectivos types
         const result = rows.reduce((acc, row) => {
@@ -169,7 +172,7 @@ export const parfumsBody = async (req, res) => {
             INNER JOIN
                 parfum p ON b.parfum_id_fk = p.parfum_id
             WHERE
-                status = 1`);
+                b.status = 1`);
         console.table(result);
 
         res.json(result)

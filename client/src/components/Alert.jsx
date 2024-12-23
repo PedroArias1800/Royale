@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
-export const Alert = ({ message, onClose, duration = 6000 }) => {
+export const Alert = ({ message, color, color2, onClose, duration = 6000 }) => {
   const [showAlert, setShowAlert] = useState(false); // Controla la visibilidad completa
   const [isVisible, setIsVisible] = useState(false); // Controla la transición de aparición
 
@@ -40,7 +40,7 @@ export const Alert = ({ message, onClose, duration = 6000 }) => {
   if (!showAlert) return null;
 
   return (
-    <div className={`alert ${isVisible ? 'visible' : 'hidden'}`}>
+    <div className={`alert ${isVisible ? 'visible' : 'hidden'}`} style={{'backgroundColor': `var(${color})`, 'border': `2px solid var(${color2})`}}>
       <span className="alert-text">{message}</span>
       <button className="close-btn" onClick={closeAlert}>X</button>
     </div>

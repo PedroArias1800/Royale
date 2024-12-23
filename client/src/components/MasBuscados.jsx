@@ -13,7 +13,7 @@ export const MasBuscados = () => {
 
   useEffect(() => {
     async function loadParfum() {
-      const response = await getParfumsRequest()
+      const response = await getParfumsRequest(10)
       setParfum(response.data)
     }
     loadParfum()
@@ -67,7 +67,7 @@ export const MasBuscados = () => {
             {
               parfum.map((element, index) => {
                 return (
-                  <Card element={element} cardsRef={cardsRef} index={index} key={element.id} />
+                  <Card element={element} cardsRef={cardsRef} index={index} key={element.id} width100={'340px'} />
                 )
               })
             }

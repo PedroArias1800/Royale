@@ -23,6 +23,10 @@ export const sendWhatsapp = async (req, res) => {
     }
 };
 
+export const sendWhatsappQA = async (req, res) => {
+    res.json({ res: true });
+}
+
 // {
 //   "message":   "Has recibido un mensaje de Pedro Arias, estos son los productos que ha seleccionado desde el sitio web de Royale:\n\nProducto: Dior Miss Dior\nVersión: Eau de Parfum - 100ml\nPrecio de Promoción: $85.00\nPrecio Regular: $120.00\nCantidad: 2\nEnlace: http://localhost:5173/parfum?id=2\n\nProducto: Dior Sauvage\nVersión: Eau de Parfum - 100ml\nPrecio de Promoción: $125.00\nPrecio Regular: $160.00\nCantidad: 1\nEnlace: http://localhost:5173/parfum?id=1\n\nTotal: $210.00\n\nContactos:\nNúmero de Teléfono: +507 6212-2951\nCorreo: pedrosoftdev18@gmail.com\n\nROYALE, FINE PARFUM\nhttp://localhost:5173"
 // }
