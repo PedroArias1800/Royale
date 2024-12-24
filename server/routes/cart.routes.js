@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { postCart } from '../controllers/cart.controller.js';
+import { postCart } from '../controllersPg/cart.controller.pg.js';
 
 const router = Router();
 

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { parfumVersion, allParfums, parfumsBody } from '../controllers/parfum.controller.js';
+import { parfumVersion, allParfums, parfumsBody } from '../controllersPg/parfum.controller.pg.js';
 
 const router = Router();
 

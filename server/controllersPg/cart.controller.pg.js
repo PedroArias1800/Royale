@@ -1,8 +1,10 @@
-import { pool } from "../db.js";
+import { pool } from "../dbPg.js";
 
 export const postCart = async (req, res) => {
     const cartItems = req.body;
-    const placeholders = cartItems.map(() => "(p.parfum_id = ? AND t.types_id = ?)").join(" OR ");
+    const placeholders = cartItems
+        .map((_, index) => `(p.parfum_id = $${index * 2 + 1} AND t.types_id = $${index * 2 + 2})`)
+        .join(" OR ");
     const values = cartItems.flatMap(item => [item.id, item.types_id]);
 
     const query = `
@@ -32,12 +34,11 @@ export const postCart = async (req, res) => {
             p.parfum_id, t.ml = 100 DESC, t.types_id ASC;
     `;
 
-
     try {
-        const [rows] = await pool.query(query, values);
+        const { rows } = await pool.query(query, values); // PostgreSQL devuelve resultados en `rows`
         res.json(rows);
     } catch (err) {
         console.error(err);
         res.status(500).send("Error al obtener los productos");
     }
-}
+};
