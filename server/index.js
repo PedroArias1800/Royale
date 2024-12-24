@@ -28,3 +28,19 @@ dotenv.config();
 whatsapp.initialize();
 app.listen(PORT || 4000);
 console.log('Server levantado en el puerto', PORT || 4000)
+
+
+// server {
+//     listen: 80;
+//     listen [::]:80;
+//     server_name _;
+
+//     location / {
+//         proxy_pass http://localhost:3000;
+//         proxy_http_version 1.1;
+//         proxy_set_header Upgrade $http_upgrade;
+//         proxy_set_header Connection 'upgrade';
+//         proxy_set_header Host $host;
+//         proxy_cache_bypass $http_upgrade;
+//     }
+// }
