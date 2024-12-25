@@ -10,11 +10,12 @@ export const postCartRequest = async (cart) =>
     });
 
 export const postPagarRequest = async (requestBody) => {
+    console.log(requestBody)
     try{
         const response = await emailjs
         .send(
-            "service_sfmn57d",
-            "template_8vk77pm",
+            "service_6lj0xhq",
+            "template_snrb433",
             requestBody,
             "rjA015kN-lpTr5sSD"
         )
