@@ -66,7 +66,7 @@ export const Cart = () => {
           </div>
         )}
       </section>
-      {
+      {/* {
         getTotalQuantity() !== 0 ? (
         <section className='resumenCart'>
           <CartResume products={cart} />
@@ -75,7 +75,7 @@ export const Cart = () => {
         ) : (
           <></>
         )
-      }
+      } */}
     </div>
   );
 };
