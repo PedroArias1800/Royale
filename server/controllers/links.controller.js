@@ -1,27 +1,27 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import { whatsapp } from '../lib/whatsapp.js';
+// import { whatsapp } from '../lib/whatsapp.js';
 
-const phoneNumber = process.env.PHONE_NUMBER;
+// const phoneNumber = process.env.PHONE_NUMBER;
 
-export const sendWhatsapp = async (req, res) => {
-  const message = req.body.message;
-  try {
-        const tel = phoneNumber;
-        const chatId = tel.substring(1) + "@c.us";
-        const number_details = await whatsapp.getNumberId(chatId);
-        if (number_details) {
-            await whatsapp.sendMessage(chatId, message);
-            res.json({ res: true });
-        } else {
-            res.json({ res: false, message: "Número no válido" });
-        }
-    } catch (error) {
-        console.error('Error enviando mensaje:', error);
-        res.status(500).json({ res: false, error: 'Error interno del servidor' });
-    }
-};
+// export const sendWhatsapp = async (req, res) => {
+//   const message = req.body.message;
+//   try {
+//         const tel = phoneNumber;
+//         const chatId = tel.substring(1) + "@c.us";
+//         const number_details = await whatsapp.getNumberId(chatId);
+//         if (number_details) {
+//             await whatsapp.sendMessage(chatId, message);
+//             res.json({ res: true });
+//         } else {
+//             res.json({ res: false, message: "Número no válido" });
+//         }
+//     } catch (error) {
+//         console.error('Error enviando mensaje:', error);
+//         res.status(500).json({ res: false, error: 'Error interno del servidor' });
+//     }
+// };
 
 export const sendWhatsappQA = async (req, res) => {
     res.json({ res: true });

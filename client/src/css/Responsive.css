@@ -250,7 +250,9 @@
     .resumenCart{
         margin: auto;
     }
-
+    .listCart{
+        height: auto !important;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -283,9 +285,6 @@
     }
     .resumenCart{
         margin: 2vh auto auto auto;
-    }
-    .listCart{
-        height: auto !important;
     }
     .productCardInfo2{
         display: flex !important;

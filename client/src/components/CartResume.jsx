@@ -2,9 +2,10 @@ import React, { useMemo, useContext, useState } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
 import { PaymentModal } from './PaymentModal';
 import { postPagarRequest } from '../api/Cart.api';
-import { Alert } from '../components/Alert'
+
 
 export const CartResume = ({ products }) => {
+  const URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
   const { cart, clearCart } = useContext(ParfumContext);  // Obtenemos el carrito desde el contexto
   const [isModalOpen, setModalOpen] = useState(false);
   const handleOpenModal = () => setModalOpen(true);
@@ -87,7 +88,7 @@ export const CartResume = ({ products }) => {
       message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
       message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
       message += `Cantidad: ${item.quantity}\n`;
-      message += `Enlace: http://localhost:5173/parfum?id=${item.parfum_id}\n\n`;
+      message += `Enlace: ${URL}/parfum?id=${item.parfum_id}\n\n`;
     });
   
     const total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
@@ -96,15 +97,16 @@ export const CartResume = ({ products }) => {
     message += `Número de Teléfono: +507 ${data.phone}\n`;
     message += `Correo: ${data.email}\n\n`;
     message += `ROYALE, FINE PARFUM\n`;
-    message += `http://localhost:5173`;
+    message += `${URL}`;
   
-    const requestBody = { message };
+    const requestBody = { message: message, name: data.name };
   
     try {
       const response = await postPagarRequest(JSON.stringify(requestBody));
       if (response) {
         handleResponse(response);
       } else {
+        console.log(response)
         handleResponse({ res: false });
       }
     } catch (error) {
@@ -112,7 +114,7 @@ export const CartResume = ({ products }) => {
       handleResponse({ res: false });
     }
   
-    handleCloseModal();
+    // handleCloseModal();
   };
   
 

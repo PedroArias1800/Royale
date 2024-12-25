@@ -5,8 +5,7 @@ import cors from 'cors'
 
 import parfumRoutes from './routes/parfum.routes.js'
 import cartRoutes from './routes/cart.routes.js'
-import linksWhatsapp from './routes/links.routes.js'
-import { whatsapp } from './lib/whatsapp.js';
+import linksSend from './routes/links.routes.js'
 import { FRONTEND_URL } from './config.js';
 import dotenv from 'dotenv';
 
@@ -22,10 +21,10 @@ app.use(express.urlencoded({extended: false}));
 
 app.use(parfumRoutes);
 app.use(cartRoutes);
-app.use(linksWhatsapp);
+app.use(linksSend);
 
 dotenv.config();
-whatsapp.initialize();
+
 app.listen(PORT || 4000);
 console.log('Server levantado en el puerto', PORT || 4000)
 
