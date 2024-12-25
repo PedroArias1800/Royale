@@ -11,20 +11,17 @@ export const postCartRequest = async (cart) =>
 
 export const postPagarRequest = async (requestBody) => {
     try{
-        emailjs
-        .sendForm(
+        const response = await emailjs
+        .send(
             "service_sfmn57d",
             "template_8vk77pm",
             requestBody,
             "rjA015kN-lpTr5sSD"
-        ).then(res => {
-            return { res: true, message: 'Correo enviado correctamente' }
-          }).catch(err => {
-            return { res: false, msg: err.response?.data || err.message }    
-          })
+        )
 
-    } catch (error) {
-        return { res: false, msg: error.response?.data || error.message }    
+        return { res: true, message: 'Correo enviado correctamente' }
+    } catch (err) {
+        return { res: false, msg: err.response?.data || err.message };
     }
 }
 
