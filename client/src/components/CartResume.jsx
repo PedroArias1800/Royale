@@ -75,7 +75,7 @@ export const CartResume = ({ products }) => {
       color = '--color-rojo-alert';
       color2 = '--color-rojo-alert-hover';
     }
-    clearCart(alertMessage, color, color2);  // Limpiamos el carrito después de mostrar la alerta
+    clearCart(alertMessage, color, color2);
   ;
   };
   
