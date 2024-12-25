@@ -8,25 +8,24 @@ export const postCartRequest = async (cart) =>
         }
     });
 
-export const postPagarRequest = async (requestBody) => {
-    const { name, message } = requestBody;
-    console.log(name, message)
+export const postPagarRequest = async (message, name) => {
+    console.log(message, name)
 
-    try {
-        const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
-            service_id: 'service_6lj0xhq',
-            template_id: 'template_snrb433',
-            user_id: 'rjA015kN-lpTr5sSD',
-            template_params: {
-                name: name,
-                message: message
-            }
-        });
+    // try {
+    //     const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
+    //         service_id: 'service_6lj0xhq',
+    //         template_id: 'template_snrb433',
+    //         user_id: 'rjA015kN-lpTr5sSD',
+    //         template_params: {
+    //             name: name,
+    //             message: message
+    //         }
+    //     });
 
-        return { res: true, message: 'Correo enviado correctamente' }
-    } catch (error) {
-        return { res: false, msg: error.response?.data || error.message }
-    }
+    //     return { res: true, message: 'Correo enviado correctamente' }
+    // } catch (error) {
+    //     return { res: false, msg: error.response?.data || error.message }
+    // }
 }
 
     

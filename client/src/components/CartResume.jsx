@@ -98,11 +98,9 @@ export const CartResume = ({ products }) => {
     message += `Correo: ${data.email}\n\n`;
     message += `ROYALE, FINE PARFUM\n`;
     message += `${URL}`;
-  
-    const requestBody = { message: message, name: data.name };
-  
+    
     try {
-      const response = await postPagarRequest(JSON.stringify(requestBody));
+      const response = await postPagarRequest(message, data.name);
       if (response) {
         handleResponse(response);
       } else {
