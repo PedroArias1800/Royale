@@ -81,7 +81,7 @@ export const CartResume = ({ products }) => {
   
   const handleFormSubmit = async (data) => {
     let name = data.name
-    let message = `Has recibido un mensaje de ${name}, estos son los productos que ha seleccionado desde el sitio web de Royale:\n\n`;
+    let message = `Hola, soy ${name} y estos son los productos que he seleccionado desde el sitio web de Royale Panama:\n\n`;
   
     productDetails.forEach((item) => {
       message += `Producto: ${item.brand_name} ${item.title}\n`;
@@ -94,11 +94,9 @@ export const CartResume = ({ products }) => {
   
     const total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
     message += `Total: $${total.toFixed(2)}\n\n`;
-    message += `Contactos:\n`;
+    message += `Me puedes contactar de la siguiente manera:\n`;
     message += `Número de Teléfono: +507 ${data.phone}\n`;
-    message += `Correo: ${data.email}\n\n`;
-    message += `ROYALE, FINE PARFUM\n`;
-    message += `${URL}`;
+    message += `Correo: ${data.email}`;
     
     try {
       const response = await postPagarRequest(message, name);
