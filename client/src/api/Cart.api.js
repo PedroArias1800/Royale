@@ -22,7 +22,7 @@ export const postPagarRequest = async (requestBody) => {
 
         return { res: true, message: 'Correo enviado correctamente' }
     } catch (err) {
-        return { res: false, msg: err.response?.data || err.message };
+        return { res: false, msg: err.response?.data || err };
     }
 }
 
