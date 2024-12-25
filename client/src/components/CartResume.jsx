@@ -84,8 +84,8 @@ export const CartResume = ({ products }) => {
     productDetails.forEach((item) => {
       message += `Producto: ${item.brand_name} ${item.title}\n`;
       message += `Versión: ${item.version_name} - ${item.ml}ml\n`;
-      message += `Precio de Promoción: $${Number(item.price.toFixed(2))}\n`;
-      message += `Precio Regular: $${Number(item.old_price.toFixed(2))}\n`;
+      message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
+      message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
       message += `Cantidad: ${item.quantity}\n`;
       message += `Enlace: http://localhost:5173/parfum?id=${item.parfum_id}\n\n`;
     });

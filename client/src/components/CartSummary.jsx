@@ -80,10 +80,10 @@ export const CartSummary = ({ product }) => {
           </h5>
           <div className="productCardInfo2">
             <div className="cardInfo1">
-              <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.old_price.toFixed(2))}</p>
-              <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(product.price.toFixed(2))}</p>
+              <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.old_price).toFixed(2)}</p>
+              <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(product.price).toFixed(2)}</p>
               <p className='cardDiscount'>
-                {Math.ceil(-100 + (100 / Number(product.old_price.toFixed(2))) * Number(product.price.toFixed(2)))}%
+                {Math.ceil(-100 + (100 / Number(product.old_price).toFixed(2)) * Number(product.price).toFixed(2))}%
               </p>
             </div>
             <div className='editQuantity'>
