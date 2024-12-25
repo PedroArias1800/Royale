@@ -63,7 +63,7 @@ export const CartResume = ({ products }) => {
     let color = '';
     let color2 = '';
   
-    if (response && response.data.res === true) {
+    if (response && response.res === true) {
       // Mostramos mensaje de éxito
       alertMessage = "¡Gracias por tu compra, en unos momentos contactaremos contigo!";
       color = '--color-dorado';
