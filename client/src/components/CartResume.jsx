@@ -113,7 +113,14 @@ export const CartResume = ({ products }) => {
       handleResponse({ res: false });
     }
   
-    // handleCloseModal();
+    handleCloseModal();
+    // Construir el enlace a WhatsApp con un mensaje dinámico
+    const phoneNumber = "50768389280"; // Reemplaza con el número de WhatsApp
+    const whatsappMessage = encodeURIComponent(message); // Codificar mensaje
+    const whatsappURL = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`;
+
+    // Redirigir al enlace de WhatsApp
+    window.open(whatsappURL, "_blank");
   };
   
 
