@@ -58,11 +58,11 @@ export const Cart = () => {
           </div>
         ) : (
           <div className='listCart'>
-            {/* {
+            {
               cart.map((item, index) => (
                 <CartSummary key={index} product={item} />
               ))
-            } */}
+            }
           </div>
         )}
       </section>
