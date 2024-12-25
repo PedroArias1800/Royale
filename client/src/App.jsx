@@ -11,9 +11,6 @@ import { Footer } from "./components/Footer";
 import { Cart } from "./Pages/Cart.";
 import { PrivacyTermModal } from './components/PrivacyTermModal.jsx';
 
-
-/* Css */
-import "./css/Responsive.css";
 import 'aos/dist/aos.css';
 
 const App = () => {

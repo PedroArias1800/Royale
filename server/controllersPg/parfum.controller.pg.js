@@ -81,6 +81,20 @@ export const parfumVersion = async (req, res) => {
     }
 };
 
+export const ejemploPg = async(req, res) => {
+    try {
+        const { rows } = await pool.query(`
+            SELECT * FROM body`,);
+
+
+        res.json(result);
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
 // Función para obtener todos los perfumes
 export const allParfums = async (req, res) => {
     let { limit } = req.headers;

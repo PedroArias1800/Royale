@@ -271,9 +271,15 @@
     .esconder2{
         display: block !important;
     }
+    .bodyContent{
+        margin: auto !important;
+        width: 80% !important;
+    }
     .bodyContent img{
-        width: auto !important;
-        margin: 0 !important;
+        margin: 0 auto !important;
+    }
+    .bodyContent a{
+        width: 60%;
     }
     .resumenCart{
         margin: 2vh auto auto auto;
