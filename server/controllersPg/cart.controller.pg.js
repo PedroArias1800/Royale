@@ -31,7 +31,7 @@ export const postCart = async (req, res) => {
         WHERE 
             ${placeholders}
         ORDER BY 
-            p.parfum_id, t.ml = 100 DESC, t.types_id ASC;
+            p.parfum_id, (CAST(t.ml AS INTEGER) = 100) DESC, t.types_id ASC;
     `;
 
     try {
