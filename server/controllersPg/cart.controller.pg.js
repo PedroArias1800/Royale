@@ -18,8 +18,8 @@ export const postCart = async (req, res) => {
             v.version_name,
             t.ml,
             t.img,
-            t.price,
-            t.old_price
+            CAST(t.price as numeric(10,2)),
+            CAST(t.old_price as numeric(10,2))
         FROM 
             parfum p
         INNER JOIN
