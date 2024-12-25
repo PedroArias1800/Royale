@@ -58,15 +58,15 @@ export const Cart = () => {
           </div>
         ) : (
           <div className='listCart'>
-            {
+            {/* {
               cart.map((item, index) => (
                 <CartSummary key={index} product={item} />
               ))
-            }
+            } */}
           </div>
         )}
       </section>
-      {/* {
+      {
         getTotalQuantity() !== 0 ? (
         <section className='resumenCart'>
           <CartResume products={cart} />
@@ -75,7 +75,7 @@ export const Cart = () => {
         ) : (
           <></>
         )
-      } */}
+      }
     </div>
   );
 };
