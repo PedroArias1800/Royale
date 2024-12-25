@@ -10,12 +10,13 @@ export const postCartRequest = async (cart) =>
 
 export const postPagarRequest = async (requestBody) => {
     const { name, message } = requestBody;
+    console.log(name, message)
 
     try {
         const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
-            service_id: 'service_6lj0xhq',    // Reemplaza con tu ID de servicio
-            template_id: 'template_snrb433',   // Reemplaza con tu ID de plantilla
-            user_id: 'rjA015kN-lpTr5sSD',     // Tu User ID de EmailJS
+            service_id: 'service_6lj0xhq',
+            template_id: 'template_snrb433',
+            user_id: 'rjA015kN-lpTr5sSD',
             template_params: {
                 name: name,
                 message: message
