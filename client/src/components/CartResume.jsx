@@ -80,7 +80,8 @@ export const CartResume = ({ products }) => {
   };
   
   const handleFormSubmit = async (data) => {
-    let message = `Has recibido un mensaje de ${data.name}, estos son los productos que ha seleccionado desde el sitio web de Royale:\n\n`;
+    let name = data.name
+    let message = `Has recibido un mensaje de ${name}, estos son los productos que ha seleccionado desde el sitio web de Royale:\n\n`;
   
     productDetails.forEach((item) => {
       message += `Producto: ${item.brand_name} ${item.title}\n`;
@@ -100,7 +101,7 @@ export const CartResume = ({ products }) => {
     message += `${URL}`;
     
     try {
-      const response = await postPagarRequest(message, data.name);
+      const response = await postPagarRequest(message, name);
       if (response) {
         handleResponse(response);
       } else {
