@@ -62,6 +62,7 @@ export const CartResume = ({ products }) => {
     let alertMessage = '';
     let color = '';
     let color2 = '';
+    console.log(response)
   
     if (response && response.res === true) {
       // Mostramos mensaje de éxito
@@ -70,7 +71,6 @@ export const CartResume = ({ products }) => {
       color2 = '--color-dorado-hover';
   
     } else {
-
       alertMessage = "Ha ocurrido un error, inténtelo nuevamente en unos minutos.";
       color = '--color-rojo-alert';
       color2 = '--color-rojo-alert-hover';
