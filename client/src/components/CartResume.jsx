@@ -70,7 +70,7 @@ export const CartResume = ({ products }) => {
       color2 = '--color-dorado-hover';
   
     } else {
-      // En caso de error, mostramos mensaje de error
+
       alertMessage = "Ha ocurrido un error, inténtelo nuevamente en unos minutos.";
       color = '--color-rojo-alert';
       color2 = '--color-rojo-alert-hover';
