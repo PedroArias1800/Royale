@@ -33,7 +33,7 @@ export const parfumVersion = async (req, res) => {
             WHERE 
                 p.parfum_id = $1
             ORDER BY 
-                p.parfum_id, t.ml = 100 DESC, t.types_id ASC;
+                p.parfum_id, (CAST(t.ml AS INTEGER) = 100) DESC, t.types_id ASC;
         `, [id]);
 
         // Agrupar perfumes con sus respectivos types
@@ -190,6 +190,7 @@ export const parfumsBody = async (req, res) => {
             WHERE
                 b.status = 1
         `);
+        rows.sort((a, b) => a.body_id - b.body_id);
         console.table(rows);
 
         res.json(rows);
