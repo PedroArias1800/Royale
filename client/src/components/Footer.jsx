@@ -46,8 +46,7 @@ export const Footer = () => {
                 <div>
                     <h3>UBICACIÓN</h3>
                     <p>
-                        Panamá, Provincia de Panamá;<br/>
-                        P.H. Blue business, San Francisco
+                        Panamá, Ciudad de Panamá<br/>
                     </p>
                 </div>
             </div>
