@@ -11,9 +11,9 @@ export const postCartRequest = async (cart) =>
 export const postPagarRequest = async (message, name) => {
     try {
         const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
-            service_id: 'service_6lj0xhq',
-            template_id: 'template_snrb433',
-            user_id: 'rjA015kN-lpTr5sSD',
+            service_id: 'service_fqjag8l',
+            template_id: 'template_boebcu4',
+            user_id: 'OR5r_YL2H4xVl2GiR',
             template_params: {
                 name: name,
                 message: message

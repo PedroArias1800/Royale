@@ -113,7 +113,7 @@ export const CartResume = ({ products }) => {
   
     handleCloseModal();
     // Construir el enlace a WhatsApp con un mensaje dinámico
-    const phoneNumber = "50768389280"; // Reemplaza con el número de WhatsApp
+    const phoneNumber = "50762653382"; // Reemplaza con el número de WhatsApp
     const whatsappMessage = encodeURIComponent(message); // Codificar mensaje
     const whatsappURL = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`;
 
