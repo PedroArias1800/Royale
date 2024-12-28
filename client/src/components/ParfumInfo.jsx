@@ -64,7 +64,7 @@ export const ParfumInfo = ({ product }) => {
         </div>
         <div className="parfumInfoGrande">
           <h3>
-            {product.brand} {product.title}
+            {product.brand} {product.title} {selectedType.version_name}
           </h3>
           <div className='precioGenero'>
             <div style={{ display: "flex", gap: "5px" }}>
@@ -87,7 +87,7 @@ export const ParfumInfo = ({ product }) => {
           <hr />
           <div>
             <h5>
-              {selectedType.version_name} Version - {selectedType.ml} ml.
+              {selectedType.ml} ml.
             </h5>
             <div className="vistaPrevia">
               {product.types.map((type, index) => (

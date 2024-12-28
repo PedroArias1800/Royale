@@ -38,7 +38,7 @@ export const Card = ({element, cardsRef, index, width100}) => {
               </div>
             </div>
             <div className='infoCards'>
-              <p>{element.types[0].version_name} Version</p>
+              <p>{element.types[0].version_name}</p>
             </div>
             <p className='cardsMarca'>{element.brand}</p>
         </Link>
