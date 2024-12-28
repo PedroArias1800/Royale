@@ -28,7 +28,7 @@ export const Footer = () => {
                             <FontAwesomeIcon icon={faTwitter} />
                             <p>@RoyalePanama1</p>
                         </Link>
-                        <Link to={`whatsapp://send?phone=50765623382?text=`}>
+                        <Link to={`whatsapp://send?phone=50765623382&text=Hola,%20estoy%20interesado%20en%20algunos%20productos`}>
                             <FontAwesomeIcon icon={faWhatsapp} />
                             <p>RoyalePanama1</p>
                         </Link>
