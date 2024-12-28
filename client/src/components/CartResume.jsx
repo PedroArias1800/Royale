@@ -114,11 +114,29 @@ export const CartResume = ({ products }) => {
     handleCloseModal();
     // Construir el enlace a WhatsApp con un mensaje dinámico
     const phoneNumber = "50765623382"; // Reemplaza con el número de WhatsApp
-    const whatsappMessage = encodeURIComponent(message); // Codificar mensaje
-    const whatsappURL = `intent://send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}#Intent;package=com.whatsapp;end`;
-    // Redirigir al enlace de WhatsApp
-    window.open(whatsappURL, "_blank");
-  };
+    const whatsappMessage = message; // Codificar mensaje
+    const whatsappMessengerIntent = `intent://send?phone=${phoneNumber}&text=${encodeURIComponent(whatsappMessage)}#Intent;package=com.whatsapp;end`;
+    const fallbackURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+
+    // Detecta la plataforma
+    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+
+    if (isAndroid) {
+        // Android: Intenta abrir WhatsApp Messenger primero
+        try {
+            window.location.href = whatsappMessengerIntent;
+        } catch (error) {
+            // Si falla, usa el enlace genérico
+            window.open(fallbackURL, "_blank");
+        }
+    } else if (isIOS) {
+        // iOS: Usa el enlace universal directamente
+        window.open(fallbackURL, "_blank");
+    } else {
+        // Otros dispositivos: Recurre al enlace genérico como estándar
+        window.open(fallbackURL, "_blank");
+    }
   
 
   return (
