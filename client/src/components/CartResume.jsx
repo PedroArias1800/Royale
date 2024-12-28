@@ -137,6 +137,7 @@ export const CartResume = ({ products }) => {
         // Otros dispositivos: Recurre al enlace genérico como estándar
         window.open(fallbackURL, "_blank");
     }
+  }
   
 
   return (
