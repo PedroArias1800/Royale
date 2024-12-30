@@ -1,4 +1,4 @@
-import { pool } from "../db.js";
+import { connectDB } from "../db.js";
 
 export const postCart = async (req, res) => {
     const cartItems = req.body;
@@ -34,7 +34,7 @@ export const postCart = async (req, res) => {
 
 
     try {
-        const [rows] = await pool.query(query, values);
+        const [rows] = await connectDB.query(query, values);
         res.json(rows);
     } catch (err) {
         console.error(err);

@@ -1,4 +1,4 @@
-import { pool } from "../db.js";
+import { connectDB } from "../db.js";
 
 
 export const parfumVersion = async (req, res) => {
@@ -9,7 +9,7 @@ export const parfumVersion = async (req, res) => {
     }
     
     try {
-        const [rows] = await pool.query(`
+        const [rows] = await connectDB.query(`
             SELECT 
                 p.parfum_id,
                 b.brand_name,
@@ -86,7 +86,7 @@ export const allParfums = async (req, res) => {
     let { limit } = req.headers
     limit = parseInt(limit, 10);
     try {
-        const [rows] = await pool.query(`
+        const [rows] = await connectDB.query(`
             SELECT 
                 p.parfum_id,
                 b.brand_name,
@@ -156,7 +156,7 @@ export const allParfums = async (req, res) => {
 
 export const parfumsBody = async (req, res) => {
     try {
-        const [result] = await pool.query(`
+        const [result] = await connectDB.query(`
             SELECT
                 b.body_id,
                 b.title,
