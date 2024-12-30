@@ -12,6 +12,8 @@ import { Cart } from "./Pages/Cart.";
 import { PrivacyTermModal } from './components/PrivacyTermModal.jsx';
 
 import 'aos/dist/aos.css';
+import { Login } from './Pages/Login.jsx';
+import { Admin } from './Pages/Admin.jsx';
 
 const App = () => {
 
@@ -27,6 +29,8 @@ const App = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/parfum" element={<ParfumDetails />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<Admin />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <PrivacyTermModal />

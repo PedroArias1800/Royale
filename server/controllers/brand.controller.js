@@ -23,7 +23,8 @@ export const createBrand = async(req, res) => {
 
 export const updateBrand = async(req, res) => {
     const brand = await Brand.findByIdAndUpdate(req.params.id, req.body, {
-        nre: true
+        new: true
     });
     if (!brand) return res.status(404).json({ message: "Brand not Found" })
+    res.json(brand)
 }
