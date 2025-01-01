@@ -1,0 +1,18 @@
+.adminHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 90%;
+    padding: 0 5%;
+    height: 10vh;
+}
+.adminHeader1{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+p{
+    padding: 0;
+    margin: 0;
+}

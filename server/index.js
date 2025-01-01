@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 
 import { PORT } from './config.js';
-import { FRONTEND_URL } from './config.js';
+import { FRONTEND_URL, ADMIN_URL } from './config.js';
 import { connectDB } from './db.js';
 
 import authRoutes from './routes/auth.routes.js'
@@ -24,7 +24,8 @@ const app = express();
 
 app.use(cors(
     {
-        origin: FRONTEND_URL
+        origin: [FRONTEND_URL, ADMIN_URL],
+        credentials: true
     }
 ));
 app.use(morgan('dev'));

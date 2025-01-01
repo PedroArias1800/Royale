@@ -1,0 +1,50 @@
+:root{
+  --color-dorado: #fed879;
+  --color-dorado-hover: #c79a28;
+  --color-rojo-alert: #fe7979;
+  --color-rojo-alert-hover: #c72828;
+}
+
+.alert {
+  font-size: medium;
+  position: fixed;
+  width: 350px;
+  top: 20px;
+  right: 0px;
+  color: black;
+  padding: 10px 20px;
+  border-radius: 5px 0 0 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 4px 4px 6px rgba(0, 0, 0, 0.263);
+  z-index: 1000;
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.alert.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.alert.hidden {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.alert-text {
+  margin-right: 10px;
+}
+
+.close-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all .35s ease;
+}
+
+.close-btn:hover {
+  color: rgba(0, 0, 0, 0.584);
+}
