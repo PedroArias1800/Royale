@@ -7,18 +7,18 @@ const typesSchema = new mongoose.Schema({
     },
     img: {
         type: String,
-        required: true,
+        required: function() { return this.status === '1'; }
     },
     price: {
-        type: Float32Array,
+        type: Number,
         required: true,
     },
     old_price: {
-        type: Float32Array,
+        type: Number,
         required: true,
     },
     status: {
-        type: Float32Array,
+        type: Number,
         required: true,
     },
     parfum_id_fk: {

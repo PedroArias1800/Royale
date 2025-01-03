@@ -11,11 +11,11 @@ const bodySchema = new mongoose.Schema({
     },
     parfum_img: {
         type: String,
-        required: true,
+        required: function() { return this.status === '1'; }
     },
     back_img: {
         type: String,
-        required: true,
+        required: function() { return this.status === '1'; }
     },
     url: {
         type: String,

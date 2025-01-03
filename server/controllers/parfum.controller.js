@@ -2,6 +2,14 @@ import Parfum from '../models/parfum.model.js'
 
 export const getParfums = async(req, res) => {
     const parfums = await Parfum.find()
+        .populate({
+            path: 'version_id_fk',
+            select: 'version_name',
+        })
+        .populate({
+            path: 'brand_id_fk',
+            select: 'brand_name',
+        });
     res.json(parfums)
 }
 

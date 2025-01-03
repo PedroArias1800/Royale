@@ -15,8 +15,12 @@ export const columnMappings = {
     url: 'URL',
     color: 'Color',
     color2: 'Color 2',
-    parfum_id_fk: 'Perfume'
+    parfum_id_fk: 'Perfume',
+    ml: "Mililitros",
+    img: "Imagen",
+    price: "Precio de Nosotros",
+    old_price: "Precio al Público"
     // Agrega más columnas si es necesario
   };
 
-export const excludedColumns = ["_id", "__v"];
+export const excludedColumns = ["_id", "__v", "createdAt", "updatedAt"];

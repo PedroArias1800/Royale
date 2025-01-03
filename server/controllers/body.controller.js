@@ -1,8 +1,13 @@
 import Body from '../models/body.model.js'
 
-export const getBodys = async(req, res) => {
-    const bodys = await Body.find()
-    res.json(bodys)
+export const getBodies = async(req, res) => {
+    const bodies = await Body.find()
+    .populate({
+        path: 'parfum_id_fk',
+        select: 'title',
+    });
+
+    res.json(bodies)
 }
 
 export const getBody = async(req, res) => {
@@ -11,13 +16,17 @@ export const getBody = async(req, res) => {
 }
 
 export const createBody = async(req, res) => {
-    const { title, align, parfum_img, back_img, url, color, color2, status, parfum_id_fk } = req.body
+    const { title, align, url, color, color2, status, parfum_id_fk } = req.body
+    const img1Path = req.files?.img1 ? `/uploads/${req.files.img1[0].filename}` : null;
+    const img2Path = req.files?.img2 ? `/uploads/${req.files.img2[0].filename}` : null;
+
+    console.log(img1Path, img2Path);
 
     const newBody = new Body({
         title,
         align,
-        parfum_img,
-        back_img,
+        parfum_img: img1Path,
+        back_img: img2Path,
         url,
         color,
         color2,
@@ -30,7 +39,17 @@ export const createBody = async(req, res) => {
 }
 
 export const updateBody = async(req, res) => {
-    const body = await Body.findByIdAndUpdate(req.params.id, req.body, {
+    const { title, align, url, color, color2, status, parfum_id_fk } = req.body
+    const img1Path = req.files?.img1 ? `/uploads/${req.files.img1[0].filename}` : null;
+    const img2Path = req.files?.img2 ? `/uploads/${req.files.img2[0].filename}` : null;
+    
+    console.log(img1Path, img2Path);
+
+    const updatedData = { title, align, url, color, color2, status, parfum_id_fk };
+    if (img1Path) updatedData.parfum_img = img1Path;
+    if (img2Path) updatedData.back_img = img2Path;
+
+    const body = await Body.findByIdAndUpdate(req.params.id, updatedData, {
         new: true
     });
     if (!body) return res.status(404).json({ message: "Body not Found" })

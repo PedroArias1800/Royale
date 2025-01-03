@@ -16,6 +16,7 @@ import brandRoutes from './routes/brand.routes.js'
 import cartRoutes from './routes/cart.routes.js'
 import indexRoutes from './routes/index.routes.js'
 import parfumRoutes from './routes/parfum.routes.js'
+import typeRoutes from './routes/type.routes.js'
 import versionRoutes from './routes/version.routes.js'
 
 
@@ -31,6 +32,7 @@ app.use(cors(
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(cookieParser())
+app.use('/uploads', express.static('uploads'))
 app.use(express.urlencoded({extended: false}));
 
 dotenv.config();
@@ -42,6 +44,7 @@ app.use(brandRoutes);
 app.use(cartRoutes);
 app.use(indexRoutes);
 app.use(parfumRoutes);
+app.use(typeRoutes);
 app.use(versionRoutes);
 
 app.listen(PORT || 4000);
