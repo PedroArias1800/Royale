@@ -63,12 +63,26 @@ export const ModalFormParfum = ({ modalData }) => {
                 setModalData(null); // Limpiar los datos del modal
             } catch (error) {
                 console.error('Error al enviar los datos:', error);
-                console.log('Ocurrió un error. Inténtalo nuevamente.');
+                console.log('Ocurrió un error. Inténtalo más tarde.');
             }
         };
 
     const deleteDatos = async () => {
-        await deleteParfumsRequest(modalData?._id)
+        try {
+            const res = await deleteParfumsRequest(modalData?._id);
+            if (res.status == 200){
+                console.log('Datos eliminados con éxito');
+            } else {
+                console.log('Ocurrió un error. Inténtalo más tarde.');
+            }
+        } catch (error) {
+            console.error('Error al enviar los datos:', error);
+            console.log('Ocurrió un error. Inténtalo más tarde.');
+        }
+        
+        closeModal()
+        setModalData(null);
+        cargarDataTables(1)
     }
 
     if (!modalData) {

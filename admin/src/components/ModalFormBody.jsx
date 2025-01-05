@@ -8,12 +8,16 @@ export const ModalFormBody = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal } = useAuth();
     const [parfums, setParfums] = useState([]);
     const isUpdate = Boolean(modalData?._id);
-    const [alertMessage, setAlertMessage] = useState("");    
+    const [alertMessage, setAlertMessage] = useState("");
 
     useEffect(() => {
         async function loadParfums() {
-            const response = await getParfumsRequest();
-            setParfums(Array.isArray(response.data) ? response.data : []);
+            try {
+                const response = await getParfumsRequest();
+                setParfums(Array.isArray(response.data) ? response.data : []);
+            } catch (error) {
+                console.error('Error fetching parfums:', error);
+            }
         }
         loadParfums();
     }, []);
@@ -21,41 +25,38 @@ export const ModalFormBody = ({ modalData }) => {
     useEffect(() => {
         return () => {
             if (modalData?.img1Preview) {
-                URL.revokeObjectURL(modalData.img1Preview); // Liberar la URL
+                URL.revokeObjectURL(modalData.img1Preview);
             }
             if (modalData?.img2Preview) {
-                URL.revokeObjectURL(modalData.img2Preview); // Liberar la URL
+                URL.revokeObjectURL(modalData.img2Preview);
             }
-            
         };
-    }, []);
-    
-    // Inicializa el parfum_id_fk solo cuando parfums cambia
+    }, [modalData]);
+
     useEffect(() => {
-        if (!modalData?.parfum_id_fk?._id && parfums.length > 0) {
+        if (!modalData?.parfum_id_fk && parfums.length > 0) {
             setModalData((prevData) => ({
                 ...prevData,
-                parfum_id_fk: parfums[0]._id, // Selecciona el primer elemento
+                parfum_id_fk: parfums[0]._id,
             }));
         }
-    }, [parfums]); // Solo depende de parfums
+    }, [parfums, setModalData]);
 
-    // Inicializa el status solo si está undefined
     useEffect(() => {
         if (modalData?.status === undefined) {
             setModalData((prevData) => ({
                 ...prevData,
-                status: "1", // Selecciona "Activado" como valor predeterminado
+                status: "1",
             }));
         }
-    }, [modalData?.status]); // Solo depende de modalData?.status
-    
+    }, [modalData?.status, setModalData]);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
 
         setModalData((prevData) => ({
             ...prevData,
-            [name]: convertType(name, value), // Convertimos según el tipo esperado
+            [name]: convertType(name, value),
         }));
     };
 
@@ -66,7 +67,7 @@ export const ModalFormBody = ({ modalData }) => {
 
     const enviarDatos = async (e) => {
         e.preventDefault();
-        
+
         const formData = new FormData();
         formData.append('title', modalData.title);
         formData.append('align', modalData.align);
@@ -76,33 +77,30 @@ export const ModalFormBody = ({ modalData }) => {
         formData.append('status', modalData.status);
         formData.append('parfum_id_fk', modalData.parfum_id_fk);
 
-        // Adjuntar las imágenes si están presentes
         if (modalData.parfum_img) formData.append('img1', modalData.parfum_img);
         if (modalData.back_img) formData.append('img2', modalData.back_img);
 
         try {
             let res;
             if (isUpdate) {
-                // Llamar a la API de actualización
                 res = await putBodiesRequest(modalData._id, formData);
-                if (res.status == 200) {
+                if (res.status === 200) {
                     console.log('Datos actualizados con éxito');
-                    cargarDataTables(1);
+                    cargarDataTables(5);
                     closeModal();
                 }
             } else {
-                // Llamar a la API de creación
                 res = await postBodiesRequest(formData);
-                if (res.status == 200) {
+                if (res.status === 200) {
                     console.log('Datos creados con éxito');
-                    cargarDataTables(1);
+                    cargarDataTables(5);
                     closeModal();
                 }
             }
-            setModalData(null); // Limpiar los datos del modal
+            setModalData(null);
         } catch (error) {
             console.error('Error al enviar los datos:', error);
-            setAlertMessage('Ocurrió un error. Inténtalo nuevamente.');
+            setAlertMessage('Ocurrió un error. Inténtalo más tarde.');
         }
     };
 
@@ -110,42 +108,55 @@ export const ModalFormBody = ({ modalData }) => {
         const { name, files } = e.target;
         if (files && files[0]) {
             const file = files[0];
-            const imgPreview = URL.createObjectURL(file); // Crear una URL de la imagen
+            const imgPreview = URL.createObjectURL(file);
             setModalData((prevData) => ({
                 ...prevData,
-                [name]: file, // Guarda el archivo en el estado
-                [`${name}Preview`]: imgPreview, // Guarda la URL de vista previa para img1 o img2
+                [name]: file,
+                [`${name}Preview`]: imgPreview,
             }));
         }
     };
-    
+
     const deleteDatos = async () => {
-        await deleteParfumsRequest(modalData?._id);
+        try {
+            const res = await deleteBodiesRequest(modalData?._id);
+            if (res.status === 200) {
+                console.log('Datos eliminados con éxito');
+            } else {
+                console.error('Ocurrió un error al eliminar los datos.');
+            }
+        } catch (error) {
+            console.error('Error al eliminar los datos:', error);
+        }
+
+        closeModal();
+        setModalData(null);
+        cargarDataTables(5);
     };
 
     if (!modalData) {
-        return <p>Cargando datos...</p>; // Mostrar algo mientras `modalData` no esté disponible
+        return <p>Cargando datos...</p>;
     }
 
     return (
         <div>
-            <Alert message={alertMessage} color={'--color-rojo-alert'} color2={'--color-rojo-alert-hover'} onClose={() => setAlertMessage("")}/>
+            <Alert message={alertMessage} color={'--color-rojo-alert'} color2={'--color-rojo-alert-hover'} onClose={() => setAlertMessage("")} />
             <form onSubmit={enviarDatos} encType="multipart/form-data">
-                <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+                <input type="hidden" name="_id" value={modalData?._id || ''} />
                 <label htmlFor="title">
                     <p>Título</p>
-                    <input type="text" name="title" id="title" value={modalData?.title || ''} onChange={handleInputChange} required={true} />
+                    <input type="text" name="title" id="title" value={modalData?.title || ''} onChange={handleInputChange} required />
                 </label>
                 <label htmlFor="align">
                     <p>Alineación</p>
-                    <select name="align" id="align" value={modalData?.align || ''} onChange={handleInputChange} required={true}>
+                    <select name="align" id="align" value={modalData?.align || ''} onChange={handleInputChange} required>
                         <option value="auto">Izquierda</option>
                         <option value="0">Derecha</option>
                     </select>
                 </label>
                 <label htmlFor="img1">
                     <p>Imagen de Perfume</p>
-                    <input type="file" name="img1" id="img1" accept="image/*" onChange={handleFileChange} required={!isUpdate} />
+                    <input type="file" name="parfum_img" id="img1" accept="image/*" onChange={handleFileChange} required={!isUpdate} />
                     {modalData?.img1Preview && (
                         <div style={{ marginTop: '10px' }}>
                             <img
@@ -158,8 +169,8 @@ export const ModalFormBody = ({ modalData }) => {
                 </label>
                 <label htmlFor="img2">
                     <p>Imagen de Fondo</p>
-                    <input type="file" name="img2" id="img2" accept="image/*" onChange={handleFileChange} required={!isUpdate} />
-                    {(modalData?.img2Preview || modalData?.img2) && (
+                    <input type="file" name="back_img" id="img2" accept="image/*" onChange={handleFileChange} required={!isUpdate} />
+                    {(modalData?.img2Preview || modalData?.back_img) && (
                         <div style={{ marginTop: '10px' }}>
                             <img
                                 src={modalData.img2Preview}
@@ -171,15 +182,15 @@ export const ModalFormBody = ({ modalData }) => {
                 </label>
                 <label htmlFor="color">
                     <p>Color 1</p>
-                    <input type="text" name="color" id="color" value={modalData?.color || ''} onChange={handleInputChange} required={true} />
+                    <input type="text" name="color" id="color" value={modalData?.color || ''} onChange={handleInputChange} required />
                 </label>
                 <label htmlFor="color2">
                     <p>Color 2</p>
-                    <input type="text" name="color2" id="color2" value={modalData?.color2 || ''} onChange={handleInputChange} required={true} />
+                    <input type="text" name="color2" id="color2" value={modalData?.color2 || ''} onChange={handleInputChange} required />
                 </label>
                 <label htmlFor="status">
                     <p>Estado</p>
-                    <select name="status" id="status" value={modalData?.status || ''} onChange={handleInputChange} required={true}>
+                    <select name="status" id="status" value={modalData?.status || ''} onChange={handleInputChange} required>
                         <option value="1">Activado</option>
                         <option value="0">Desactivado</option>
                     </select>
@@ -189,9 +200,9 @@ export const ModalFormBody = ({ modalData }) => {
                     <select
                         name="parfum_id_fk"
                         id="parfum_id_fk"
-                        value={modalData?.parfum_id_fk?._id || ''}
+                        value={modalData?.parfum_id_fk || ''}
                         onChange={handleInputChange}
-                        required={true}
+                        required
                     >
                         {parfums.map((parfum) => (
                             <option key={parfum._id} value={parfum._id}>
@@ -200,7 +211,7 @@ export const ModalFormBody = ({ modalData }) => {
                         ))}
                     </select>
                 </label>
-                {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
+                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
             </form>
         </div>

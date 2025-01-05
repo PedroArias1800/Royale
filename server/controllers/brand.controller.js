@@ -28,3 +28,11 @@ export const updateBrand = async(req, res) => {
     if (!brand) return res.status(404).json({ message: "Brand not Found" })
     res.json(brand)
 }
+
+export const deleteBrand = async(req, res) => {
+    const brand = await Brand.findByIdAndDelete(req.params.id, {
+        new: true
+    });
+    if (!brand) return res.status(404).json({ message: "Brand not Found" })
+    res.json(brand)
+}

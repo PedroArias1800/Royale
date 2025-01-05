@@ -57,3 +57,11 @@ export const updateType = async (req, res) => {
     
     res.json(type);
 }
+
+export const deleteType = async(req, res) => {
+    const type = await Type.findByIdAndDelete(req.params.id, req.body, {
+        new: true
+    });
+    if (!type) return res.status(404).json({ message: "Type not Found" })
+    res.json(type)
+}

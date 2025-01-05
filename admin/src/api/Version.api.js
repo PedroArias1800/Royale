@@ -7,4 +7,4 @@ export const putVersionsRequest = async (id, version) =>
     await axios.put(`/api/version/${id}`, version)
 
 export const deleteVersionsRequest = async (id) =>
-    await axios.delete(`/api/version`, id)
+    await axios.delete(`/api/version/${id}`)

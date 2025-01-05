@@ -11,4 +11,4 @@ export const putParfumsRequest = async (id, parfum) =>
     })
 
 export const deleteParfumsRequest = async (id) =>
-    await axios.delete(`/api/parfum`, id)   
+    await axios.delete(`/api/parfum/${id}`)   

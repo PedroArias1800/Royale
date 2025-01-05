@@ -7,4 +7,4 @@ export const putBrandsRequest = async (id, brand) =>
     await axios.put(`/api/brand/${id}`, brand)
 
 export const deleteBrandsRequest = async (id) =>
-    await axios.delete(`/api/brand`, id)
+    await axios.delete(`/api/brand/${id}`)

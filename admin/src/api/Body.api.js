@@ -15,4 +15,4 @@ export const putBodiesRequest = async (id, body) =>
     });
 
 export const deleteBodiesRequest = async (id) =>
-    await axios.delete(`/api/body`, id)
+    await axios.delete(`/api/body/${id}`)

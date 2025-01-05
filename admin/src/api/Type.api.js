@@ -15,4 +15,4 @@ export const putTypesRequest = async (id, type) =>
     });
 
 export const deleteTypesRequest = async (id) =>
-    await axios.delete(`/api/type`, id)
+    await axios.delete(`/api/type/${id}`)

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getTypesRequest, getParfumsRequest } from '../api/Admin.api';
+import { getParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
 import { Alert } from './Alert';
@@ -8,7 +8,6 @@ const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal } = useAuth();
     const [parfums, setParfum] = useState([]);
-    const [types, setTypes] = useState([]);
     const isUpdate = Boolean(modalData?._id);
     const [alertMessage, setAlertMessage] = useState("");    
 
@@ -16,10 +15,18 @@ export const ModalFormType = ({ modalData }) => {
         async function loadParfum() {
             const response = await getParfumsRequest();
             setParfum(Array.isArray(response.data) ? response.data : []);
-            console.log('Cargando parfum', modalData)
         }
         loadParfum();
     }, []);
+
+    useEffect(() => {
+        if (modalData?.status === undefined) {
+            setModalData((prevData) => ({
+                ...prevData,
+                status: "1", // Selecciona "Activado" como valor predeterminado
+            }));
+        }
+    }, [modalData?.status]); // Solo depende de modalData?.status
 
     useEffect(() => {
         return () => {
@@ -110,12 +117,26 @@ export const ModalFormType = ({ modalData }) => {
                 setModalData(null);
             } catch (error) {
                 console.error('Error al enviar los datos:', error);
-                console.log('Ocurrió un error. Inténtalo nuevamente.');
+                console.log('Ocurrió un error. Inténtalo más tarde.');
             }
         };
 
     const deleteDatos = async () => {
-        await deleteTypesRequest(modalData?._id)
+        try {
+            const res = await deleteTypesRequest(modalData?._id);
+            if (res.status == 200){
+                console.log('Datos eliminados con éxito');
+            } else {
+                console.log('Ocurrió un error. Inténtalo más tarde.');
+            }
+        } catch (error) {
+            console.error('Error al enviar los datos:', error);
+            console.log('Ocurrió un error. Inténtalo más tarde.');
+        }
+        
+        closeModal()
+        setModalData(null);
+        cargarDataTables(2)
     }
 
     if (!modalData) {

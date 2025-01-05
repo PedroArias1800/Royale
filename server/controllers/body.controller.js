@@ -55,3 +55,11 @@ export const updateBody = async(req, res) => {
     if (!body) return res.status(404).json({ message: "Body not Found" })
     res.json(body)
 }
+
+export const deleteBody = async(req, res) => {
+    const body = await Body.findByIdAndDelete(req.params.id, req.body, {
+        new: true
+    });
+    if (!body) return res.status(404).json({ message: "Body not Found" })
+    res.json(body)
+}

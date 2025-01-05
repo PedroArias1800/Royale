@@ -41,3 +41,11 @@ export const updateParfum = async(req, res) => {
     if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
     res.json(parfum)
 }
+
+export const deleteParfum = async(req, res) => {
+    const parfum = await Parfum.findByIdAndDelete(req.params.id, {
+        new: true
+    });
+    if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
+    res.json(parfum)
+}

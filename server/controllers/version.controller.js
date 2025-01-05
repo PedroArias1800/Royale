@@ -29,3 +29,11 @@ export const updateVersion = async(req, res) => {
     if (!version) return res.status(404).json({ message: "Version not Found" })
     res.json(version)
 }
+
+export const deleteVersion = async(req, res) => {
+    const version = await Version.findByIdAndDelete(req.params.id, {
+        new: true
+    });
+    if (!version) return res.status(404).json({ message: "Version not Found" })
+    res.json(version)
+}

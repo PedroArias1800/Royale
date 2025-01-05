@@ -27,7 +27,7 @@ export const ModalFormBrand = ({ modalData }) => {
                 const res = await putBrandsRequest(modalData._id, modalData);
                 if (res.status == 200){
                     console.log('Datos actualizados con éxito');
-                    cargarDataTables(4)
+                    cargarDataTables(3)
                     closeModal()
                 }
             } else {
@@ -35,19 +35,33 @@ export const ModalFormBrand = ({ modalData }) => {
                 const res = await postBrandsRequest(modalData);
                 if (res.status == 200){
                     console.log('Datos creados con éxito');
-                    cargarDataTables(4)
+                    cargarDataTables(3)
                     closeModal()
                 }
             }
             setModalData(null); // Limpiar los datos del modal
         } catch (error) {
             console.error('Error al enviar los datos:', error);
-            console.log('Ocurrió un error. Inténtalo nuevamente.');
+            console.log('Ocurrió un error. Inténtalo más tarde.');
         }
     };
 
     const deleteDatos = async () => {
-        await deleteBrandRequest(modalData?._id);
+        try {
+            const res = await deleteBrandsRequest(modalData?._id);
+            if (res.status == 200){
+                console.log('Datos eliminados con éxito');
+            } else {
+                console.log('Ocurrió un error. Inténtalo más tarde.');
+            }
+        } catch (error) {
+            console.error('Error al enviar los datos:', error);
+            console.log('Ocurrió un error. Inténtalo más tarde.');
+        }
+        
+        closeModal()
+        setModalData(null);
+        cargarDataTables(3)
     }
 
     if (!modalData) {
@@ -58,15 +72,10 @@ export const ModalFormBrand = ({ modalData }) => {
         <div>
             <form onSubmit={enviarDatos}>
                 <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
-                <label htmlFor="version_name">
+                <label htmlFor="brand_name">
                     <p>Título</p>
-                    <input type="text" name="version_name" id="version_name" value={modalData?.version_name || ''} onChange={handleInputChange} required={true} />
+                    <input type="text" name="brand_name" id="brand_name" value={modalData?.brand_name || ''} onChange={handleInputChange} required={true} />
                 </label>
-                <label htmlFor="description">
-                    <p>Descripción</p>
-                    <input type="text" name="description" id="description" value={modalData?.description || ''} onChange={handleInputChange} required={true} />
-                </label>
-                <input type="file" name="img" id="img" />
                 {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
             </form>
