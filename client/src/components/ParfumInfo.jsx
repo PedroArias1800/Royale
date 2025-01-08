@@ -18,7 +18,7 @@ export const ParfumInfo = ({ product }) => {
   };
 
   useEffect(() => {
-    if (product && product.types && product.types.length > 0) {
+    if (product && product?.types && product?.types?.length > 0) {
       setSelectedType(
         product.types.find((type) => type.ml === "100") || product.types[0]
       );
@@ -56,8 +56,8 @@ export const ParfumInfo = ({ product }) => {
               %
             </p>
             <img
-              src={`/parfum/${selectedType.img}`}
-              alt={`Imágen de ${product.brand} ${product.title} versión ${selectedType.version} - ${selectedType.ml} mililitros.`}
+              src={`${URLServer}${selectedType?.img}`}
+              alt={`Imágen de ${product?.brand?.brand_name} ${product?.title} versión ${product?.version?.version_name} - ${selectedType.ml} mililitros.`}
             />
           </div>
           <p className="parfumDescription esconder">{product.description}</p>

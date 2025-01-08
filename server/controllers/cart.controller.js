@@ -1,43 +1,43 @@
-import { connectDB } from "../db.js";
+import Parfum from '../models/parfum.model.js';
+import Types from '../models/types.model.js';
 
 export const postCart = async (req, res) => {
     const cartItems = req.body;
-    const placeholders = cartItems.map(() => "(p.parfum_id = ? AND t.types_id = ?)").join(" OR ");
-    const values = cartItems.flatMap(item => [item.id, item.types_id]);
-
-    const query = `
-        SELECT 
-            p.parfum_id,
-            b.brand_name,
-            p.title,
-            p.description,
-            p.gender,
-            t.types_id,
-            v.version_name,
-            t.ml,
-            t.img,
-            t.price,
-            t.old_price
-        FROM 
-            parfum p
-        INNER JOIN
-            brand b ON b.brand_id = p.brand_id_fk
-        LEFT JOIN 
-            types t ON t.parfum_id_fk = p.parfum_id
-        INNER JOIN 
-            version v ON v.version_id = p.version_id_fk
-        WHERE 
-            ${placeholders}
-        ORDER BY 
-            p.parfum_id, t.ml = 100 DESC, t.types_id ASC;
-    `;
-
 
     try {
-        const [rows] = await connectDB.query(query, values);
-        res.json(rows);
+        // Extrae los IDs de Parfum y Types del cuerpo de la solicitud.
+        const parfumIds = cartItems.map(item => item.id);
+        const typesIds = cartItems.map(item => item.types_id);
+
+        // Busca los parfums que coincidan con los IDs proporcionados.
+        const parfums = await Parfum.find({ _id: { $in: parfumIds } })
+            .populate({
+                path: 'brand_id_fk',
+                select: 'brand_name',
+            })
+            .populate({
+                path: 'version_id_fk',
+                select: 'version_name',
+            });
+
+        // Busca los types que coincidan con los IDs proporcionados.
+        const types = await Types.find({
+            _id: { $in: typesIds },
+            parfum_id_fk: { $in: parfumIds },
+        });
+
+        // Combina cada type con su parfum correspondiente.
+        const result = types.map(type => {
+            const parfum = parfums.find(p => p._id.toString() === type.parfum_id_fk.toString());
+            return {
+                parfum,
+                type,
+            };
+        });
+
+        res.json(result);
     } catch (err) {
         console.error(err);
-        res.status(500).send("Error al obtener los productos");
+        res.status(500).send("Error al obtener los datos");
     }
-}
+};

@@ -50,6 +50,7 @@ export const Search = () => {
     if (!products || products.length === 0) return;
 
     const filtered = products.filter((product) => {
+      console.log(product)
       const matchesSearch = search
         ? product.title?.toLowerCase().includes(search.toLowerCase()) ||
           product.brand?.toLowerCase().includes(search.toLowerCase())

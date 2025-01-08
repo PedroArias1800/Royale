@@ -149,9 +149,10 @@ export const ModalFormBody = ({ modalData }) => {
                 </label>
                 <label htmlFor="align">
                     <p>Alineación</p>
-                    <select name="align" id="align" value={modalData?.align || ''} onChange={handleInputChange} required>
-                        <option value="auto">Izquierda</option>
-                        <option value="0">Derecha</option>
+                    <select name="align" id="align" value={modalData?.align !== undefined ? modalData?.align : ''} onChange={handleInputChange} required>
+                        <option value="" disabled>Selecciona una opción</option>
+                        <option value="0">Izquierda</option>
+                        <option value="auto">Derecha</option>
                     </select>
                 </label>
                 <label htmlFor="img1">

@@ -1,8 +1,10 @@
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { Link } from 'react-router-dom';
 import { ParfumContext } from "../context/ParfumContext";
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'
 
 export const CartSummary = ({ product }) => {
   // Estado para mostrar el modal de confirmación
@@ -14,18 +16,18 @@ export const CartSummary = ({ product }) => {
 
   // Encuentra la cantidad del producto en el carrito
   const currentItem = cart.find(
-    (item) => item.id === product.parfum_id.toString() && item.types_id === product.types_id.toString()
+    (item) => item.id === product.parfum._id && item.types_id === product.type._id
   );
   const cantidad = currentItem ? currentItem.quantity : 1;
 
   // Incrementar la cantidad
   const incrementQuantity = () => {
-    addToCart(product.parfum_id.toString(), product.types_id.toString(), 1); // Incrementa en 1
+    addToCart(product.parfum._id, product.type._id, 1); // Incrementa en 1
   };
 
   // Disminuir la cantidad
   const decrementQuantity = () => {
-    decreaseQuantity(product.parfum_id.toString(), product.types_id.toString()); // Disminuye la cantidad
+    decreaseQuantity(product.parfum._id, product.type._id); // Disminuye la cantidad
   };
 
   // Eliminar el producto del carrito
@@ -38,7 +40,7 @@ export const CartSummary = ({ product }) => {
   // Confirmar la eliminación del producto
   const confirmRemove = () => {
     // Eliminar el producto del carrito en el contexto
-    removeFromCart(product.parfum_id.toString(), product.types_id.toString());
+    removeFromCart(product.parfum._id, product.type._id);
 
     // Eliminar el contenedor HTML del producto
     const productContainer = nodeDrop.target.closest('.productCart');
@@ -59,31 +61,31 @@ export const CartSummary = ({ product }) => {
     <div className='originalProductCart'>
       <div className="productCart">
         <div className="divImgProductCart">
-          <Link to={`/parfum?id=${product.parfum_id}`}>
+          <Link to={`${URLFrontend}/parfum?id=${product.parfum._id}`} >
             <img
-              src={`/parfum/${product.img}`}
-              alt={`Imagen de ${product.brand} ${product.title}`}
+              src={`${URLServer}${product.type.img}`}
+              alt={`Imagen de ${product.parfum.brand_id_fk.brand_name} ${product.parfum.title}`}
             />
           </Link>
         </div>
         <div className="divInfoProductCart">
           <div className='titleProduct'>
             <h3>
-              {product.brand_name} {product.title}
+              {product.parfum.brand_id_fk.brand_name} {product.parfum.title}
             </h3>
-            <Link to={`/search?type=${product.gender}`}>
-              {product.gender === 1 ? 'Damas' : 'Caballeros'}
+            <Link to={`/search?type=${product.parfum.gender}`}>
+              {product.parfum.gender === 1 ? 'Damas' : 'Caballeros'}
             </Link>
           </div>
           <h5>
-            Versión {product.version_name} - {product.ml}ml
+            Versión {product.parfum.version_id_fk.version_name} - {product.parfum.ml}ml
           </h5>
           <div className="productCardInfo2">
             <div className="cardInfo1">
-              <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.old_price).toFixed(2)}</p>
-              <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(product.price).toFixed(2)}</p>
+              <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.type.old_price).toFixed(2)}</p>
+              <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(product.type.price).toFixed(2)}</p>
               <p className='cardDiscount'>
-                {Math.ceil(-100 + (100 / Number(product.old_price).toFixed(2)) * Number(product.price).toFixed(2))}%
+                {Math.ceil(-100 + (100 / Number(product.type.old_price).toFixed(2)) * Number(product.type.price).toFixed(2))}%
               </p>
             </div>
             <div className='editQuantity'>

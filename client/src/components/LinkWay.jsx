@@ -7,13 +7,13 @@ export const LinkWay = ({ product, id }) => {
     return <p>Error: No se pudo cargar el producto.</p>;
   }
 
-  const genero = product.gender === 1 ? "Damas" : "Caballeros";
+  const genero = product?.gender === 1 ? "Damas" : "Caballeros";
 
   return (
     <div className='linkWay'>
-      <Link to={`/search?type=${product.gender}`}>{genero}</Link>
+      <Link to={`/search?type=${product?.gender}`}>{genero}</Link>
       <p>/</p>
-      <Link to={`/parfum?id=${id}`}>{product.brand} {product.title}</Link>
+      <Link to={`/parfum?id=${id}`}>{product?.brand.brand_name} {product?.title}</Link>
     </div>
   );
 };

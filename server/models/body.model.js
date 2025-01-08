@@ -17,10 +17,6 @@ const bodySchema = new mongoose.Schema({
         type: String,
         required: function() { return this.status === '1'; }
     },
-    url: {
-        type: String,
-        required: true,
-    },
     color: {
         type: String,
         required: true,

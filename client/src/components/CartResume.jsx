@@ -22,13 +22,13 @@ export const CartResume = ({ products }) => {
     products.forEach((product) => {
       // Buscamos el producto correspondiente en el carrito
       const item = cart.find(
-        (cartItem) => cartItem.id.toString() === product.parfum_id.toString() && cartItem.types_id.toString() === product.types_id.toString()
+        (cartItem) => cartItem.id === product.parfum._id && cartItem.types_id === product.type._id
       );
 
       if (item) {
         const quantity = item.quantity;  // Cantidad desde el carrito
-        const price = product.price || 0;  // Precio del producto
-        const oldPrice = product.old_price || 0;  // Precio anterior
+        const price = product.type.price || 0;  // Precio del producto
+        const oldPrice = product.type.old_price || 0;  // Precio anterior
 
         // Calculamos el subTotal y el total de cada producto
         subTotal += oldPrice * quantity;
@@ -115,13 +115,19 @@ export const CartResume = ({ products }) => {
     // Construir el enlace a WhatsApp con un mensaje dinámico
     const phoneNumber = "50765623382"; // Reemplaza con el número de WhatsApp
     const whatsappMessage = encodeURIComponent(message); // Codificar mensaje
-    const whatsappURL = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
+    let whatsappURL = ''
 
     // Redirigir al enlace de WhatsApp
+    const userAgent = navigator.userAgent.toLowerCase();
+    
+    if (/mobile|android|iphone|ipad|ipod/.test(userAgent)) {
+      whatsappURL = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
+    } else {
+      whatsappURL = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`
+    }
+
     window.open(whatsappURL, "_blank");
   };
-  
-
   return (
     <div className='cardResume'>
       <h2>Resumen del Pedido</h2>
