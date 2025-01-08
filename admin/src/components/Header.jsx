@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthProvider.jsx'
 import { useNavigate } from 'react-router-dom';
+const URLAdmin = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174'
 
 export const Header = () => {
   const { isAuthenticated, closeSession } = useAuth();
@@ -8,7 +9,7 @@ export const Header = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setMostrarSesion(isAuthenticated); // Sincronizar cuando cambia isAuthenticated
+    setMostrarSesion(isAuthenticated);
   }, [isAuthenticated]);
 
   const handleSession = async () => {
@@ -19,7 +20,7 @@ export const Header = () => {
 return (
     <div className='adminHeader'>
       <div className='adminHeader1'>
-        <img src="" alt="" />
+        <a href={URLAdmin}><img src="/icons/RoyalePanama.png" alt="Logo de Royale Panamá" /></a>
         <p>Royale Panama - Admin</p>
       </div>
       {

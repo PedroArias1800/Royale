@@ -23,4 +23,4 @@ export const columnMappings = {
     // Agrega más columnas si es necesario
   };
 
-export const excludedColumns = ["_id", "__v", "createdAt", "updatedAt"];
+export const excludedColumns = ["_id", "__v", "createdAt", "updatedAt", "url"];

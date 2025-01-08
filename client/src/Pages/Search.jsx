@@ -22,7 +22,7 @@ export const Search = () => {
         const response = await getParfumsRequest(50);
         setProducts(response.data);
         setFilteredProducts(response.data); // Inicializa con todos los productos
-        const uniqueBrands = [...new Set(response.data.map((product) => product.brand))];
+        const uniqueBrands = [...new Set(response.data.map((product) => product.brand.brand_name))];
         setBrands(uniqueBrands);
       } catch (error) {
         console.error("Error al cargar los perfumes:", error);
@@ -53,10 +53,10 @@ export const Search = () => {
       console.log(product)
       const matchesSearch = search
         ? product.title?.toLowerCase().includes(search.toLowerCase()) ||
-          product.brand?.toLowerCase().includes(search.toLowerCase())
+          product.brand.brand_name?.toLowerCase().includes(search.toLowerCase())
         : true;
       const matchesGender = gender ? product.gender === gender : true;
-      const matchesBrand = brand ? product.brand === brand : true;
+      const matchesBrand = brand ? product.brand.brand_name === brand : true;
       const matchesPrice = product.types.some((type) => {
         const price = parseFloat(type.price);
         return (

@@ -67,7 +67,7 @@ export const MasBuscados = () => {
             {
               parfum.map((element, index) => {
                 return (
-                  <Card element={element} cardsRef={cardsRef} index={index} key={element.id} width100={'340px'} />
+                  <Card element={element} cardsRef={cardsRef} index={index} key={element._id} width100={'340px'} />
                 )
               })
             }

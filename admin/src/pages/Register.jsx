@@ -6,7 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 export const Register = () => {
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { signUp, isAuthenticated, errors: RegisterErros } = useAuth();
+    const { signUp, isAuthenticated, errors: RegisterErros, closeModal } = useAuth();
     const navigate = useNavigate();
     const [alertMessage, setAlertMessage] = useState("");
 
@@ -20,6 +20,10 @@ export const Register = () => {
         } 
     }, [RegisterErros])
 
+    useEffect(() => {
+        closeModal()
+    }, [])
+    
     const onSubmit = handleSubmit(async (values) => {
         signUp(values)
     })

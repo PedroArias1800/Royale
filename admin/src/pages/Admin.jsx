@@ -1,27 +1,17 @@
-import { useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
-
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider.jsx'
+import { useEffect } from 'react';
 
 export const Admin = () => {
 
-    const { isAuthenticated, user } = useAuth();
-    const navigate = useNavigate();
-
+    const { user, closeModal } = useAuth();
 
     useEffect(() => {
-      if (!isAuthenticated) navigate('/login')      
-    }, [isAuthenticated]) 
-
-    useEffect(() => {
-      // Asegúrate de que `user` exista antes de hacer la redirección
-      if (!user) {
-        navigate('/login');
-      }
-    }, [user, navigate]);
+      closeModal()
+    }, [])
 
     if (!user) {
-      return <p>Cargando...</p>; // Muestra un mensaje de carga mientras `user` no esté disponible
+      return <p>Cargando...</p>;
     }
 
   return (
@@ -34,7 +24,6 @@ export const Admin = () => {
             <Link to="/data?id=3">Marcas</Link>
             <Link to="/data?id=4">Versiones</Link>
             <Link to="/data?id=5">Fondos de Inicio</Link>
-            <Link to="/data?id=6">Usuarios</Link>
         </div>
     </div>
   )

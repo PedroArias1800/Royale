@@ -86,19 +86,27 @@ export const profile = async(req, res) => {
 }
 
 export const verifyToken = async (req, res) => {
-    const { token } = req.cookies
-    if (!token) return res.status(401).json(["No token, authorization denied"])
-    jwt.verify(token, TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(401).json(["No token, authorization denied"])
-            
-        const userFound = User.findById(user.id)
-        if (!userFound) return res.status(401).json(["No token, authorization denied"])
-            
+    const { token } = req.cookies;
+    if (!token) return res.status(401).json(["No token, authorization denied"]);
+
+    try {
+        const user = await new Promise((resolve, reject) => {
+            jwt.verify(token, TOKEN_SECRET, (err, decoded) => {
+                if (err) reject("Invalid token");
+                resolve(decoded);
+            });
+        });
+
+        const userFound = await User.findById(user.id);
+        if (!userFound) return res.status(401).json(["User not found"]);
+
         return res.json({
             id: userFound._id,
             firstname: userFound.firstname,
             lastname: userFound.lastname,
             email: userFound.email
-        })
-    })
-}
+        });
+    } catch (error) {
+        return res.status(401).json([error]);
+    }
+};

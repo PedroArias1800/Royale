@@ -6,7 +6,7 @@ import { Alert } from './Alert';
 const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 export const ModalFormType = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
     const [parfums, setParfum] = useState([]);
     const isUpdate = Boolean(modalData?._id);
     const [alertMessage, setAlertMessage] = useState("");    
@@ -18,15 +18,6 @@ export const ModalFormType = ({ modalData }) => {
         }
         loadParfum();
     }, []);
-
-    useEffect(() => {
-        if (modalData?.status === undefined) {
-            setModalData((prevData) => ({
-                ...prevData,
-                status: "1", // Selecciona "Activado" como valor predeterminado
-            }));
-        }
-    }, [modalData?.status]); // Solo depende de modalData?.status
 
     useEffect(() => {
         return () => {
@@ -44,22 +35,13 @@ export const ModalFormType = ({ modalData }) => {
             }));
         }
     }, [parfums]);
-    
-    useEffect(() => {
-        if (modalData?.status === undefined) {
-            setModalData((prevData) => ({
-                ...prevData,
-                status: "1",
-            }));
-        }
-    }, [modalData?.status]);
-    
+        
     const handleInputChange = (e) => {
         const { name, value } = e.target;
 
         setModalData((prevData) => ({
             ...prevData,
-            [name]: convertType(name, value), // Convertimos según el tipo esperado
+            [name]: value,
         }));
     };
 
@@ -75,21 +57,15 @@ export const ModalFormType = ({ modalData }) => {
         }
     }
 
-    const convertType = (name, value) => {
-        const integerFields = ['gender', 'status'];
-        return integerFields.includes(name) ? parseInt(value, 10) : value;
-    };
-
     const enviarDatos = async (e) => {
             e.preventDefault();
+            modalData.status =  parseInt(modalData.status, 10)
 
             const formData = new FormData();
             for (const key in modalData) {
                 if (key == 'imgPreview'){
                     formData.append('img', modalData[key]);
                 } else if (key == 'parfum_id_fk' && typeof modalData[key] === 'object'){
-                    console.log(modalData[key])
-                    console.log(key, typeof(modalData[key]))
                     formData.append('parfum_id_fk', modalData[key]._id);
                 } else {
                     formData.append(key, modalData[key]);
@@ -101,7 +77,7 @@ export const ModalFormType = ({ modalData }) => {
                     // Llamar a la API de actualización
                     const res = await putTypesRequest(modalData._id, formData);
                     if (res.status == 200){
-                        console.log('Datos actualizados con éxito');
+                        showAlert('Datos actualizados con éxito', 1);
                         cargarDataTables(2)
                         closeModal()
                     }
@@ -109,7 +85,7 @@ export const ModalFormType = ({ modalData }) => {
                     // Llamar a la API de creación
                     const res = await postTypesRequest(formData);
                     if (res.status == 200){
-                        console.log('Datos creados con éxito');
+                        showAlert('Datos creados con éxito', 1);
                         cargarDataTables(2)
                         closeModal()
                     }
@@ -117,7 +93,7 @@ export const ModalFormType = ({ modalData }) => {
                 setModalData(null);
             } catch (error) {
                 console.error('Error al enviar los datos:', error);
-                console.log('Ocurrió un error. Inténtalo más tarde.');
+                showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
             }
         };
 
@@ -125,13 +101,13 @@ export const ModalFormType = ({ modalData }) => {
         try {
             const res = await deleteTypesRequest(modalData?._id);
             if (res.status == 200){
-                console.log('Datos eliminados con éxito');
+                showAlert('Datos eliminados con éxito', 1);
             } else {
-                console.log('Ocurrió un error. Inténtalo más tarde.');
+                showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
             }
         } catch (error) {
             console.error('Error al enviar los datos:', error);
-            console.log('Ocurrió un error. Inténtalo más tarde.');
+            showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
         }
         
         closeModal()
@@ -178,10 +154,11 @@ export const ModalFormType = ({ modalData }) => {
                     <select
                         name="status"
                         id="status"
-                        value={modalData?.status || ''}
+                        value={modalData?.status !== undefined ? modalData?.status : ''}
                         onChange={handleInputChange}
                         required={true}
                     >
+                        <option value="" disabled>Selecciona una opción</option>
                         <option value="1">Activado</option>
                         <option value="0">Desactivado</option>
                     </select>
@@ -189,18 +166,19 @@ export const ModalFormType = ({ modalData }) => {
                 <label htmlFor="parfum_id_fk">
                     <p>Perfume</p>
                     <select
-    name="parfum_id_fk"
-    id="parfum_id_fk"
-    value={modalData?.parfum_id_fk || ''} // Usamos directamente parfum_id_fk
-    onChange={handleInputChange}
-    required={true}
->
-    {parfums.map((parfum) => (
-        <option key={parfum._id} value={parfum._id}>
-            {parfum.title}
-        </option>
-    ))}
-</select>
+                        name="parfum_id_fk"
+                        id="parfum_id_fk"
+                        value={modalData?.parfum_id_fk?._id !== undefined ? modalData?.parfum_id_fk?._id : modalData?.parfum_id_fk !== undefined ? modalData?.parfum_id_fk : ''}
+                        onChange={handleInputChange}
+                        required={true}
+                    >
+                        <option value="" disabled>Selecciona una opción</option>
+                        {parfums.map((parfum) => (
+                            <option key={parfum._id} value={parfum._id}>
+                                {parfum.title}
+                            </option>
+                        ))}
+                    </select>
                 </label>
                 {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
 import { Alert } from '../components/Alert'
 import { Link } from 'react-router-dom';
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 export const ParfumInfo = ({ product }) => {
   const [cart, setCart] = useState([]);
@@ -20,7 +21,7 @@ export const ParfumInfo = ({ product }) => {
   useEffect(() => {
     if (product && product?.types && product?.types?.length > 0) {
       setSelectedType(
-        product.types.find((type) => type.ml === "100") || product.types[0]
+        product?.types.find((type) => type?.ml === "100") || product?.types[0]
       );
     }
   }, [product]);
@@ -51,7 +52,7 @@ export const ParfumInfo = ({ product }) => {
             <FontAwesomeIcon icon={faBookmark} style={gradientStyle} />
             <p>
               {Math.ceil(
-                -100 + (100 / selectedType.old_price) * selectedType.price
+                -100 + (100 / selectedType?.old_price) * selectedType?.price
               )}
               %
             </p>
@@ -64,7 +65,7 @@ export const ParfumInfo = ({ product }) => {
         </div>
         <div className="parfumInfoGrande">
           <h3>
-            {product.brand} {product.title} {selectedType.version_name}
+            {product?.brand?.brand_name} {product.title} {product?.version?.version_name}
           </h3>
           <div className='precioGenero'>
             <div style={{ display: "flex", gap: "5px" }}>
@@ -90,7 +91,7 @@ export const ParfumInfo = ({ product }) => {
               {selectedType.ml} ml.
             </h5>
             <div className="vistaPrevia">
-              {product.types.map((type, index) => (
+              {product?.types.map((type, index) => (
                 <div
                   key={index}
                   className={`vistaPreviaVersion ${
@@ -100,7 +101,7 @@ export const ParfumInfo = ({ product }) => {
                   style={{ cursor: "pointer" }}
                 >
                   <img
-                    src={`/parfum/${type.img}`}
+                    src={`${URLServer}${type.img}`}
                     alt={`Imágen de ${type.ml} ml`}
                   />
                   <p>{type.ml} ml</p>
@@ -108,9 +109,9 @@ export const ParfumInfo = ({ product }) => {
               ))}
             </div>
           </div>
-          <p className="parfumDescription esconder2">{product.description}</p>
+          <p className="parfumDescription esconder2">{product?.description}</p>
           <div className="enviarCesta">
-            <button onClick={() => handleAddToCart(product.id, selectedType.types_id)}>Añadir a la Cesta</button>
+            <button onClick={() => handleAddToCart(product?._id, selectedType?._id)}>Añadir a la Cesta</button>
           </div>
         </div>
       </div>

@@ -2,13 +2,14 @@ import { faBookmark, faTag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 export const Card = ({element, cardsRef, index, width100}) => {
 
     const [width, setWidth] = useState(false);
 
     useEffect(() => {
-        if (element.types[0].align == 'auto'){
+        if (element?.types[0]?.align == 'auto'){
             setWidth(true)
         }
       }, [element]);
@@ -21,26 +22,26 @@ export const Card = ({element, cardsRef, index, width100}) => {
       };
 
     return (
-        <Link to={`/parfum?id=${element.id}`} className='card si' key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`}}>
+        <Link to={`/parfum?id=${element._id}`} className='card si' key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`}}>
             <div className='discountPrice'>
               <FontAwesomeIcon icon={faBookmark} style={gradientStyle}/>
-              <p>{(Math.ceil(-100+(100/element.types[0].old_price*element.types[0].price)))}%</p>
-              <img src={`/parfum/${element.types[0].img}`} alt={`Imagen de ${element.brand} ${element.title}`} />
+              <p>{(Math.ceil(-100+(100/element?.types[0]?.old_price*element?.types[0]?.price)))}%</p>
+              <img src={`${URLServer}${element?.types[0]?.img}`} alt={`Imagen de ${element?.brand.brand_name} ${element?.title}`} />
             </div>
             <div>
-              <h2>{element.brand} {element.title}</h2>
+              <h2>{element?.brand?.brand_name} {element?.title}</h2>
               <div className='infoCards'>
                 <FontAwesomeIcon icon={faTag} style={{'background': '#d60a5f', 'color': 'white', 'borderRadius': '50%', 'padding': '2%'}}/>
                 <div style={{'display': 'flex', 'gap': '5px'}}>
-                  <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${element.types[0].old_price}</p>
-                  <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${element.types[0].price}</p>
+                  <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${element?.types[0]?.old_price}</p>
+                  <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${element?.types[0]?.price}</p>
                 </div>
               </div>
             </div>
             <div className='infoCards'>
-              <p>{element.types[0].version_name}</p>
+              <p>{element?.version[0]?.version_name}</p>
             </div>
-            <p className='cardsMarca'>{element.brand}</p>
+            <p className='cardsMarca'>{element?.brand?.brand_name}</p>
         </Link>
       )
 }

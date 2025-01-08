@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { useAuth } from '../context/AuthProvider.jsx'
 import { DataTable } from '../components/DataTable.jsx';
 
 export const Data = () => {
 
-    const { isAuthenticated, setModalData, setIdNumber, cargarDataTables, response, closeModal } = useAuth();
+    const { setModalData, setIdNumber, cargarDataTables, response, closeModal } = useAuth();
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
     const navigate = useNavigate();
@@ -17,18 +17,10 @@ export const Data = () => {
         navigate("/admin")
     }
 
-
     useEffect(() => {
-        if (!isAuthenticated){
-            navigate('/login')
-            return;
-        }
-        if (!id){
-            navigate('/admin')
-        }
-    }, [isAuthenticated, id])
-
-
+        closeModal()
+    }, [])
+    
     useEffect(() => {
         async function loadData() {
 

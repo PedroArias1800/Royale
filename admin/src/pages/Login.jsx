@@ -7,7 +7,7 @@ import { useAuth } from '../context/AuthProvider';
 export const Login = () => {
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
-    const { signIn, isAuthenticated, errors: RegisterErros } = useAuth();
+    const { signIn, isAuthenticated, errors: RegisterErros, closeModal } = useAuth();
     const [alertMessage, setAlertMessage] = useState("");
 
     useEffect(() => {
@@ -20,6 +20,10 @@ export const Login = () => {
         } 
     }, [RegisterErros])
 
+    useEffect(() => {
+        closeModal()
+    }, [])
+    
     const onSubmit = handleSubmit(async (values) => {
         signIn(values)
     })

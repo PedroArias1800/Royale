@@ -8,6 +8,8 @@ import { ModalFormVersion } from "../components/ModalFormVersion";
 import { ModalFormType } from "../components/ModalFormType";
 import { ModalFormBrand } from "../components/ModalFormBrand";
 import { ModalFormBody } from "../components/ModalFormBody";
+import { Alert } from "../components/Alert.jsx";
+import { useNavigate } from "react-router-dom";
 
 
 export const AuthContext = createContext();
@@ -30,6 +32,10 @@ export const AuthProvider = ({ children }) => {
     const [modalData, setModalData] = useState({});
     const [idNumber, setIdNumber] = useState(0) 
     const [response, setResponse] = useState([])
+    const [alertMessage, setAlertMessage] = useState("");
+    const [c1, setC1] = useState();
+    const [c2, setC2] = useState();
+    const navigate = useNavigate();
 
     const signIn = async (user) => {
         try {
@@ -74,10 +80,12 @@ export const AuthProvider = ({ children }) => {
                 } catch(err) {
                     setIsAuthenticated(false)
                     setUser(null)
+                    navigate('/login')
                 } 
             } else {
                 setIsAuthenticated(false)
                 setUser(null)
+                navigate('/login')
             }
         }
         checkLogin()
@@ -103,9 +111,6 @@ export const AuthProvider = ({ children }) => {
         else if (modalData && idNumber === 5) {
             setModalContent(<ModalFormBody modalData={modalData} />);
             setModalVisible(true);
-        }
-        else {
-            console.log(modalData, idNumber)
         }
     }, [modalData, idNumber]);
 
@@ -140,9 +145,24 @@ export const AuthProvider = ({ children }) => {
         }
     }
 
+    const showAlert = (message, type) => {
+        if (type == 1){
+            setC1('--color-dorado')
+            setC2('--color-dorado-hover')
+        } else {
+            setC1('--color-rojo-alert')
+            setC2('--color-rojo-alert-hover')
+        }
+        
+        setAlertMessage(message)
+    }
 
-    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal }}>
+
+    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert }}>
         {children}
+        <div className='mostrarAlerta'>
+            <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>
+        </div>
         {modalVisible && (
             <div className="modal-overlay">
                 <div className="modal-content">

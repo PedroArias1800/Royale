@@ -1,9 +1,15 @@
 import { columnMappings, excludedColumns } from "../js/mappings";
 import { useAuth } from "../context/AuthProvider.jsx";
-const URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+import { useEffect } from "react";
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'
 
 export const DataTable = ({ data, idCategory }) => {
-  const { setModalData, setIdNumber } = useAuth();
+  const { setModalData, setIdNumber, closeModal } = useAuth();
+
+  useEffect(() => {
+    closeModal()
+  }, [])
 
   if (!Array.isArray(data)) {
     console.error("Invalid data format received:", data);
@@ -42,7 +48,7 @@ export const DataTable = ({ data, idCategory }) => {
                   : header === "brand_id_fk"
                   ? row[header]?.brand_name || "N/A"
                   : header === "parfum_id_fk"
-                  ? row[header]?.title || "N/A"
+                  ? <a href={`${URLFrontend}/parfum?id=${row[header]?._id}`} target="_blank">{row[header]?.title}</a> || "N/A"
                   : header === "gender"
                   ? row[header] === 1
                     ? "Damas"

@@ -2,7 +2,7 @@ import { postVersionsRequest, putVersionsRequest, deleteVersionsRequest } from '
 import { useAuth } from '../context/AuthProvider';
 
 export const ModalFormVersion = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
     const isUpdate = Boolean(modalData?._id); // Identificar si es una actualización
 
     const handleInputChange = (e) => {
@@ -26,7 +26,7 @@ export const ModalFormVersion = ({ modalData }) => {
                 // Llamar a la API de actualización
                 const res = await putVersionsRequest(modalData._id, modalData);
                 if (res.status == 200){
-                    console.log('Datos actualizados con éxito');
+                    showAlert('Datos actualizados con éxito', 1);
                     cargarDataTables(4)
                     closeModal()
                 }
@@ -34,7 +34,7 @@ export const ModalFormVersion = ({ modalData }) => {
                 // Llamar a la API de creación
                 const res = await postVersionsRequest(modalData);
                 if (res.status == 200){
-                    console.log('Datos creados con éxito');
+                    showAlert('Datos creados con éxito', 1);
                     cargarDataTables(4)
                     closeModal()
                 }
@@ -42,7 +42,7 @@ export const ModalFormVersion = ({ modalData }) => {
             setModalData(null); // Limpiar los datos del modal
         } catch (error) {
             console.error('Error al enviar los datos:', error);
-            console.log('Ocurrió un error. Inténtalo más tarde.');
+            showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
         }
     };
 
@@ -50,13 +50,13 @@ export const ModalFormVersion = ({ modalData }) => {
         try {
             const res = await deleteVersionsRequest(modalData?._id);
             if (res.status == 200){
-                console.log('Datos eliminados con éxito');
+                showAlert('Datos eliminados con éxito', 1);
             } else {
-                console.log('Ocurrió un error. Inténtalo más tarde.');
+                showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
             }
         } catch (error) {
             console.error('Error al eliminar los datos:', error);
-            console.log('Ocurrió un error. Inténtalo más tarde.');
+            showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
         }
         
         closeModal()
@@ -80,7 +80,6 @@ export const ModalFormVersion = ({ modalData }) => {
                     <p>Descripción</p>
                     <input type="text" name="description" id="description" value={modalData?.description || ''} onChange={handleInputChange} required={true} />
                 </label>
-                <input type="file" name="img" id="img" />
                 {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
             </form>
