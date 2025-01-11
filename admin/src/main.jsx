@@ -5,6 +5,7 @@ import App from './App.jsx'
 
 import './css/Alert.css'
 import './css/Admin.css'
+import './css/Cart.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

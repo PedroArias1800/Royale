@@ -68,6 +68,7 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit }) => {
             </label>
           </div>
           <div className="submit-btn2">
+            <btn-yappy theme="dark" className='btn-yappy'></btn-yappy>
             <button type="submit" className="pagar">Pagar</button>
           </div>
         </form>

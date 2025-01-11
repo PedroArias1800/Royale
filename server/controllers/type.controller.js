@@ -16,12 +16,14 @@ export const getType = async(req, res) => {
 }
 
 export const createType = async(req, res) => {
-    const { ml, price, old_price, status, parfum_id_fk } = req.body
-    const imgPath = req.file ? `/uploads/${req.file.filename}` : null;
+    const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body
+    console.log(imgServer, 'prueba')
+    const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
 
     const newType = new Type({
         ml,
         img: imgPath,
+        cost,
         price,
         old_price,
         status,
@@ -33,11 +35,13 @@ export const createType = async(req, res) => {
 }
 
 export const updateType = async (req, res) => {
-    const { ml, price, old_price, status, parfum_id_fk } = req.body;
-    const imgPath = req.file ? `/uploads/${req.file.filename}` : null;
+    const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body;
+    console.log(imgServer, 'prueba')
+    const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
 
     const updatedData = {
         ml,
+        cost,
         price,
         old_price,
         status,

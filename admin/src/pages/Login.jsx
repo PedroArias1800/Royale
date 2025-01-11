@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Alert } from '../components/Alert';
 import { useAuth } from '../context/AuthProvider';
 
@@ -39,10 +39,6 @@ export const Login = () => {
                 {errors.password && (<p>La contraseña es requerida</p>)}
                 <button type="submit">Log In</button>
             </form>
-            <div>
-                <h3>¿Aún no tienes una cuenta?</h3>
-                <Link to="/register">Regístrate</Link>
-            </div>
         </div>
     );
 };

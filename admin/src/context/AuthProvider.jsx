@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
-import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest } from '../api/Admin.api.js'
+import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest } from '../api/Admin.api.js'
 import Cookies from 'js-cookie'
 
 import { ModalFormParfum } from "../components/ModalFormParfum";
@@ -8,6 +8,7 @@ import { ModalFormVersion } from "../components/ModalFormVersion";
 import { ModalFormType } from "../components/ModalFormType";
 import { ModalFormBrand } from "../components/ModalFormBrand";
 import { ModalFormBody } from "../components/ModalFormBody";
+import { ModalFormUser } from "../components/ModalFormUser";
 import { Alert } from "../components/Alert.jsx";
 import { useNavigate } from "react-router-dom";
 
@@ -112,6 +113,10 @@ export const AuthProvider = ({ children }) => {
             setModalContent(<ModalFormBody modalData={modalData} />);
             setModalVisible(true);
         }
+        else if (modalData && idNumber === 6) {
+            setModalContent(<ModalFormUser modalData={modalData} />);
+            setModalVisible(true);
+        }
     }, [modalData, idNumber]);
 
     const closeModal = () => {
@@ -138,6 +143,10 @@ export const AuthProvider = ({ children }) => {
         }
         else if (id == 5){
             const response = await getBodiesRequest();
+            setResponse(Array.isArray(response.data) ? response.data : []);
+        }
+        else if (id == 6){
+            const response = await getUsersRequest();
             setResponse(Array.isArray(response.data) ? response.data : []);
         }
         else{

@@ -9,6 +9,10 @@ const typesSchema = new mongoose.Schema({
         type: String,
         required: function() { return this.status === '1'; }
     },
+    cost: {
+        type: Number,
+        required: true,
+    },
     price: {
         type: Number,
         required: true,

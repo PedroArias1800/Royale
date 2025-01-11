@@ -17,8 +17,8 @@ export const getBody = async(req, res) => {
 
 export const createBody = async(req, res) => {
     const { title, align, url, color, color2, status, parfum_id_fk } = req.body
-    const img1Path = req.files?.img1 ? `/uploads/${req.files.img1[0].filename}` : null;
-    const img2Path = req.files?.img2 ? `/uploads/${req.files.img2[0].filename}` : null;
+    const img1Path = req.files?.img1 ? `/uploads/body/${req.files.img1[0].filename}` : null;
+    const img2Path = req.files?.img2 ? `/uploads/body/${req.files.img2[0].filename}` : null;
 
     console.log(img1Path, img2Path);
 
@@ -40,8 +40,8 @@ export const createBody = async(req, res) => {
 
 export const updateBody = async(req, res) => {
     const { title, align, url, color, color2, status, parfum_id_fk } = req.body
-    const img1Path = req.files?.img1 ? `/uploads/${req.files.img1[0].filename}` : null;
-    const img2Path = req.files?.img2 ? `/uploads/${req.files.img2[0].filename}` : null;
+    const img1Path = req.files?.img1 ? `/uploads/body/${req.files.img1[0].filename}` : null;
+    const img2Path = req.files?.img2 ? `/uploads/body/${req.files.img2[0].filename}` : null;
     
     console.log(img1Path, img2Path);
 

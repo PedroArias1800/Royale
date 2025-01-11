@@ -4,39 +4,6 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { TOKEN_SECRET } from '../config.js'
 
-export const postUser = async(req, res) => {
-    const { firstname, lastname, email, password } = req.body
-
-    try {
-
-        const userFound = await User.findOne({ email })
-        if (userFound) return res.status(400).json(["El Correo ya está en uso"])
-
-        const passwordHash = await bcrypt.hash(password, 10)
-
-        const newUser = new User({
-            firstname,
-            lastname,
-            email,
-            password: passwordHash
-        });
-    
-        const userSaved = await newUser.save()
-        const token = await createAccessToken({ id: userSaved._id })
-        res.cookie("token", token)
-        res.json({
-            id: userSaved._id,
-            firstname: userSaved.firstname,
-            lastname: userSaved.lastname,
-            email: userSaved.email,
-            createdAt: userSaved.createdAt,
-            updatedAt: userSaved.updatedAt
-        })   
-    } catch (error) {
-        res.status(500).json([error.message])
-    }
-}
-
 export const logIn = async(req, res) => {
     const { email, password } = req.body
 
@@ -56,6 +23,8 @@ export const logIn = async(req, res) => {
             firstname: userFound.firstname,
             lastname: userFound.lastname,
             email: userFound.email,
+            rol: userFound.rol,
+            status: userFound.status,
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt
         })   
@@ -80,6 +49,8 @@ export const profile = async(req, res) => {
         firstname: userFound.firstname,
         lastname: userFound.lastname,
         email: userFound.email,
+        rol: userFound.rol,
+        status: userFound.status,
         createdAt: userFound.createdAt,
         updatedAt: userFound.updatedAt
     })
@@ -104,7 +75,9 @@ export const verifyToken = async (req, res) => {
             id: userFound._id,
             firstname: userFound.firstname,
             lastname: userFound.lastname,
-            email: userFound.email
+            email: userFound.email,
+            rol: userFound.rol,
+            status: userFound.status,
         });
     } catch (error) {
         return res.status(401).json([error]);

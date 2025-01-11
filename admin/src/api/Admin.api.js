@@ -14,3 +14,6 @@ export const getBrandsRequest = async () =>
 
 export const getVersionsRequest = async () =>
     await axios.get(`/api/versions`)
+
+export const getUsersRequest = async () =>
+    await axios.get(`/api/users`)

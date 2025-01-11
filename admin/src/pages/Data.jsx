@@ -6,7 +6,7 @@ import { DataTable } from '../components/DataTable.jsx';
 
 export const Data = () => {
 
-    const { setModalData, setIdNumber, cargarDataTables, response, closeModal } = useAuth();
+    const { setModalData, setIdNumber, cargarDataTables, response, closeModal, user } = useAuth();
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
     const navigate = useNavigate();
@@ -38,6 +38,9 @@ export const Data = () => {
             }
             else if (id == 5){
                 setConsulta('Fondos de Inicio')
+            }
+            else if (user?.rol == 1 && id == 6){
+                setConsulta('Usuarios')
             }
     
             await cargarDataTables(id);

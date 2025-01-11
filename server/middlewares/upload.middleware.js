@@ -1,20 +1,22 @@
 import multer from 'multer';
 
-const storage = multer.diskStorage({
+const storage = (carpeta) => multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, 'uploads/'); // Carpeta donde se almacenarán las imágenes
+        cb(null, `uploads/${carpeta}`);
     },
     filename: (req, file, cb) => {
         cb(null, `${Date.now()}-${file.originalname}`);
     },
 });
 
-export const upload = multer({
-    storage,
-    fileFilter: (req, file, cb) => {
-        if (!file.mimetype.startsWith('image/')) {
-            return cb(new Error('Solo se permiten archivos de imagen'));
-        }
-        cb(null, true);
-    },
-});
+export const upload = (carpeta) => {
+    return multer({
+        storage: storage(carpeta),
+        fileFilter: (req, file, cb) => {
+            if (!file.mimetype.startsWith('image/')) {
+                return cb(new Error('Solo se permiten archivos de imagen'));
+            }
+            cb(null, true);
+        },    
+    })
+};

@@ -39,7 +39,7 @@ export const Card = ({element, cardsRef, index, width100}) => {
               </div>
             </div>
             <div className='infoCards'>
-              <p>{element?.version[0]?.version_name}</p>
+              <p>{element?.version?.version_name}</p>
             </div>
             <p className='cardsMarca'>{element?.brand?.brand_name}</p>
         </Link>

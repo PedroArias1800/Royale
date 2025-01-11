@@ -101,6 +101,16 @@ export const allParfums = async (req, res) => {
 
 
 export const parfumsBody = async (req, res) => {
-    const versions = await Body.find()
-    res.json(versions)
+    try {
+        const bodies = await Body.find({ status: 1 })
+            .populate({
+                path: 'parfum_id_fk',
+                select: 'title',
+            });
+
+        res.json(bodies);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error al obtener los bodies");
+    }
 };

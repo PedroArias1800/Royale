@@ -413,3 +413,12 @@
     width: 200px;
     height: 20px;
   }
+
+.mostrarImg{
+  padding:  .5% 2%;
+  background-color: #efefef;
+  font-size: 17px;
+  border: 1px solid black;
+  border-radius: 2px;
+  cursor: pointer;
+}

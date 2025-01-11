@@ -21,7 +21,15 @@ const userSchema = new mongoose.Schema({
         type: String,
         require: true,
         trim: true,
-    }
+    },
+    rol: {
+        type: Number,
+        required: true,
+    },
+    status: {
+        type: Number,
+        required: true,
+    },
 }, {
     timestamps: true
 })

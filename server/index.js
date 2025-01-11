@@ -18,6 +18,8 @@ import indexRoutes from './routes/index.routes.js'
 import parfumRoutes from './routes/parfum.routes.js'
 import typeRoutes from './routes/type.routes.js'
 import versionRoutes from './routes/version.routes.js'
+import userRoutes from './routes/user.routes.js'
+import imgRoutes from './routes/img.routes.js'
 
 
 
@@ -46,22 +48,8 @@ app.use(indexRoutes);
 app.use(parfumRoutes);
 app.use(typeRoutes);
 app.use(versionRoutes);
+app.use(userRoutes);
+app.use(imgRoutes);
 
 app.listen(PORT || 4000);
 console.log('Server levantado en el puerto', PORT || 4000)
-
-
-// server {
-//     listen: 80;
-//     listen [::]:80;
-//     server_name _;
-
-//     location / {
-//         proxy_pass http://localhost:3000;
-//         proxy_http_version 1.1;
-//         proxy_set_header Upgrade $http_upgrade;
-//         proxy_set_header Connection 'upgrade';
-//         proxy_set_header Host $host;
-//         proxy_cache_bypass $http_upgrade;
-//     }
-// }

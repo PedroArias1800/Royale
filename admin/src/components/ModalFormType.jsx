@@ -2,21 +2,28 @@ import { useEffect, useState } from 'react';
 import { getParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
-import { Alert } from './Alert';
+import { getParfumsIconGallery } from '../api/Img.api.js'
 const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
     const [parfums, setParfum] = useState([]);
+    const [parfumsGallery, setParfumsGallery] = useState([]);
     const isUpdate = Boolean(modalData?._id);
-    const [alertMessage, setAlertMessage] = useState("");    
+    const [selectedImage, setSelectedImage] = useState(modalData?.img || '');  
+    const [showImgServer, setShowImgServer] = useState(false)
 
     useEffect(() => {
         async function loadParfum() {
             const response = await getParfumsRequest();
             setParfum(Array.isArray(response.data) ? response.data : []);
         }
+        async function loadParfumGallery() {
+            const response = await getParfumsIconGallery();
+            setParfumsGallery(Array.isArray(response.data.images) ? response.data.images : []);
+        }
         loadParfum();
+        loadParfumGallery();
     }, []);
 
     useEffect(() => {
@@ -45,6 +52,21 @@ export const ModalFormType = ({ modalData }) => {
         }));
     };
 
+    const handleInputNumberChange = (e) => {
+        let { name, value } = e.target;
+        value = value.replace(',', '.');
+
+        const regex = /^[0-9]*\.?[0-9]{0,2}$/;
+
+        // Si el valor es válido (solo números o un único punto decimal), lo actualizamos
+        if (regex.test(value)) {
+            setModalData({
+                ...modalData,
+                [name]: value
+            });
+        }
+    };
+
     const handleFileChange = (e) => {
         const file = e.target.files[0]; // Obtén el primer archivo seleccionado
         if (file) {
@@ -57,6 +79,20 @@ export const ModalFormType = ({ modalData }) => {
         }
     }
 
+    const handleImagesChange = (e) => {
+        const files = e.target.files;
+    
+        if (files.length > 3) {
+            alert("Solo puedes seleccionar hasta 3 imágenes.");
+            e.target.value = "";
+            return;
+        }
+    
+        // const selectedFiles = Array.from(files);
+    
+        // setSelectedImages(selectedFiles);
+    };
+
     const enviarDatos = async (e) => {
             e.preventDefault();
             modalData.status =  parseInt(modalData.status, 10)
@@ -67,6 +103,12 @@ export const ModalFormType = ({ modalData }) => {
                     formData.append('img', modalData[key]);
                 } else if (key == 'parfum_id_fk' && typeof modalData[key] === 'object'){
                     formData.append('parfum_id_fk', modalData[key]._id);
+                } else if (key == 'cost'){
+                    formData.append('cost', Number(modalData[key]).toFixed(2));
+                } else if (key == 'price'){
+                    formData.append('price', Number(modalData[key]).toFixed(2));
+                } else if (key == 'old_price'){
+                    formData.append('old_price', Number(modalData[key]).toFixed(2));
                 } else {
                     formData.append(key, modalData[key]);
                 }
@@ -119,35 +161,39 @@ export const ModalFormType = ({ modalData }) => {
         return <p>Cargando datos...</p>;
     }
 
+    const handleSelectImage = (image) => {
+        setSelectedImage(image);
+        setModalData((prevData) => ({
+            ...prevData,
+            imgServer: image.split("uploads/parfumIcon/")[1], // Guarda solo el nombre de la imagen
+            img: null, // Limpiar el input de archivo
+            imgPreview: null, // Limpiar la vista previa
+        }));
+    };
+
+    const handleShowImgServer = () => {
+        setShowImgServer(!showImgServer)
+    }
+
     return (
         <div>
-            <Alert message={alertMessage} color={'--color-rojo-alert'} color2={'--color-rojo-alert-hover'} onClose={() => setAlertMessage("")}/>
             <form onSubmit={enviarDatos}>
                 <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
                 <label htmlFor="ml">
                     <p>Mililitros</p>
                     <input type="text" name="ml" id="ml" value={modalData?.ml || ''} onChange={handleInputChange} required={true} />
                 </label>
-                <label htmlFor="img">
-                    <p>Imagen</p>
-                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleFileChange(e)} required={!isUpdate} />
-                    {(modalData?.imgPreview || modalData?.img) && (
-                        <div style={{ marginTop: '10px' }}>
-                            <img
-                                src={modalData?.imgPreview ? `${modalData?.imgPreview}` : `${URLServer}${modalData?.img}`}
-                                alt="Vista previa"
-                                style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
-                            />
-                        </div>
-                    )}
+                <label htmlFor="cost">
+                    <p>Precio Costo</p>
+                    <input type="text" name="cost" id="cost" value={modalData?.cost || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
                 </label>
                 <label htmlFor="price">
                     <p>Precio de Nosotros</p>
-                    <input type="number" name="price" id="price" value={modalData?.price || ''} onChange={handleInputChange} required={true} step="0.01" min="0" />
+                    <input type="text" name="price" id="price" value={modalData?.price || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
                 </label>
                 <label htmlFor="old_price">
                     <p>Precio al Público</p>
-                    <input type="number" name="old_price" id="old_price" value={modalData?.old_price || ''} onChange={handleInputChange} required={true} step="0.01" min="0" />
+                    <input type="text" name="old_price" id="old_price" value={modalData?.old_price || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
                 </label>
                 <label htmlFor="status">
                     <p>Estado</p>
@@ -180,6 +226,91 @@ export const ModalFormType = ({ modalData }) => {
                         ))}
                     </select>
                 </label>
+                <label htmlFor="img">
+                    <p>Imagen</p>
+                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleFileChange(e)} required={!isUpdate || (selectedImage && !modalData?.img && !modalData?.imgPreview)} />
+                    <div>
+                        {(modalData?.imgPreview || modalData?.img) && (
+                            <img
+                                src={modalData?.imgPreview ? modalData?.imgPreview : `${URLServer}${modalData?.img}`}
+                                alt="Vista previa"
+                                style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                            />
+                        )}
+                    </div>
+                    {selectedImage && !modalData?.img && !modalData?.imgPreview && (
+                    <div>
+                        <p>Imagen seleccionada desde el servidor:</p>
+                        <img
+                            src={selectedImage}
+                            alt="Imagen seleccionada"
+                            style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                            />
+                    </div>
+                )}
+                </label>
+                <div style={{ marginTop: '20px' }}>
+                    <p onClick={handleShowImgServer} className='mostrarImg'>Selecciona una imagen desde el servidor:</p>
+                    <div style={{ display: showImgServer ? 'flex' : 'none', flexWrap: 'wrap' }}>
+                        {parfumsGallery.map((image, index) => (
+                            <div 
+                                key={index} 
+                                style={{ margin: '10px', cursor: 'pointer', border: selectedImage === `${URLServer}/uploads/parfumIcon/${image}` ? '2px solid blue' : 'none' }}
+                                onClick={() => handleSelectImage(`${URLServer}/uploads/parfumIcon/${image}`)}
+                            >
+                                <img
+                                    src={`${URLServer}/uploads/parfumIcon/${image}`}
+                                    alt={image}
+                                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* <label htmlFor="imgs">
+                    <p>Imagen</p>
+                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleImagesChange(e)} required={!isUpdate} multiple max={3} />
+                    <div>
+                        {(modalData?.imgPreview || modalData?.img) && (
+                            <img
+                                src={modalData?.imgPreview ? modalData?.imgPreview : `${URLServer}${modalData?.img}`}
+                                alt="Vista previa"
+                                style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                            />
+                        )}
+                    </div>
+
+                    {selectedImage && !modalData?.img && !modalData?.imgPreview && (
+                    <div>
+                        <p>Imagen seleccionada desde el servidor:</p>
+                        <img
+                            src={selectedImage}
+                            alt="Imagen seleccionada"
+                            style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                            />
+                    </div>
+                )}
+                </label>
+                <div style={{ marginTop: '20px' }}>
+                    <p>Selecciona una imagen desde el servidor:</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {parfumsGallery.map((image, index) => (
+                            <div 
+                                key={index} 
+                                style={{ margin: '10px', cursor: 'pointer', border: selectedImage === `${URLServer}/uploads/parfumIcon/${image}` ? '2px solid blue' : 'none' }}
+                                onClick={() => handleSelectImage(`${URLServer}/uploads/parfumIcon/${image}`)}
+                            >
+                                <img
+                                    src={`${URLServer}/uploads/parfumIcon/${image}`}
+                                    alt={image}
+                                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div> */}
+
                 {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
             </form>

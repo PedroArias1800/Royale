@@ -18,8 +18,13 @@ export const columnMappings = {
     parfum_id_fk: 'Perfume',
     ml: "Mililitros",
     img: "Imagen",
+    cost: 'Precio Costo',
     price: "Precio de Nosotros",
-    old_price: "Precio al Público"
+    old_price: "Precio al Público",
+    firstname: 'Nombre',
+    lastname: 'Apellido',
+    email: 'Email',
+    rol: 'Rol'
     // Agrega más columnas si es necesario
   };
 

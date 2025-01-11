@@ -1,0 +1,98 @@
+import { createAccessToken } from '../libs/jwt.js'
+import User from '../models/user.model.js'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
+import { TOKEN_SECRET } from '../config.js'
+
+const getRol = (id) => {
+    if (id == 1){
+        return 'Admin'
+    } else if (id == 2){
+        return 'Vendedor'
+    }
+}
+
+export const getUsers = async (req, res) => {
+    try {
+        const Users = await User.find().select('firstname lastname email rol status');
+        res.json(Users);
+    } catch (error) {
+        console.error("Error al obtener los usuarios:", error);
+        res.status(500).send("Error al obtener los usuarios");
+    }
+};
+
+
+export const postUser = async(req, res) => {
+    const { firstname, lastname, email, password, rol, status } = req.body
+
+    try {
+
+        const userFound = await User.findOne({ email })
+        if (userFound) return res.status(400).json(["El Correo ya está en uso"])
+
+        const passwordHash = await bcrypt.hash(password, 10)
+
+        const newUser = new User({
+            firstname,
+            lastname,
+            email,
+            password: passwordHash,
+            rol,
+            status
+        });
+    
+        const userSaved = await newUser.save()
+        const token = await createAccessToken({ id: userSaved._id })
+        res.cookie("token", token)
+        res.json({
+            id: userSaved._id,
+            firstname: userSaved.firstname,
+            lastname: userSaved.lastname,
+            email: userSaved.email,
+            rol: getRol(userSaved.rol),
+            status: userSaved.status,
+            createdAt: userSaved.createdAt,
+            updatedAt: userSaved.updatedAt
+        })   
+    } catch (error) {
+        res.status(500).json([error.message])
+    }
+}
+
+export const putUser = async(req, res) => {
+    const { firstname, lastname, email, password, rol, status } = req.body
+
+    try {
+
+        const userFound = await User.findOne({ email })
+        if (userFound) return res.status(400).json(["El Correo ya está en uso"])
+
+        const passwordHash = await bcrypt.hash(password, 10)
+
+        const newUser = new User({
+            firstname,
+            lastname,
+            email,
+            password: passwordHash,
+            rol,
+            status
+        });
+    
+        const userSaved = await newUser.save()
+        const token = await createAccessToken({ id: userSaved._id })
+        res.cookie("token", token)
+        res.json({
+            id: userSaved._id,
+            firstname: userSaved.firstname,
+            lastname: userSaved.lastname,
+            email: userSaved.email,
+            rol: getRol(userSaved.rol),
+            status: userSaved.status,
+            createdAt: userSaved.createdAt,
+            updatedAt: userSaved.updatedAt
+        })   
+    } catch (error) {
+        res.status(500).json([error.message])
+    }
+}
