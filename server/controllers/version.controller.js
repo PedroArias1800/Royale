@@ -1,9 +1,38 @@
 import Version from '../models/version.model.js'
 
-export const getVersions = async(req, res) => {
+export const getAllVersions = async(req, res) => {
     const versions = await Version.find()
     res.json(versions)
 }
+
+export const getVersions = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+
+        const skip = (page - 1) * limit;
+
+        const version = await Version.find()
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Version.countDocuments();
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: version,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al obtener los tipos' });
+    }
+};
 
 export const getVersion = async(req, res) => {
     const version = await Version.findById(req.params.id)

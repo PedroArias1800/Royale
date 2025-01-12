@@ -1,9 +1,38 @@
 import Brand from '../models/brand.model.js'
 
-export const getBrands = async(req, res) => {
+export const getAllBrands = async(req, res) => {
     const brands = await Brand.find()
     res.json(brands)
 }
+
+export const getBrands = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+
+        const skip = (page - 1) * limit;
+
+        const brand = await Brand.find()
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Brand.countDocuments();
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: brand,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al obtener los tipos' });
+    }
+};
 
 export const getBrand = async(req, res) => {
     const brand = await Brand.findById(req.params.id)

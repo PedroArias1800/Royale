@@ -62,7 +62,7 @@ export const DataTable = ({ data, idCategory }) => {
                     ? "Derecha"
                     : "Izquierda"
                   : (["img", "back_img", "parfum_img"].includes(header)) && row[header]
-                  ? <img src={`${URLServer}${row[header]}`} alt="Imagen" style={{ maxWidth: "100px", maxHeight: "100px", margin: 'auto !important' }} />
+                  ? <img src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100px", height: "100px", margin: 'auto !important' }} />
                   : row[header]
                 }
               </td>

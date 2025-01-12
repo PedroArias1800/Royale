@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getParfumsRequest } from '../api/Admin.api';
+import { getAllParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
 import { getParfumsIconGallery } from '../api/Img.api.js'
@@ -9,13 +9,14 @@ export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
     const [parfums, setParfum] = useState([]);
     const [parfumsGallery, setParfumsGallery] = useState([]);
-    const isUpdate = Boolean(modalData?._id);
+    const [required, setRequired] = useState(Boolean(modalData?._id))
     const [selectedImage, setSelectedImage] = useState(modalData?.img || '');  
     const [showImgServer, setShowImgServer] = useState(false)
-
+    const isUpdate = Boolean(modalData?._id)
+    
     useEffect(() => {
         async function loadParfum() {
-            const response = await getParfumsRequest();
+            const response = await getAllParfumsRequest();
             setParfum(Array.isArray(response.data) ? response.data : []);
         }
         async function loadParfumGallery() {
@@ -173,6 +174,7 @@ export const ModalFormType = ({ modalData }) => {
 
     const handleShowImgServer = () => {
         setShowImgServer(!showImgServer)
+        setRequired(true)
     }
 
     return (
@@ -228,7 +230,7 @@ export const ModalFormType = ({ modalData }) => {
                 </label>
                 <label htmlFor="img">
                     <p>Imagen</p>
-                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleFileChange(e)} required={!isUpdate || (selectedImage && !modalData?.img && !modalData?.imgPreview)} />
+                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleFileChange(e)} required={!required} />
                     <div>
                         {(modalData?.imgPreview || modalData?.img) && (
                             <img
@@ -256,7 +258,7 @@ export const ModalFormType = ({ modalData }) => {
                             <div 
                                 key={index} 
                                 style={{ margin: '10px', cursor: 'pointer', border: selectedImage === `${URLServer}/uploads/parfumIcon/${image}` ? '2px solid blue' : 'none' }}
-                                onClick={() => handleSelectImage(`${URLServer}/uploads/parfumIcon/${image}`)}
+                                onClick={() => {handleSelectImage(`${URLServer}/uploads/parfumIcon/${image}`); handleShowImgServer()}}
                             >
                                 <img
                                     src={`${URLServer}/uploads/parfumIcon/${image}`}

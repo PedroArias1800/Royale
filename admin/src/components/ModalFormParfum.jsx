@@ -1,21 +1,21 @@
 import { useEffect, useState } from 'react';
-import { getVersionsRequest, getBrandsRequest } from '../api/Admin.api';
+import { getAllVersionsRequest, getAllBrandsRequest } from '../api/Admin.api';
 import { postParfumsRequest, putParfumsRequest, deleteParfumsRequest } from '../api/Parfum.api';
 import { useAuth } from '../context/AuthProvider';
 
 export const ModalFormParfum = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert, pagination } = useAuth();
     const [versions, setVersions] = useState([]);
     const [brands, setBrands] = useState([]);
     const isUpdate = Boolean(modalData?._id);
 
     useEffect(() => {
         async function loadBrands() {
-            const response = await getBrandsRequest();
+            const response = await getAllBrandsRequest();
             setBrands(Array.isArray(response.data) ? response.data : []);
         }
         async function loadVersions() {
-            const response = await getVersionsRequest();
+            const response = await getAllVersionsRequest();
             setVersions(Array.isArray(response.data) ? response.data : []);
         }
         loadBrands();
@@ -51,7 +51,7 @@ export const ModalFormParfum = ({ modalData }) => {
                     const res = await putParfumsRequest(modalData._id, modalData);
                     if (res.status == 200){
                         showAlert('Datos actualizados con éxito', 1);
-                        cargarDataTables(1)
+                        cargarDataTables(1, pagination.totalPages)
                         closeModal()
                     }
                 } else {
@@ -59,7 +59,7 @@ export const ModalFormParfum = ({ modalData }) => {
                     const res = await postParfumsRequest(modalData);
                     if (res.status == 200){
                         showAlert('Datos creados con éxito', 1);
-                        cargarDataTables(1)
+                        cargarDataTables(1, pagination.totalPages)
                         closeModal()
                     }
                 }
@@ -85,7 +85,7 @@ export const ModalFormParfum = ({ modalData }) => {
         
         closeModal()
         setModalData(null);
-        cargarDataTables(1)
+        cargarDataTables(1, pagination.totalPages)
     }
 
     if (!modalData) {

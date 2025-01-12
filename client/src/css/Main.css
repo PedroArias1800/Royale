@@ -238,14 +238,14 @@ body {
 }
 .imgRedesSociales{
   display: grid;
-  height: auto;
-  gap: 2% 20%;
+  gap: 2%;
 }
 .imgRedesSociales a svg{
-  height: 100%;
+  height: 50px !important;
+  width: 50px !important;
 }
 .imgRedesSociales a{
-  width: 20%;
+  width: 100% !important;
   display: flex;
   justify-content: left;
   gap: 20px;
@@ -253,6 +253,7 @@ body {
 }
 .imgRedesSociales a p{
   font-size: medium;
+  width: 100% !important;
   margin: auto;
 }
 .semiFooterContacto{

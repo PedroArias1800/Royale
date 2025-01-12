@@ -1,6 +1,6 @@
 import Body from '../models/body.model.js'
 
-export const getBodies = async(req, res) => {
+export const getAllBodies = async(req, res) => {
     const bodies = await Body.find()
     .populate({
         path: 'parfum_id_fk',
@@ -9,6 +9,39 @@ export const getBodies = async(req, res) => {
 
     res.json(bodies)
 }
+
+export const getBodies = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+
+        const skip = (page - 1) * limit;
+
+        const body = await Body.find()
+            .populate({
+                path: 'parfum_id_fk',
+                select: 'title',
+            })
+            .skip(skip)
+            .limit(limit);
+
+        const total = await Body.countDocuments();
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: body,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al obtener los tipos' });
+    }
+};
 
 export const getBody = async(req, res) => {
     const body = await Body.findById(req.params.id)

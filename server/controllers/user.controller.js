@@ -12,7 +12,7 @@ const getRol = (id) => {
     }
 }
 
-export const getUsers = async (req, res) => {
+export const getAllUsers = async (req, res) => {
     try {
         const Users = await User.find().select('firstname lastname email rol status');
         res.json(Users);
@@ -22,6 +22,35 @@ export const getUsers = async (req, res) => {
     }
 };
 
+export const getUsers = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+        
+        const skip = (page - 1) * limit;
+
+        const users = await User.find()
+            .select('firstname lastname email rol status')
+            .skip(skip)
+            .limit(limit);
+
+        const total = await User.countDocuments();
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: users,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error al obtener los tipos' });
+    }
+};
 
 export const postUser = async(req, res) => {
     const { firstname, lastname, email, password, rol, status } = req.body

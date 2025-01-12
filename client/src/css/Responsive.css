@@ -187,6 +187,7 @@
         align-items: top; /* Centra verticalmente */
     }
     .semiFooter div{
+        width: 80%;
         margin: 2vh 0;
     }
     .logoRoyaleFooter{

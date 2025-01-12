@@ -21,15 +21,15 @@ export const Footer = () => {
                     <h3>REDES SOCIALES</h3>
                     <section className='imgRedesSociales'>
                         <Link to="https://www.instagram.com/royalepanama1/profilecard/?igsh=MXNja3JyeWZ4a3RqYg==" target='_blank'>
-                            <FontAwesomeIcon icon={faInstagram} />
+                            <FontAwesomeIcon icon={faInstagram} className='contactIcon'/>
                             <p>@RoyalePanama1</p>
                         </Link>
                         <Link to="#">
-                            <FontAwesomeIcon icon={faTwitter} />
+                            <FontAwesomeIcon icon={faTwitter} className='contactIcon'/>
                             <p>@RoyalePanama1</p>
                         </Link>
                         <Link to={`whatsapp://send?phone=50765623382&text=Hola,%20estoy%20interesado%20en%20algunos%20productos`}>
-                            <FontAwesomeIcon icon={faWhatsapp} />
+                            <FontAwesomeIcon icon={faWhatsapp} className='contactIcon'/>
                             <p>+507 6562-3382</p>
                         </Link>
                     </section>

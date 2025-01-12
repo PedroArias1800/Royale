@@ -37,6 +37,7 @@ export const AuthProvider = ({ children }) => {
     const [c1, setC1] = useState();
     const [c2, setC2] = useState();
     const navigate = useNavigate();
+    const [pagination, setPagination] = useState({});
 
     const signIn = async (user) => {
         try {
@@ -124,34 +125,36 @@ export const AuthProvider = ({ children }) => {
         setModalContent(null);  // Limpiar el contenido del modal
     };
 
-    const cargarDataTables = async (id) => {
+    const cargarDataTables = async (id, page) => {
+        let response = ''
         if (id == 1) {
-            const response = await getParfumsRequest();
-            setResponse(Array.isArray(response.data) ? response.data : []);
+            response = await getParfumsRequest(page);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 2){
-            const response = await getTypesRequest();
-            setResponse(Array.isArray(response.data) ? response.data : []);
+            response = await getTypesRequest();
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 3){
-            const response = await getBrandsRequest();
-            setResponse(Array.isArray(response.data) ? response.data : []);
+            response = await getBrandsRequest();
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 4){
-            const response = await getVersionsRequest();
-            setResponse(Array.isArray(response.data) ? response.data : []);
+            response = await getVersionsRequest();
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 5){
-            const response = await getBodiesRequest();
-            setResponse(Array.isArray(response.data) ? response.data : []);
+            response = await getBodiesRequest();
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 6){
-            const response = await getUsersRequest();
-            setResponse(Array.isArray(response.data) ? response.data : []);
+            response = await getUsersRequest();
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else{
             console.log('Error')
         }
+        setPagination(response.data.pagination)
     }
 
     const showAlert = (message, type) => {
@@ -167,7 +170,7 @@ export const AuthProvider = ({ children }) => {
     }
 
 
-    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert }}>
+    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination }}>
         {children}
         <div className='mostrarAlerta'>
             <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>

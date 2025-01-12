@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { getParfumsRequest } from '../api/Admin.api';
+import { getAllParfumsRequest } from '../api/Admin.api';
 import { postBodiesRequest, putBodiesRequest, deleteBodiesRequest } from '../api/Body.api';
 import { useAuth } from '../context/AuthProvider';
-import { Alert } from './Alert';
 const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001';
 
 export const ModalFormBody = ({ modalData }) => {
@@ -24,7 +23,7 @@ export const ModalFormBody = ({ modalData }) => {
     useEffect(() => {
         async function loadParfums() {
             try {
-                const response = await getParfumsRequest();
+                const response = await getAllParfumsRequest();
                 setParfums(Array.isArray(response.data) ? response.data : []);
             } catch (error) {
                 console.error('Error fetching parfums:', error);
@@ -42,7 +41,7 @@ export const ModalFormBody = ({ modalData }) => {
                 color: prevData.color || '',
                 color2: prevData.color2 || '',
                 status: prevData.status || '1',
-                parfum_id_fk: prevData.parfum_id_fk || parfums[0]?._id,
+                parfum_id_fk: prevData.parfum_id_fk || parfums.data[0]?._id,
             }));
         }
     }, [isUpdate, parfums]);
@@ -212,7 +211,7 @@ export const ModalFormBody = ({ modalData }) => {
                         required
                     >
                         <option value="" disabled>Selecciona una opción</option>
-                        {parfums.map((parfum) => (
+                        {parfums.data.map((parfum) => (
                             <option key={parfum._id} value={parfum._id}>
                                 {parfum.title}
                             </option>

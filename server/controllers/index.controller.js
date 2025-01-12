@@ -57,15 +57,20 @@ export const allParfums = async (req, res) => {
         const parfums = await Parfum.aggregate([
             {
                 $match: {
-                    status: 1
+                    status: 1 // Solo registros con status igual a 1
                 }
             },
             {
                 $lookup: {
-                    from: "types", // Nombre de la colección de MongoDB (debe estar en minúscula/pluralizada por defecto)
+                    from: "types", // Nombre de la colección de MongoDB
                     localField: "_id", // Campo de referencia en Parfum
                     foreignField: "parfum_id_fk", // Campo de referencia en Types
-                    as: "types" // Nombre del array resultante que contendrá los datos de Types
+                    as: "types" // Nombre del array resultante
+                }
+            },
+            {
+                $match: {
+                    "types.0": { $exists: true } // Filtrar solo registros donde 'types' contenga al menos un objeto
                 }
             },
             {
@@ -77,15 +82,15 @@ export const allParfums = async (req, res) => {
                 }
             },
             {
+                $unwind: "$version" // Desanidar la versión (si solo quieres un objeto en lugar de un array)
+            },
+            {
                 $lookup: {
                     from: "brands",
                     localField: "brand_id_fk",
                     foreignField: "_id",
                     as: "brand"
                 }
-            },
-            {
-                $unwind: "$version" // Desanidar la versión (si solo quieres un objeto en lugar de un array)
             },
             {
                 $unwind: "$brand" // Desanidar la marca
