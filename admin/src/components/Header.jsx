@@ -20,14 +20,16 @@ export const Header = () => {
 return (
     <div className='adminHeader'>
       <div className='adminHeader1'>
-        <a href={URLAdmin}><img src="/icons/RoyalePanama.png" alt="Logo de Royale Panamá" /></a>
-        <p>Royale Panama - Admin</p>
+        <a href={URLAdmin}><img src="/icons/RoyaleDorado.webp" alt="Logo de Royale Panamá" /></a>
+        <div className='DivCerrarSesion'>
+          <p>Royale Panama - Admin</p>
+          {
+            mostrarSesion && (
+              <button onClick={handleSession} className='CerrarSesion'>Cerrar Sesión</button>
+            )
+          }
+        </div>
       </div>
-      {
-        mostrarSesion && (
-          <button onClick={handleSession}>Cerrar Sesión</button>
-        )
-      }
     </div>
   )
 }

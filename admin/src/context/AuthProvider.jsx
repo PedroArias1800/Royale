@@ -45,6 +45,7 @@ export const AuthProvider = ({ children }) => {
             setUser(res.data)
             setIsAuthenticated(true)
         } catch (error) {
+            showAlert('Ha ocurrido un error al iniciar sesión', 0)
             setErrors(error.response.data)
         }
     }
@@ -55,6 +56,7 @@ export const AuthProvider = ({ children }) => {
             setUser(res)
             setIsAuthenticated(true)
         } catch (error) {
+            showAlert('Ha ocurrido un error al registrar al usuario', 0)
             setErrors(error.response.data)
         }
     }

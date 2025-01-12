@@ -211,7 +211,7 @@ export const ModalFormBody = ({ modalData }) => {
                         required
                     >
                         <option value="" disabled>Selecciona una opción</option>
-                        {parfums.data.map((parfum) => (
+                        {parfums.map((parfum) => (
                             <option key={parfum._id} value={parfum._id}>
                                 {parfum.title}
                             </option>

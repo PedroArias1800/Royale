@@ -1,0 +1,42 @@
+:root{
+    --color-negro: #373636;
+    --color-negro-hover: #222227;
+    --color-dorado: #fdd05e;
+    --color-dorado-hover: #c79a28;
+    --color-rojo: #d60a5f;
+    --color-rojo-2: #8d093f;
+    --color-rojo-hover: #ee0d6b;
+    --color-rojo-hover-2: #ff006a;
+}
+
+.pageAdmin{
+    height: 75vh;
+    padding: 2vh 5vw;
+}
+.pageAdmin h1{
+    margin: 2% 0;
+}
+.pageAdmin div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    width: 100% !important;
+    height: 75% !important;
+}
+.pageAdmin div a{
+    min-width: 400px;
+    max-width: 600px;
+    background-color: var(--color-rojo);
+    text-decoration: none;
+    color: white;
+    font-size: 1.7em;
+    text-align: center;
+    border-radius: 5px;
+    padding: .5% 0;
+    transition: all .35s ease;
+}
+.pageAdmin div a:hover{
+    background-color: var(--color-rojo-2);
+}

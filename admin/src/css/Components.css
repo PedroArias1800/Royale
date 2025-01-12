@@ -1,0 +1,92 @@
+/* HEADER */
+.adminHeader{
+    color: white;
+    width: 100%;
+    height: 15vh;
+    padding: 1% 4%;
+    background: linear-gradient(to bottom, #720c33, var(--color-rojo));
+}
+.adminHeader1{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.5em;
+}
+.adminHeader1 a img{
+    width: 200px;
+}
+.DivCerrarSesion{
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    flex-direction: column;
+}
+.CerrarSesion{
+    padding: 1% 10%;
+    font-size: .6em;
+    margin: 1vh 0;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #ffe6a6;
+    transition: all .35s ease;
+}
+.CerrarSesion:hover{
+    background-color: #fed879;
+}
+
+
+/* LOGIN */
+.login{
+    font-size: 1.3em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 75vh;
+}
+.login h2{
+    margin: 2vh 0;
+}
+.login form{
+    display: block;
+    padding: 5%;
+}
+.login form input{
+    width: 100% !important;
+    padding: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin: 1vh 0;
+    font-size: .9em;
+}
+.login form input[type="submit"]{
+    width: 60% !important;
+    padding: 2% !important;
+    margin-left: 20%;
+    margin-top: 10vh;
+    cursor: pointer;
+    background-color: var(--color-rojo);
+    transition: all .35s ease;
+    color: white;
+}
+.login form input[type="submit"]:hover{
+    background-color: var(--color-rojo-2);
+}
+
+
+
+
+
+
+/* FOOTER */
+.footer-rights{
+    color: white;
+    font-size: 1.4em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 10vh;
+    background: linear-gradient(to bottom, #1f1f1f, #313131);
+}

@@ -15,10 +15,9 @@ export const Admin = () => {
     }
 
   return (
-    <div>
+    <div className='pageAdmin'>
         <h1>Bienvenido {user.firstname} {user.lastname}</h1>
         <div>
-            <h2>Selecciona la data a ver</h2>
             <Link to="/data?id=1">Perfumes</Link>
             <Link to="/data?id=2">Tipos de Perfumes</Link>
             <Link to="/data?id=3">Marcas</Link>
