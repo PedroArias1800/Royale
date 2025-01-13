@@ -25,3 +25,11 @@ export const postPagarRequest = async (message, name) => {
         return { res: false, msg: error.response?.data || error.message }
     }
 }
+
+
+export const postTransactionRequest = async (transaction) =>
+    await axios.post(`${URL}/transaction`, transaction, {
+        headers: {
+            'Content-Type': 'application/json' // Asegúrate de que el servidor entienda que es JSON
+        }
+    });

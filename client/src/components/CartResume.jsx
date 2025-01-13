@@ -1,7 +1,7 @@
 import React, { useMemo, useContext, useState } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
 import { PaymentModal } from './PaymentModal';
-import { postPagarRequest } from '../api/Cart.api';
+import { postPagarRequest, postTransactionRequest } from '../api/Cart.api';
 
 
 export const CartResume = ({ products }) => {
@@ -11,13 +11,16 @@ export const CartResume = ({ products }) => {
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const { totalItems, subTotal, totalPrice, totalSavings, productDetails } = useMemo(() => {
+  const { totalItems, subTotal, totalPrice, totalSavings, productDetails, productsId, typesId, quantities } = useMemo(() => {
     let subTotal = 0; 
     let totalPrice = 0; 
     let totalItems = 0;
     let totalSavings = 0;
-    let productDetails = [];  // Inicializamos aquí el array para los detalles del producto
-
+    let productDetails = [];
+    let productsId = [];
+    let typesId = [];
+    let quantities = [];
+    
     // Recorremos los productos en 'products' para mantener el orden original
     products.forEach((product) => {
       // Buscamos el producto correspondiente en el carrito
@@ -49,12 +52,15 @@ export const CartResume = ({ products }) => {
           old_price: product.old_price,
           subTotal: price * quantity
         });
+        productsId.push(product.parfum?._id)
+        typesId.push(product.type?._id)
+        quantities.push(quantity)
       }
     });
 
     totalSavings = subTotal - totalPrice;
 
-    return { totalItems, subTotal, totalPrice, totalSavings, productDetails };
+    return { totalItems, subTotal, totalPrice, totalSavings, productDetails, productsId, typesId, quantities };
   }, [cart, products]); // Dependemos de 'cart' y 'products'
 
 
@@ -62,7 +68,6 @@ export const CartResume = ({ products }) => {
     let alertMessage = '';
     let color = '';
     let color2 = '';
-    console.log(response)
   
     if (response && response.res === true) {
       // Mostramos mensaje de éxito
@@ -80,53 +85,76 @@ export const CartResume = ({ products }) => {
   };
   
   const handleFormSubmit = async (data) => {
-    let name = data.name
-    let message = `Hola, soy ${name} y estos son los productos que he seleccionado desde el sitio web de Royale Panama:\n\n`;
-  
-    productDetails.forEach((item) => {
-      message += `Producto: ${item.brand_name} ${item.title}\n`;
-      message += `Versión: ${item.version_name} - ${item.ml}ml\n`;
-      message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
-      message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
-      message += `Cantidad: ${item.quantity}\n`;
-      message += `Enlace: ${URL}/parfum?id=${item.parfum_id}\n\n`;
-    });
-  
-    const total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
-    message += `Total: $${total.toFixed(2)}\n\n`;
-    message += `Me puedes contactar de la siguiente manera:\n`;
-    message += `Número de Teléfono: +507 ${data.phone}\n`;
-    message += `Correo: ${data.email}`;
-    
+    const transaction = {
+      userName: data.name,
+      phone: data.phone,
+      direction: data.address,
+      email: data.email,
+      subTotal: subTotal.toFixed(2),
+      total: totalPrice.toFixed(2),
+      products: productsId,
+      productsTypes: typesId,
+      quantities: quantities,
+    }
+
     try {
-      const response = await postPagarRequest(message, name);
-      if (response) {
-        handleResponse(response);
-      } else {
-        console.log(response)
-        handleResponse({ res: false });
-      }
+        const res = await postTransactionRequest(transaction);
+        if (res.status === 200) {
+            console.log('Transacción guardada con éxito');
+        } else {
+            console.error('Ocurrió un error al guardar la transacción.');
+        }
     } catch (error) {
-      console.error("Error al realizar la solicitud:", error);
-      handleResponse({ res: false });
+        console.error('Error al guardar la transacción:', error);
     }
+
+    // let name = data.name
+    // let message = `Hola, soy ${name} y estos son los productos que he seleccionado desde el sitio web de Royale Panama:\n\n`;
   
-    handleCloseModal();
-    // Construir el enlace a WhatsApp con un mensaje dinámico
-    const phoneNumber = "50765623382"; // Reemplaza con el número de WhatsApp
-    const whatsappMessage = encodeURIComponent(message); // Codificar mensaje
-    let whatsappURL = ''
-
-    // Redirigir al enlace de WhatsApp
-    const userAgent = navigator.userAgent.toLowerCase();
+    // productDetails.forEach((item) => {
+    //   message += `Producto: ${item.brand_name} ${item.title}\n`;
+    //   message += `Versión: ${item.version_name} - ${item.ml}ml\n`;
+    //   message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
+    //   message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
+    //   message += `Cantidad: ${item.quantity}\n`;
+    //   message += `Enlace: ${URL}/parfum?id=${item.parfum_id}\n\n`;
+    // });
+  
+    // const total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
+    // message += `Total: $${total.toFixed(2)}\n\n`;
+    // message += `Me puedes contactar de la siguiente manera:\n`;
+    // message += `Número de Teléfono: +507 ${data.phone}\n`;
+    // message += `Correo: ${data.email}`;
     
-    if (/mobile|android|iphone|ipad|ipod/.test(userAgent)) {
-      whatsappURL = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
-    } else {
-      whatsappURL = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`
-    }
+    // try {
+    //   const response = await postPagarRequest(message, name);
+    //   if (response) {
+    //     handleResponse(response);
+    //   } else {
+    //     console.log(response)
+    //     handleResponse({ res: false });
+    //   }
+    // } catch (error) {
+    //   console.error("Error al realizar la solicitud:", error);
+    //   handleResponse({ res: false });
+    // }
+  
+    // handleCloseModal();
+    // // Construir el enlace a WhatsApp con un mensaje dinámico
+    // const phoneNumber = "50765623382"; // Reemplaza con el número de WhatsApp
+    // const whatsappMessage = encodeURIComponent(message); // Codificar mensaje
+    // let whatsappURL = ''
 
-    window.open(whatsappURL, "_blank");
+    // // Redirigir al enlace de WhatsApp
+    // const userAgent = navigator.userAgent.toLowerCase();
+    
+    // if (/mobile|android|iphone|ipad|ipod/.test(userAgent)) {
+    //   whatsappURL = `whatsapp://send?phone=${phoneNumber}&text=${whatsappMessage}`;
+    // } else {
+    //   whatsappURL = `https://wa.me/${phoneNumber}?text=${whatsappMessage}`
+    // }
+
+    // window.open(whatsappURL, "_blank");
   };
   return (
     <div className='cardResume'>

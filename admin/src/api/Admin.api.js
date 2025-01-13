@@ -35,3 +35,10 @@ export const getUsersRequest = async (page = 1) =>
 
 export const getAllUsersRequest = async () =>
     await axios.get(`/api/users/all`)
+
+
+export const getTransactionsRequest = async () =>
+    await axios.get(`/transaction`)
+
+export const putTransactionsRequest = async (id) =>
+        await axios.put(`/transaction/${id}`)

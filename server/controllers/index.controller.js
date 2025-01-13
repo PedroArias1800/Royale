@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Parfum from '../models/parfum.model.js'
 import Body from '../models/body.model.js'
+import Transaction from '../models/transaction.model.js'
 
 
 export const parfumVersion = async (req, res) => {
@@ -117,5 +118,80 @@ export const parfumsBody = async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send("Error al obtener los bodies");
+    }
+};
+
+
+export const getTransaction = async (req, res) => {
+    try {
+        const transaction = await Transaction.aggregate([
+            {
+                $match: {
+                    status: false
+                }
+            }
+        ])
+
+        res.json(transaction);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error al obtener las transacciones");
+    }
+}
+
+
+export const createTransaction = async (req, res) => {
+    const { userName, phone, direction, email, subTotal, total, products, productsTypes, quantities } = req.body
+    
+    try {
+        const newTransaction = new Transaction({
+            userName,
+            phone,
+            direction,
+            email,
+            subTotal,
+            total,
+            products,
+            productsTypes,
+            quantities,
+        })
+    
+        const transactionSaved = await newTransaction.save()
+        res.json(transactionSaved);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error al guardar la transacción");
+    }
+};
+
+
+export const updateTransaction = async (req, res) => {
+    try {
+        // Buscar la transacción por ID
+        const transaction = await Transaction.findById(req.params.id);
+        
+        // Validar si la transacción existe
+        if (!transaction) {
+            return res.status(404).json({ message: "Transaction not found" });
+        }
+
+        // Actualizar solo el campo `status` a true
+        transaction.status = true;
+
+        // Guardar los cambios en la base de datos
+        const transactionUpdated = await transaction.save();
+
+        const transactionReload = await Transaction.aggregate([
+            {
+                $match: {
+                    status: false
+                }
+            }
+        ])
+        
+        res.json(transactionReload);
+    } catch (error) {
+        console.error("Error updating transaction status:", error);
+        res.status(500).json({ message: "Error updating transaction status" });
     }
 };
