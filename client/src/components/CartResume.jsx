@@ -41,15 +41,15 @@ export const CartResume = ({ products }) => {
 
         // Agregamos el detalle del producto al array de detalles, manteniendo el orden de 'products'
         productDetails.push({
-          parfum_id: product.parfum_id,
-          types_id: product.types_id,
-          brand_name: product.brand_name,
-          title: product.title,
+          parfum_id: product.parfum._id,
+          types_id: product.type._id,
+          brand_name: product.parfum.brand_id_fk.brand_name,
+          title: product.parfum.title,
           quantity,
-          version_name: product.version_name,
-          ml: product.ml,
-          price: product.price,
-          old_price: product.old_price,
+          version_name: product.parfum.version_id_fk.version_name,
+          ml: product.type.ml,
+          price: product.type.price,
+          old_price: product.type.old_price,
           subTotal: price * quantity
         });
         productsId.push(product.parfum?._id)
@@ -163,7 +163,7 @@ export const CartResume = ({ products }) => {
         {productDetails.map((item, index) => (
           <div className='liResumen' key={index}>
             <p>{item.brand_name} {item.title} X {item.quantity}</p>
-            <p>${item.subTotal.toFixed(2)}</p>
+            <p>${item.old_price.toFixed(2)}</p>
           </div>
         ))}
         <hr />
@@ -179,10 +179,6 @@ export const CartResume = ({ products }) => {
         <div className='liResumen'>
           <p>Total</p>
           <p>${totalPrice.toFixed(2)}</p>
-        </div>
-        <div className='liResumen'>
-          <p>Has Ahorrado</p>
-          <p style={{ 'color': 'var(--color-rojo)' }}>${totalSavings.toFixed(2)}</p>
         </div>
       </div>
       <div className='div2'>

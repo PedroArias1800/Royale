@@ -112,3 +112,14 @@
 .precioGenero p{
     margin: auto 0;
 }
+.mlShareParfum{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.mlShareParfum h5{
+    margin: 0;
+}
+.mlShareParfum svg path, .mlShareParfum svg{
+    font-size: 1.3em;
+}

@@ -47,6 +47,12 @@
     justify-content: space-between;
     align-items: center;
 }
+.titleProduct h3{
+  margin: 0;
+}
+.divInfoProductCart h5{
+  margin: 10px 0 !important;
+}
 .titleProduct a{
     color: #685d5d;
     text-decoration: underline;
@@ -75,7 +81,13 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 40%;
+    gap: 10px !important;
+}
+.cardInfo1 div{
+  display: flex;
+  justify-content: left;
+  align-items: center;
+  gap: 8px !important;
 }
 .editQuantity{
     display: flex;
@@ -92,9 +104,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 30%;
+    width: 100%;
     gap: 2px;
     font-size: x-large;
+    max-width: 150px;
 }
 .cardInfo2 button{
     width: 100%;

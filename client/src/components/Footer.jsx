@@ -37,7 +37,7 @@ export const Footer = () => {
                 <div>
                     <h3>CONTACTO</h3>
                     <div className='imgRedesSociales'>
-                        <Link to="mailto:royalepanama321@gmail.com?subject=Consulta%20sobre%20Productos%20Royale%20Panama&body=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre...">
+                        <Link to="mailto:royalepanama321@gmail.com?subject=Consulta%20sobre%20Productos%20Royale%20Panama&body=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre..." className='seccionMail'>
                             <FontAwesomeIcon icon={faEnvelope} style={{"width": '70%'}}/>
                             <p>royalepanama321@gmail.com</p>
                         </Link>

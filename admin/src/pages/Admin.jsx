@@ -45,8 +45,8 @@ export const Admin = () => {
     <div className='pageAdmin'>
         <section>
           <h1>Bienvenido {user.firstname} {user.lastname}</h1>
-          <div>
-            <div onClick={handleViewTransaction}>
+          <div className='inbox'>
+            <div onClick={handleViewTransaction} className='numberInbox'>
               {
                 transaction.length > 0 && (
                   <p>{transaction.length}</p>
@@ -54,13 +54,15 @@ export const Admin = () => {
               }
               <FontAwesomeIcon icon={faInbox} className='contactIcon'/>
             </div>
-            <div>
+            <div className='infoInbox'>
               {
                 transaction.map(tran => (
-                  <div style={{display: showTransaction ? 'block' : 'none'}} key={tran._id} onClick={() => updateTransaction(tran._id)}>
-                    <p>{tran.userName}, {tran.phone}</p>
-                    <p>Total: {tran.total}</p>
-                    <p>{(tran.createdAt).split('T')[0]} a las {(tran.createdAt).split('T')[1].split('.')[0]}</p>
+                  <div style={{display: showTransaction ? 'block' : 'none'}} key={tran._id} onClick={() => updateTransaction(tran._id)} className='notificationInbox'>
+                    <div>
+                      <p>{tran.userName}, {tran.phone}</p>
+                      <p>Total: {tran.total}</p>
+                      <p>{(tran.createdAt).split('T')[0]} a las {(tran.createdAt).split('T')[1].split('.')[0]}</p>
+                    </div>
                     <FontAwesomeIcon icon={faCheck} className='contactIcon'/>
                   </div>
                 ))

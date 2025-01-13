@@ -78,18 +78,20 @@ export const CartSummary = ({ product }) => {
             </Link>
           </div>
           <h5>
-            Versión {product.parfum.version_id_fk.version_name} - {product.parfum.ml}ml
+            {product.parfum.version_id_fk.version_name} - {product.type.ml}ml
           </h5>
           <div className="productCardInfo2">
             <div className="cardInfo1">
-              <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.type.old_price).toFixed(2)}</p>
-              <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(product.type.price).toFixed(2)}</p>
+              <div>
+                <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.type.old_price).toFixed(2)}</p>
+                <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(product.type.price).toFixed(2)}</p>
+              </div>
               <p className='cardDiscount'>
                 {Math.ceil(-100 + (100 / Number(product.type.old_price).toFixed(2)) * Number(product.type.price).toFixed(2))}%
               </p>
             </div>
             <div className='editQuantity'>
-              <p>Cantidad: {cantidad}</p>
+              <p>Cantidad:{cantidad}</p>
               <div className="cardInfo2">
                 <button onClick={incrementQuantity}>+</button>
                 <button onClick={decrementQuantity}>-</button>

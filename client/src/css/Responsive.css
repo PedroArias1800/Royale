@@ -213,6 +213,7 @@
         width: 100vw;
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(100px, 2fr)) !important;
+        align-items: end;
         font-size: small;
         min-height: 20px !important;
     }
@@ -235,6 +236,9 @@
 }
 
 @media only screen and (max-width: 900px) {
+    .cardInfo1{
+        gap: 0px !important;
+    }
     .esconder{
         display: block !important;
         padding: 2vh 0;
@@ -257,6 +261,9 @@
 }
 
 @media only screen and (max-width: 600px) {
+    .titleProduct, .titleProduct h3, .divInfoProductCart h5{
+        font-size: 1.1em !important;
+    }
     .parfumContainer{
         display: block !important;
     }
@@ -294,10 +301,9 @@
         flex-direction: column;
     }
     .cardInfo1, .editQuantity{
-        justify-content: right !important;
         gap: 5%;
         margin-top: 1%;
-        width: 90% !important;
+        width: 100% !important;
     }
     .divImgProductCart{
         width: 80% !important;
@@ -320,8 +326,30 @@
         justify-content: center;
         grid-template-columns: repeat(auto-fit, minmax(250px, 220px)) !important;
     }
+    .seccionMail{
+        display: block !important;
+    }
 }
 @media only screen and (max-width: 450px) {
+    .menuDesplegable{
+        min-width: 200px;
+    }
+    .productCart{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .resumenCart{
+        margin: 0%;
+        padding: 7%;
+        width: 100%;
+    }
+    .editQuantity{
+        justify-content: space-between;
+    }
+    .cardInfo2{
+        width: 40%;
+    }
     .card{
         width: 100% !important;
     }

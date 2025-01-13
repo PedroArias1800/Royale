@@ -77,14 +77,14 @@ return (
             </button>
         </div>
           <ul>
-              <li>
+              <li onClick={toggleMenu}>
                   <Link to="/search">
-                      <FontAwesomeIcon icon={faMagnifyingGlass} onClick={toggleMenu} />
+                      <FontAwesomeIcon icon={faMagnifyingGlass}/>
                   </Link>
               </li>
-              <li><Link to="/search?type=1"><FontAwesomeIcon icon={faUser} /> Damas</Link></li>
-              <li><Link to="/search?type=2"><FontAwesomeIcon icon={faHeart} /> Caballeros</Link></li>
-              <li>
+              <li onClick={toggleMenu}><Link to="/search?type=1"><FontAwesomeIcon icon={faUser} /> Damas</Link></li>
+              <li onClick={toggleMenu}><Link to="/search?type=2"><FontAwesomeIcon icon={faHeart} /> Caballeros</Link></li>
+              <li onClick={toggleMenu}>
                 <Link to="/cart" className='cart-icon'>
                   <FontAwesomeIcon icon={faCartShopping} /> Mi cesta
                   { getTotalQuantity() > 0 && (

@@ -22,7 +22,6 @@
     align-items: center;
     flex-direction: column;
     gap: 10px;
-    width: 100% !important;
     height: 75% !important;
 }
 .pageAdmin div a{
@@ -40,3 +39,39 @@
 .pageAdmin div a:hover{
     background-color: var(--color-rojo-2);
 }
+.pageAdmin section{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.inbox{
+    max-width: 100px;
+    position: relative;
+    width: 100% !important;
+    padding-top: 3.5%;
+}
+.numberInbox p{
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    background-color: #d60a5f;
+    color: white;
+    padding: 2% 6%;
+    border-radius: 50%;
+}
+.contactIcon{
+    font-size: 1.5em;
+}
+.infoInbox{
+    position: absolute;
+    top: 60px;
+    right: 10px;;
+    width: 300px !important;
+}
+.notificationInbox{
+    font-size: 1.2em;
+    box-sizing: border-box;
+    width: 100%;
+}
+/* .infoInbox div{
+} */

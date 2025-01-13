@@ -37,7 +37,7 @@ export const Search = () => {
   useEffect(() => {
     if (!products || products.length === 0) return;
 
-    const gender = type === "1" ? "Damas" : type === "2" ? "Caballeros" : null;
+    const gender = type === "1" ? 1 : type === "2" ? 2 : null;
 
     if (gender) {
       const filtered = products.filter((product) => product.gender === gender);
@@ -49,13 +49,13 @@ export const Search = () => {
   const handleFilter = ({ search, gender, minPrice, maxPrice, brand }) => {
     if (!products || products.length === 0) return;
 
+    let genderTemp = gender === 'Damas' ? 1 : 2;
     const filtered = products.filter((product) => {
-      console.log(product)
       const matchesSearch = search
         ? product.title?.toLowerCase().includes(search.toLowerCase()) ||
           product.brand.brand_name?.toLowerCase().includes(search.toLowerCase())
         : true;
-      const matchesGender = gender ? product.gender === gender : true;
+      const matchesGender = gender ? product.gender === genderTemp : true;
       const matchesBrand = brand ? product.brand.brand_name === brand : true;
       const matchesPrice = product.types.some((type) => {
         const price = parseFloat(type.price);
