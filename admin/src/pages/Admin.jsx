@@ -7,8 +7,7 @@ import { getTransactionsRequest, putTransactionsRequest } from '../api/Admin.api
 import { useState } from 'react';
 
 export const Admin = () => {
-    const { user, closeModal } = useAuth();
-    const [transaction, setTransaction] = useState([])
+    const { user, closeModal, transaction, setTransaction } = useAuth();
     const [showTransaction, setShowTransaction] = useState(false)
 
     useEffect(() => {
@@ -54,23 +53,22 @@ export const Admin = () => {
               }
               <FontAwesomeIcon icon={faInbox} className='contactIcon'/>
             </div>
-            <div className='infoInbox'>
+            <div style={{display: showTransaction ? 'block' : 'none'}} className='infoInbox'>
               {
                 transaction.map(tran => (
-                  <div style={{display: showTransaction ? 'block' : 'none'}} key={tran._id} onClick={() => updateTransaction(tran._id)} className='notificationInbox'>
+                  <div key={tran._id} className='notificationInbox'>
                     <div>
-                      <p>{tran.userName}, {tran.phone}</p>
-                      <p>Total: {tran.total}</p>
+                      <p>{tran.userName}, ${tran.total}</p>
                       <p>{(tran.createdAt).split('T')[0]} a las {(tran.createdAt).split('T')[1].split('.')[0]}</p>
                     </div>
-                    <FontAwesomeIcon icon={faCheck} className='contactIcon'/>
+                    <FontAwesomeIcon icon={faCheck} className='updateTransactionCheck' onClick={() => updateTransaction(tran._id)}/>
                   </div>
                 ))
               }
             </div>
           </div>
         </section>
-        <div>
+        <div className='adminLinks'>
             <Link to="/data?id=1">Perfumes</Link>
             <Link to="/data?id=2">Tipos de Perfumes</Link>
             <Link to="/data?id=3">Marcas</Link>

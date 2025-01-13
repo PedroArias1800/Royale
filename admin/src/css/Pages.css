@@ -11,7 +11,7 @@
 
 .pageAdmin{
     height: 75vh;
-    padding: 2vh 5vw;
+    padding: 2vh 2vw;
 }
 .pageAdmin h1{
     margin: 2% 0;
@@ -22,7 +22,6 @@
     align-items: center;
     flex-direction: column;
     gap: 10px;
-    height: 75% !important;
 }
 .pageAdmin div a{
     min-width: 400px;
@@ -39,6 +38,9 @@
 .pageAdmin div a:hover{
     background-color: var(--color-rojo-2);
 }
+.adminLinks{
+    height: 75% !important;
+}
 .pageAdmin section{
     display: flex;
     justify-content: space-between;
@@ -52,7 +54,7 @@
 }
 .numberInbox p{
     position: absolute;
-    bottom: 30px;
+    top: 20px;
     right: 30px;
     background-color: #d60a5f;
     color: white;
@@ -64,14 +66,55 @@
 }
 .infoInbox{
     position: absolute;
-    top: 60px;
-    right: 10px;;
+    top: 80px;
+    right: 0vw !important;
     width: 300px !important;
+    max-height: 60vh !important;
+    height: 60vh !important;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-dorado) transparent;
 }
 .notificationInbox{
     font-size: 1.2em;
     box-sizing: border-box;
     width: 100%;
+    padding: 10px;
+    background-color: var(--color-rojo);
+    color: white;
+    justify-content: space-between !important;
+    flex-direction: row !important;
+    border-radius: 10px;
+    margin: 10px 0;
+    scrollbar-width: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: all .35s ease;
 }
-/* .infoInbox div{
-} */
+.notificationInbox:hover{
+    background-color: var(--color-rojo-2);
+}
+.notificationInbox svg{
+    font-size: 1.5em;
+    padding: 10px;
+    color: white;
+    transition: all .35s ease;
+}
+.notificationInbox svg:hover{
+    color: var(--color-dorado);
+}
+
+.infoInbox::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+.infoInbox::-webkit-scrollbar-track {
+    background-color: var(--color-dorado);
+}
+.infoInbox::-webkit-scrollbar-thumb {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+    border-radius: 15rem;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+.infoInbox::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+}

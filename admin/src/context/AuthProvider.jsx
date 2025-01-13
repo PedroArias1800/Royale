@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
 import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest } from '../api/Admin.api.js'
+import { getTransactionsRequest } from '../api/Admin.api.js';
 import Cookies from 'js-cookie'
 
 import { ModalFormParfum } from "../components/ModalFormParfum";
@@ -11,6 +12,11 @@ import { ModalFormBody } from "../components/ModalFormBody";
 import { ModalFormUser } from "../components/ModalFormUser";
 import { Alert } from "../components/Alert.jsx";
 import { useNavigate } from "react-router-dom";
+
+
+import { io } from 'socket.io-client';
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+const socket = io(URLServer);
 
 
 export const AuthContext = createContext();
@@ -38,6 +44,38 @@ export const AuthProvider = ({ children }) => {
     const [c2, setC2] = useState();
     const navigate = useNavigate();
     const [pagination, setPagination] = useState({});
+    const [notifications, setNotifications] = useState([]);
+    const [transaction, setTransaction] = useState([])
+
+    useEffect(() => {
+        // Escuchar nuevas transacciones
+        socket.on('newTransaction', (transaction) => {
+            setNotifications((prev) => [...prev, transaction]);
+            // Opcional: mostrar notificación en el navegador
+            if (Notification.permission === 'granted') {
+                new Notification(`Nueva Transacción por $${transaction.total}`, {
+                body: `Descripción: ${transaction.userName}, ${transaction.quantities.reduce((acc, num) => acc + num, 0)} artículos en total.`,
+                });
+            }
+            async function loadTransaction() {
+                const response = await getTransactionsRequest()
+                setTransaction(response.data)
+            }
+            loadTransaction()
+          
+        });
+
+        return () => {
+        socket.off('newTransaction');
+        };
+    }, []);
+
+    useEffect(() => {
+        // Pedir permiso para notificaciones del navegador
+        if (Notification.permission !== 'granted') {
+        Notification.requestPermission();
+        }
+    }, []);
 
     const signIn = async (user) => {
         try {
@@ -172,7 +210,7 @@ export const AuthProvider = ({ children }) => {
     }
 
 
-    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination }}>
+    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction }}>
         {children}
         <div className='mostrarAlerta'>
             <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>
