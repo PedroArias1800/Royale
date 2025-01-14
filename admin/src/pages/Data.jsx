@@ -12,8 +12,6 @@ export const Data = () => {
     const navigate = useNavigate();
     const [consulta, setConsulta] = useState('')
     const [page, setPage] = useState(1);
-    const [pages, setPages] = useState([]);
-    const [totalPages, setTotalPages] = useState(0);
     
 
     const volver = () => {
@@ -46,11 +44,13 @@ export const Data = () => {
             else if (user?.rol == 1 && id == 6){
                 setConsulta('Usuarios')
             }
+            else if (user?.rol == 1 && id == 7){
+                setConsulta('Transacciones')
+            }
     
             await cargarDataTables(id, page);
         }
         loadData()
-        setTotalPages(pagination.totalPages);
     }, [page])
 
     const openModal = () => {
@@ -68,11 +68,12 @@ export const Data = () => {
                     style={{
                         margin: '0 5px',
                         padding: '5px 10px',
-                        backgroundColor: page === i ? '#007bff' : '#f8f9fa',
+                        backgroundColor: page === i ? '#ee0d6b' : '#f8f9fa',
                         color: page === i ? '#fff' : '#000',
                         border: '1px solid #ddd',
                         borderRadius: '4px',
                         cursor: 'pointer',
+                        filter: 'drop-shadow(2px 2px 2px rgba(97, 97, 97, 0.4))'
                     }}
                 >
                     {i}
@@ -84,15 +85,19 @@ export const Data = () => {
 
   return (
     <div>
-        <h1>Consulta de {consulta}</h1>
-        <div>
+        <div className='pageHeader'>
+            <h1>Consulta de {consulta}</h1>
             <div>
-                <button onClick={volver}>Volver</button>
-                <button onClick={openModal}>Añadir</button>
+                <div className='volverAnadir'>
+                    <button onClick={volver}>Volver</button>
+                    <button onClick={openModal}>Añadir</button>
+                </div>
+                <div className='pages'>{renderPageButtons()}</div>
             </div>
-            <div>{renderPageButtons()}</div>
         </div>
-        <DataTable data={response} idCategory={id}/>
+        <div className='dataTable'>
+            <DataTable data={response} idCategory={id}/>
+        </div>
     </div>
   )
 }

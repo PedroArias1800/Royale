@@ -24,8 +24,16 @@ export const columnMappings = {
     firstname: 'Nombre',
     lastname: 'Apellido',
     email: 'Email',
-    rol: 'Rol'
+    rol: 'Rol',
+    userName: 'Nombre',
+    phone: 'Teléfono',
+    direction: 'Dirección',
+    subTotal: 'SubTotal',
+    total: 'Total',
+    products: 'Productos',
+    productsTypes: 'Tipos',
+    quantities: 'Cantidades'
     // Agrega más columnas si es necesario
   };
 
-export const excludedColumns = ["_id", "__v", "createdAt", "updatedAt", "url"];
+export const excludedColumns = ["_id", "__v", "updatedAt", "url"];

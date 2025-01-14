@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
-import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest } from '../api/Admin.api.js'
-import { getTransactionsRequest } from '../api/Admin.api.js';
+import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getTransactionsRequest } from '../api/Admin.api.js'
+import { getAllTransactionsRequest } from "../api/Transaction.api.js";
 import Cookies from 'js-cookie'
 
 import { ModalFormParfum } from "../components/ModalFormParfum";
@@ -189,6 +189,10 @@ export const AuthProvider = ({ children }) => {
         }
         else if (id == 6){
             response = await getUsersRequest();
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 7){
+            response = await getAllTransactionsRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else{

@@ -17,6 +17,7 @@ import typeRoutes from './routes/type.routes.js';
 import versionRoutes from './routes/version.routes.js';
 import userRoutes from './routes/user.routes.js';
 import imgRoutes from './routes/img.routes.js';
+import transactionRoutes from './routes/transaction.routes.js';
 
 dotenv.config();
 connectDB();
@@ -44,3 +45,4 @@ app.use(typeRoutes);
 app.use(versionRoutes);
 app.use(userRoutes);
 app.use(imgRoutes);
+app.use(transactionRoutes);

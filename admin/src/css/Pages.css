@@ -47,18 +47,21 @@
     align-items: center;
 }
 .inbox{
-    max-width: 100px;
+    min-width: 60px;
     position: relative;
-    width: 100% !important;
     padding-top: 3.5%;
+    cursor: pointer;
+}
+.numberInbox{
+    margin:auto;
 }
 .numberInbox p{
     position: absolute;
-    top: 20px;
-    right: 30px;
+    top: -10px;
+    right: 0px;
     background-color: #d60a5f;
     color: white;
-    padding: 2% 6%;
+    padding: 2% 10%;
     border-radius: 50%;
 }
 .contactIcon{
@@ -66,17 +69,21 @@
 }
 .infoInbox{
     position: absolute;
-    top: 80px;
-    right: 0vw !important;
-    width: 300px !important;
-    max-height: 60vh !important;
+    top: 15vh;
+    right: 10px !important;
+    width: 370px !important;
+    max-height: 80vh !important;
     height: 60vh !important;
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--color-dorado) transparent;
+    z-index: 1000;
+    background-color: white;
+    padding: .3%;
 }
 .notificationInbox{
-    font-size: 1.2em;
+    display: flex;
+    font-size: .8em;
     box-sizing: border-box;
     width: 100%;
     padding: 10px;
@@ -89,6 +96,9 @@
     scrollbar-width: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     transition: all .35s ease;
+}
+.notificationInbox div{
+    margin: auto;
 }
 .notificationInbox:hover{
     background-color: var(--color-rojo-2);
@@ -117,4 +127,57 @@
 }
 .infoInbox::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
+}
+
+.pageHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2%;
+}
+.volverAnadir{
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    gap: 10px;
+}
+.volverAnadir button{
+    font-size: 1em;
+    padding: 1%;
+    min-width: 100px;
+    border-radius: 5px;
+    border: 0px;
+    transition: all .35s ease;
+    color: white;
+    filter: drop-shadow(2px 2px 2px rgba(97, 97, 97, 0.692));
+}
+.volverAnadir :nth-child(1){
+    color: black;
+    background-color: var(--color-dorado);
+}
+.volverAnadir :nth-child(1):hover{
+    background-color: var(--color-dorado-hover);
+}
+.volverAnadir :nth-child(2){
+    background-color: var(--color-rojo);
+}
+.volverAnadir :nth-child(2):hover{
+    background-color: var(--color-rojo-hover);
+}
+.pages{
+    display: flex;
+    justify-content: right;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.dataTable{
+    width: 100%;
+    padding: 1%;
+}
+.dataTable th{
+    border: 1px solid black;
+    color: white;
+    background-color: #8d093f;
+    text-transform: uppercase;
 }

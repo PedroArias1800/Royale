@@ -17,9 +17,20 @@ export const DataTable = ({ data, idCategory }) => {
   }
 
   // Filtramos las columnas excluidas y mapeamos las cabeceras
-  const headers = Object.keys(data[0] || {}).filter(
-    (header) => !excludedColumns.includes(header)
-  );
+  const headers = Object.keys(data[0] || {}).filter((header) => {
+    if (excludedColumns.includes(header)) {
+        return false;
+    }
+
+    if (header === "status" && idCategory == 7) {
+      return false;
+    }
+    else if (header === "createdAt" && idCategory == 7) {
+      return true;
+    }
+
+    return true;
+  });
 
   const handleRowClick = (row) => {
     setIdNumber(parseInt(idCategory, 10))
@@ -47,6 +58,8 @@ export const DataTable = ({ data, idCategory }) => {
                   ? row[header]?.version_name || "N/A"
                   : header === "brand_id_fk"
                   ? row[header]?.brand_name || "N/A"
+                  : header === "createdAt"
+                  ? `${(row[header]).split('T')[0]} a las ${(row[header]).split('T')[1].split('.')[0]}`
                   : header === "parfum_id_fk"
                   ? <a href={`${URLFrontend}/parfum?id=${row[header]?._id}`} target="_blank">{row[header]?.title}</a> || "N/A"
                   : header === "gender"
@@ -57,10 +70,24 @@ export const DataTable = ({ data, idCategory }) => {
                   ? row[header] === 1
                     ? "Activado"
                     : "Desactivado"
-                  : header === "align"
+                    : header === "align"
                   ? row[header] === 'auto'
                     ? "Derecha"
                     : "Izquierda"
+                    : (["products", "productsTypes", "quantities"].includes(header)) && row[header]
+                  ? Array.isArray(row[header]) && header == 'products'
+                    ? <div style={{display: 'flex', flexDirection: 'column'}}>
+                        {
+                          row[header].map((item, id) => (
+                            <a href={`${URLFrontend}/parfum?id=${item?.split('=')[0]}`} key={id} target="_blank" style={{width: '100% !'}}>{item?.split('=')[1]}</a> || "N/A"
+                          ))
+                        }
+                      </div> 
+                    : Array.isArray(row[header])
+                    ? row[header].map((item, id) => (
+                      <p key={id}>{item}</p>
+                    ))
+                    : <p>{row[header]}</p>
                   : (["img", "back_img", "parfum_img"].includes(header)) && row[header]
                   ? <img src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100px", height: "100px", margin: 'auto !important' }} />
                   : row[header]

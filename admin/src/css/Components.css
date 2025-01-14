@@ -15,11 +15,17 @@
 .adminHeader1 a img{
     width: 200px;
 }
+.DivCerrarSesion2{
+    display: flex;
+justify-content: center !important;
+align-items: end !important;
+flex-direction: column !important;
+}
 .DivCerrarSesion{
     display: flex;
-    justify-content: center;
-    align-items: end;
-    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px
 }
 .CerrarSesion{
     padding: 1% 10%;
