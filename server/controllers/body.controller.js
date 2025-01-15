@@ -43,6 +43,62 @@ export const getBodies = async (req, res) => {
     }
 };
 
+
+export const getFilteredBodies = async (req, res) => {
+    try {
+        const { filter } = req.body; // Filtro ingresado por el usuario
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+
+        const skip = (page - 1) * limit;
+
+        // Construcción de la consulta dinámica
+        const query = filter
+            ? {
+                  $or: [
+                      { title: { $regex: filter, $options: "i" } },
+                      { align: { $regex: filter, $options: "i" } },
+                      { parfum_img: { $regex: filter, $options: "i" } },
+                      { back_img: { $regex: filter, $options: "i" } },
+                      { color: { $regex: filter, $options: "i" } },
+                      { color2: { $regex: filter, $options: "i" } },
+                      ...(isNaN(filter)
+                          ? []
+                          : [{ status: Number(filter) }]), // Filtro para status si es numérico
+                      { "parfum_id_fk.title": { $regex: filter, $options: "i" } }, // Filtro en el título de Parfum
+                  ],
+              }
+            : {};
+
+        // Búsqueda con filtros y paginación
+        const bodies = await Body.find(query)
+            .populate({
+                path: "parfum_id_fk",
+                select: "title",
+            })
+            .skip(skip)
+            .limit(limit);
+
+        // Conteo total de registros que coinciden con el filtro
+        const total = await Body.countDocuments(query);
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: bodies,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener los registros filtrados" });
+    }
+};
+
+
 export const getBody = async(req, res) => {
     const body = await Body.findById(req.params.id)
     if (!body) return res.status(404).json({ message: "Body not Found" })

@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
 import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getTransactionsRequest } from '../api/Admin.api.js'
+import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest } from '../api/Filter.api.js'
 import { getAllTransactionsRequest } from "../api/Transaction.api.js";
 import Cookies from 'js-cookie'
 
@@ -213,8 +214,41 @@ export const AuthProvider = ({ children }) => {
         setAlertMessage(message)
     }
 
+    const filtrarData = async (id, page, filter) => {
+        let response = ''
+        if (id == 1) {
+            response = await postFilteredParfumsRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 2){
+            response = await postFilteredTypesRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 3){
+            response = await postFilteredBrandsRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 4){
+            response = await postFilteredVersionsRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 5){
+            response = await postFilteredBodiesRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 6){
+            response = await postFilteredUsersRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 7){
+            response = await postFilteredTransactionsRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        setPagination(response.data.pagination)
+    }
 
-    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction }}>
+
+    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction, filtrarData }}>
         {children}
         <div className='mostrarAlerta'>
             <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>

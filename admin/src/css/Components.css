@@ -32,6 +32,8 @@ flex-direction: column !important;
     font-size: .6em;
     margin: 1vh 0;
     border-radius: 5px;
+    border: 0px;
+    filter: drop-shadow(2px 2px 2px rgb(0, 0, 0));
     cursor: pointer;
     background-color: #ffe6a6;
     transition: all .35s ease;

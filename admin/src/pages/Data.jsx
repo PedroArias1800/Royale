@@ -6,7 +6,7 @@ import { DataTable } from '../components/DataTable.jsx';
 
 export const Data = () => {
 
-    const { setModalData, setIdNumber, cargarDataTables, response, closeModal, user, pagination } = useAuth();
+    const { setModalData, setIdNumber, cargarDataTables, response, closeModal, user, pagination, filtrarData } = useAuth();
     const params = new URLSearchParams(location.search);
     const id = params.get('id');
     const navigate = useNavigate();
@@ -83,16 +83,26 @@ export const Data = () => {
         return pages;
     };
 
+    const filtrar = async (e) => {
+        const filter = {
+            "filter": String(e.target.value)
+        }
+        await filtrarData(id, page, filter)
+    }
+
   return (
     <div>
         <div className='pageHeader'>
-            <h1>Consulta de {consulta}</h1>
-            <div>
+            <div className='pageHeader1'>
+                <h1>Consulta de {consulta}</h1>
+                <div className='pages'>{renderPageButtons()}</div>
+            </div>
+            <div className='pageHeader1'>
                 <div className='volverAnadir'>
                     <button onClick={volver}>Volver</button>
                     <button onClick={openModal}>Añadir</button>
                 </div>
-                <div className='pages'>{renderPageButtons()}</div>
+                <input type="text" placeholder='filter' className='inputFilter' onChange={filtrar} />
             </div>
         </div>
         <div className='dataTable'>

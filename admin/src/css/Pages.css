@@ -39,6 +39,7 @@
     background-color: var(--color-rojo-2);
 }
 .adminLinks{
+    font-size: .8em;
     height: 75% !important;
 }
 .pageAdmin section{
@@ -56,6 +57,8 @@
     margin:auto;
 }
 .numberInbox p{
+    filter: drop-shadow(0px 0px 1px white);
+    font-size: medium;
     position: absolute;
     top: -10px;
     right: 0px;
@@ -128,16 +131,17 @@
 .infoInbox::-webkit-scrollbar-thumb:hover {
     background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
 }
-
 .pageHeader{
+    padding: 2% 1%;
+}
+.pageHeader1{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 2%;
 }
 .volverAnadir{
     display: flex;
-    justify-content: right;
+    justify-content: left;
     align-items: center;
     gap: 10px;
 }
@@ -168,12 +172,18 @@
     display: flex;
     justify-content: right;
     align-items: center;
-    margin-top: 10px;
+}
+.inputFilter{
+    border-radius: 4px;
+    padding: .5%;
+    font-size: 1em;
+    width: 250px;
 }
 
 .dataTable{
     width: 100%;
     padding: 1%;
+    min-height: 57vh;
 }
 .dataTable th{
     border: 1px solid black;

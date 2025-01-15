@@ -33,7 +33,7 @@ export const ModalFormBody = ({ modalData }) => {
     }, []);
 
     useEffect(() => {
-        if (!isUpdate && (!modalData?.title || !modalData?.color)) {
+        if (isUpdate && (!modalData?.title || !modalData?.color)) {
             setModalData((prevData) => ({
                 ...prevData,
                 title: prevData.title || '',

@@ -13,10 +13,66 @@ export const getAllParfums = async(req, res) => {
     res.json(parfums)
 }
 
+export const getFilteredParfums = async (req, res) => {
+    try {
+        const { filter } = req.body; // Filtro ingresado por el usuario
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+        const skip = (page - 1) * limit;
+
+        // Construcción de la consulta dinámica
+        const query = filter
+            ? {
+                  $or: [
+                      { title: { $regex: filter, $options: "i" } },
+                      { description: { $regex: filter, $options: "i" } },
+                      // Si el filtro es un número, considera que podría aplicarse a "gender"
+                      ...(isNaN(filter)
+                          ? []
+                          : [{ gender: Number(filter) }]), // Verificar si el filtro es un número válido
+                      { "version_id_fk.version_name": { $regex: filter, $options: "i" } },
+                      { "brand_id_fk.brand_name": { $regex: filter, $options: "i" } },
+                  ],
+              }
+            : {};
+
+        // Búsqueda con filtros y paginación
+        const parfums = await Parfum.find(query)
+            .populate({
+                path: "version_id_fk",
+                select: "version_name",
+            })
+            .populate({
+                path: "brand_id_fk",
+                select: "brand_name",
+            })
+            .skip(skip)
+            .limit(limit);
+
+        // Conteo total de registros que coinciden con el filtro
+        const total = await Parfum.countDocuments(query);
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: parfums,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener los perfumes filtrados" });
+    }
+};
+
+
 export const getParfums = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
-        const limit = 4;
+        const limit = 15;
 
         const skip = (page - 1) * limit;
 
