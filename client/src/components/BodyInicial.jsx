@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { getParfumsBodyRequest } from '../api/Parfum.api.js';
 const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'
 
 export const BodyInicial = () => {
 
@@ -25,13 +26,14 @@ export const BodyInicial = () => {
         <div>
             {
                 bodyContent.map(element => (
+                    
                     <section className='content' key={element._id}
                     style={{'backgroundImage': `url("${URLServer}${element.back_img}")`}} 
                     >
                         <div className="bodyContent" style={{'marginLeft': element.align}}>
                             <img src={`${URLServer}${element.parfum_img}`} alt="" />
                             <h1 dangerouslySetInnerHTML={{ __html: element.title }}></h1>
-                            <Link to={element.url}
+                            <Link to={`/parfum?id=${element.parfum_id_fk._id}`}
                                 onMouseEnter={handleMouseEnter}
                                 onMouseLeave={handleMouseLeave}
                                 style={{

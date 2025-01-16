@@ -185,7 +185,7 @@
 .dataTable{
     width: 100%;
     padding: 1%;
-    min-height: 62.3vh;
+    min-height: 62.5vh;
 }
 .dataTable th{
     border: 1px solid black;

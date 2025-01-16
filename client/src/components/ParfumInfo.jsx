@@ -27,10 +27,11 @@ export const ParfumInfo = ({ product }) => {
   }, [product]);
 
   const gradientStyle = {
-    background: "linear-gradient(to bottom, #720c33, var(--color-rojo))",
+    background: "linear-gradient(to bottom, #ff006a,rgb(184, 14, 85))",
     WebkitBackgroundClip: "text",
     WebkitTextFillColor: "transparent",
     fontWeight: "bold",
+    cursor: "pointer",
   };
 
   const handleTypeSelection = (type) => {

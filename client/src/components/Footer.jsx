@@ -9,12 +9,25 @@ import { useContext } from 'react';
 export const Footer = () => {
     const { openModal } = useContext(ParfumContext);
 
+    const returnWhatsapp = () => {
+        const userAgent = navigator.userAgent.toLowerCase();
+        let whatsappURL = ''
+        if (/mobile|android|iphone|ipad|ipod/.test(userAgent)) {
+            whatsappURL = `whatsapp://send?phone=50765623382&text=Hola,%20estoy%20interesado%20en%20algunos%20productos`;
+        } else {
+            whatsappURL = `https://wa.me/+50768389280?text=Hola,%20estoy%20interesado%20en%20algunos%20productos%20de%20Royale%20Panama`
+        }
+
+        return whatsappURL
+      
+    }
+
     return (
         <>
             <div className='semiFooter'>
                 <div>
                     <HashLink to={'/#MasBuscados'}>
-                        <img className='logoRoyaleFooter' src="Royale.png" alt="Logo de Royale"/>
+                        <img className='logoRoyaleFooter' src="icons/RoyalePanama.png" alt="Logo de Royale"/>
                     </HashLink>
                 </div>
                 <div>
@@ -28,7 +41,7 @@ export const Footer = () => {
                             <FontAwesomeIcon icon={faTwitter} className='contactIcon'/>
                             <p>@RoyalePanama1</p>
                         </Link>
-                        <Link to={`whatsapp://send?phone=50765623382&text=Hola,%20estoy%20interesado%20en%20algunos%20productos`}>
+                        <Link to={returnWhatsapp()}>
                             <FontAwesomeIcon icon={faWhatsapp} className='contactIcon'/>
                             <p>+507 6562-3382</p>
                         </Link>

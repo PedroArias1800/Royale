@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { useAuth } from '../context/AuthProvider.jsx'
 import { DataTable } from '../components/DataTable.jsx';
+import { faSearch } from '@fortawesome/free-solid-svg-icons';
 
 export const Data = () => {
 
@@ -112,7 +114,9 @@ export const Data = () => {
                     <button onClick={openModal} style={{display: id!=7 ? 'block': 'none'}}>Añadir</button>
                 </div>
                 <form onSubmit={filtrar} className='formFilter'>
-                    <input type="submit" className='btnFilter' value="Buscar" />
+                    <button type='submit' className='btnFilter'>
+                        <FontAwesomeIcon icon={faSearch} />
+                    </button>
                     <input type="text" placeholder='Filtrar' className='inputFilter' onChange={validarFiltrar}/>
                 </form>
             </div>
