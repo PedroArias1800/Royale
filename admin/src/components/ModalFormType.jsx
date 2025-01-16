@@ -178,9 +178,9 @@ export const ModalFormType = ({ modalData }) => {
     }
 
     return (
-        <div>
-            <form onSubmit={enviarDatos}>
-                <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+        <form onSubmit={enviarDatos}>
+            <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+            <div className="form-group3">
                 <label htmlFor="ml">
                     <p>Mililitros</p>
                     <input type="text" name="ml" id="ml" value={modalData?.ml || ''} onChange={handleInputChange} required={true} />
@@ -189,6 +189,8 @@ export const ModalFormType = ({ modalData }) => {
                     <p>Precio Costo</p>
                     <input type="text" name="cost" id="cost" value={modalData?.cost || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
                 </label>
+            </div>
+            <div className="form-group3">
                 <label htmlFor="price">
                     <p>Precio de Nosotros</p>
                     <input type="text" name="price" id="price" value={modalData?.price || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
@@ -197,6 +199,8 @@ export const ModalFormType = ({ modalData }) => {
                     <p>Precio al Público</p>
                     <input type="text" name="old_price" id="old_price" value={modalData?.old_price || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
                 </label>
+            </div>
+            <div className="form-group3">
                 <label htmlFor="status">
                     <p>Estado</p>
                     <select
@@ -228,32 +232,15 @@ export const ModalFormType = ({ modalData }) => {
                         ))}
                     </select>
                 </label>
-                <label htmlFor="img">
-                    <p>Imagen</p>
-                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleFileChange(e)} required={!required} />
-                    <div>
-                        {(modalData?.imgPreview || modalData?.img) && (
-                            <img
-                                src={modalData?.imgPreview ? modalData?.imgPreview : `${URLServer}${modalData?.img}`}
-                                alt="Vista previa"
-                                style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
-                            />
-                        )}
-                    </div>
-                    {selectedImage && !modalData?.img && !modalData?.imgPreview && (
-                    <div>
-                        <p>Imagen seleccionada desde el servidor:</p>
-                        <img
-                            src={selectedImage}
-                            alt="Imagen seleccionada"
-                            style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
-                            />
-                    </div>
-                )}
+            </div>
+            <p>Selecciona una Imagen</p>
+            <div className="form-group3">
+                <label htmlFor="img" style={{display: !showImgServer ? 'block' : 'none'}}>
+                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleFileChange(e)} required={!required}  style={{display: !showImgServer ? 'block' : 'none'}} />
                 </label>
-                <div style={{ marginTop: '20px' }}>
-                    <p onClick={handleShowImgServer} className='mostrarImg'>Selecciona una imagen desde el servidor:</p>
-                    <div style={{ display: showImgServer ? 'flex' : 'none', flexWrap: 'wrap' }}>
+                <div onClick={handleShowImgServer}>
+                    <p className='mostrarImg' style={{display: !showImgServer ? 'block' : 'none'}}>Desde el Servidor</p>
+                    <div style={{ display: showImgServer ? 'flex' : 'none', flexWrap: 'wrap', justifyContent: 'center', width: '100%'}}>
                         {parfumsGallery.map((image, index) => (
                             <div 
                                 key={index} 
@@ -269,53 +256,29 @@ export const ModalFormType = ({ modalData }) => {
                         ))}
                     </div>
                 </div>
-
-                {/* <label htmlFor="imgs">
-                    <p>Imagen</p>
-                    <input type="file" name="img" id="img" accept="image/*" onChange={(e) => handleImagesChange(e)} required={!isUpdate} multiple max={3} />
-                    <div>
-                        {(modalData?.imgPreview || modalData?.img) && (
-                            <img
-                                src={modalData?.imgPreview ? modalData?.imgPreview : `${URLServer}${modalData?.img}`}
-                                alt="Vista previa"
-                                style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
-                            />
-                        )}
-                    </div>
-
-                    {selectedImage && !modalData?.img && !modalData?.imgPreview && (
-                    <div>
-                        <p>Imagen seleccionada desde el servidor:</p>
-                        <img
-                            src={selectedImage}
-                            alt="Imagen seleccionada"
-                            style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
-                            />
-                    </div>
+            </div>
+            <div>
+                {(modalData?.imgPreview || modalData?.img) && (
+                    <img
+                        src={modalData?.imgPreview ? modalData?.imgPreview : `${URLServer}${modalData?.img}`}
+                        alt="Vista previa"
+                        style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                    />
                 )}
-                </label>
-                <div style={{ marginTop: '20px' }}>
-                    <p>Selecciona una imagen desde el servidor:</p>
-                    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                        {parfumsGallery.map((image, index) => (
-                            <div 
-                                key={index} 
-                                style={{ margin: '10px', cursor: 'pointer', border: selectedImage === `${URLServer}/uploads/parfumIcon/${image}` ? '2px solid blue' : 'none' }}
-                                onClick={() => handleSelectImage(`${URLServer}/uploads/parfumIcon/${image}`)}
-                            >
-                                <img
-                                    src={`${URLServer}/uploads/parfumIcon/${image}`}
-                                    alt={image}
-                                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
-                                />
-                            </div>
-                        ))}
-                    </div>
-                </div> */}
+                {selectedImage && !modalData?.img && !modalData?.imgPreview && (
+                    <img
+                        src={selectedImage}
+                        alt="Imagen seleccionada"
+                        style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                    />
+                )}
+            </div>
 
-                {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
-                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
-            </form>
-        </div>
+
+            <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
+                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
+            </div>
+        </form>
     );
 };

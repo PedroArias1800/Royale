@@ -52,6 +52,13 @@ export const getFilteredBodies = async (req, res) => {
 
         const skip = (page - 1) * limit;
 
+        let statusFilter = null
+        if ("activado".toLowerCase().includes(filter)) {
+            statusFilter = 1;
+        } else if ("desactivado".toLowerCase().includes(filter)) {
+            statusFilter = 0;
+        }
+        
         // Construcción de la consulta dinámica
         const query = filter
             ? {
@@ -62,9 +69,9 @@ export const getFilteredBodies = async (req, res) => {
                       { back_img: { $regex: filter, $options: "i" } },
                       { color: { $regex: filter, $options: "i" } },
                       { color2: { $regex: filter, $options: "i" } },
-                      ...(isNaN(filter)
-                          ? []
-                          : [{ status: Number(filter) }]), // Filtro para status si es numérico
+                      ...(statusFilter !== null
+                        ? [{ status: statusFilter }]
+                        : []),
                       { "parfum_id_fk.title": { $regex: filter, $options: "i" } }, // Filtro en el título de Parfum
                   ],
               }

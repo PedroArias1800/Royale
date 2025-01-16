@@ -93,9 +93,9 @@ export const ModalFormParfum = ({ modalData }) => {
     }
 
     return (
-        <div>
-            <form onSubmit={enviarDatos}>
-                <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+        <form onSubmit={enviarDatos}>
+            <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+            <div className="form-group3">
                 <label htmlFor="title">
                     <p>Título</p>
                     <input type="text" name="title" id="title" value={modalData?.title || ''} onChange={handleInputChange} required={true} />
@@ -104,6 +104,8 @@ export const ModalFormParfum = ({ modalData }) => {
                     <p>Descripción</p>
                     <input type="text" name="description" id="description" value={modalData?.description || ''} onChange={handleInputChange} required={true} />
                 </label>
+            </div>
+            <div className="form-group3">
                 <label htmlFor="gender">
                     <p>Género</p>
                     <select
@@ -126,6 +128,8 @@ export const ModalFormParfum = ({ modalData }) => {
                         <option value="0">Desactivado</option>
                     </select>
                 </label>
+            </div>
+            <div className="form-group3">
                 <label htmlFor="brand_id_fk">
                     <p>Marca</p>
                     <select name="brand_id_fk" id="brand_id_fk" value={modalData?.brand_id_fk?._id !== undefined ? modalData?.brand_id_fk?._id : modalData?.brand_id_fk !== undefined ? modalData?.brand_id_fk : ''} onChange={handleInputChange} required={true}>
@@ -148,9 +152,11 @@ export const ModalFormParfum = ({ modalData }) => {
                         ))}
                     </select>
                 </label>
-                {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
-                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
-            </form>
-        </div>
+            </div>
+            <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
+                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
+            </div>
+        </form>
     );
 };

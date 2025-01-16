@@ -132,7 +132,7 @@
     background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
 }
 .pageHeader{
-    padding: 2% 1%;
+    padding: 1% 1% .5% 1%;
 }
 .pageHeader1{
     display: flex;
@@ -178,12 +178,14 @@
     padding: .5%;
     font-size: 1em;
     width: 250px;
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
 }
 
 .dataTable{
     width: 100%;
     padding: 1%;
-    min-height: 57vh;
+    min-height: 62.3vh;
 }
 .dataTable th{
     border: 1px solid black;

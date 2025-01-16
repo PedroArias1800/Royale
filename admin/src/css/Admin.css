@@ -32,3 +32,139 @@
   ::-webkit-scrollbar-thumb:hover {
       background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
   }
+
+/* Modal content */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  z-index: 20000;
+}
+
+.modal-content {
+  background-color: var(--color-negro-hover);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 700px;
+  width: 90%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  color: white;
+  overflow-y: auto;
+  max-height: 80vh; /* Limita la altura para que no sobrepase la pantalla */
+}
+
+/* Animación opcional para el modal */
+@keyframes modal-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-content {
+  animation: modal-appear 0.3s ease-out;
+}
+
+.modal-content h2 {
+  margin-bottom: 15px;
+  font-size: 24px;
+}
+
+.modal-content p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  height: 90%;
+  overflow-y: auto;
+  margin: 0;
+  text-align: left;
+}
+
+.modal-header{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.form-group3{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+.form-group3 input, .form-group3 select{
+  font-size: 1em;
+  width: 100%;
+}
+.form-group3 label p{
+  margin-bottom: 5px;
+}
+.form-group3 label{
+  margin: 1% 0;
+  font-size: 1em;
+  width: 50% !important;
+}
+
+.btnBorrarCrear{
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+.btnBorrarCrear input{
+  padding: 1% 2%;
+  width: 150px;
+  color: white;
+  border: 0px;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 1em;
+  transition: all .35s ease;
+}
+.btnBorrar{
+  background-color: red;
+}
+.btnActualizarCrear, .btnFilter{
+  background-color: var(--color-rojo);
+}
+.btnBorrar:hover{
+  background-color: rgb(145, 3, 3);
+}
+.btnActualizarCrear:hover, .btnFilter:hover{
+  background-color: var(--color-rojo-2);
+}
+
+.btnX{
+  transition: all .35s ease;
+}.btnX:hover{
+  color: red;
+}
+.formFilter{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+.btnFilter{
+  transition: all .35s ease;
+  padding: .5% 0;
+  color: white;
+  font-size: 1em !important;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  width: 100px;
+  filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
+}

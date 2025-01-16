@@ -129,9 +129,9 @@ export const ModalFormBody = ({ modalData }) => {
     }
 
     return (
-        <div>
-            <form onSubmit={enviarDatos} encType="multipart/form-data">
-                <input type="hidden" name="_id" value={modalData?._id || ''} />
+        <form onSubmit={enviarDatos} encType="multipart/form-data">
+            <input type="hidden" name="_id" value={modalData?._id || ''} />
+            <div className='form-group3'>
                 <label htmlFor="title">
                     <p>Título</p>
                     <input type="text" name="title" id="title" value={modalData?.title || ''} onChange={handleInputChange} required />
@@ -144,47 +144,8 @@ export const ModalFormBody = ({ modalData }) => {
                         <option value="auto">Derecha</option>
                     </select>
                 </label>
-                <label htmlFor="img1">
-                    <p>Imagen de Perfume</p>
-                    <input
-                        type="file"
-                        name="img1"
-                        id="img1"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        required={!isUpdate}
-                    />
-                    {(modalData?.img1Preview || modalData?.parfum_img) && (
-                        <div style={{ marginTop: '10px' }}>
-                            <img
-                                src={modalData?.img1Preview ? modalData.img1Preview : `${URLServer}${modalData?.parfum_img}`}
-                                alt="Vista previa"
-                                style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
-                            />
-                        </div>
-                    )}
-                </label>
-
-                <label htmlFor="img2">
-                    <p>Imagen de Fondo</p>
-                    <input
-                        type="file"
-                        name="img2"
-                        id="img2"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                        required={!isUpdate}
-                    />
-                    {(modalData?.img2Preview || modalData?.back_img) && (
-                        <div style={{ marginTop: '10px' }}>
-                            <img
-                                src={modalData?.img2Preview ? modalData.img2Preview : `${URLServer}${modalData?.back_img}`}
-                                alt="Vista previa"
-                                style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
-                            />
-                        </div>
-                    )}
-                </label>
+            </div>
+            <div className='form-group3'>
                 <label htmlFor="color">
                     <p>Color 1</p>
                     <input type="text" name="color" id="color" value={modalData?.color || ''} onChange={handleInputChange} required />
@@ -193,6 +154,8 @@ export const ModalFormBody = ({ modalData }) => {
                     <p>Color 2</p>
                     <input type="text" name="color2" id="color2" value={modalData?.color2 || ''} onChange={handleInputChange} required />
                 </label>
+            </div>
+            <div className='form-group3'>
                 <label htmlFor="status">
                     <p>Estado</p>
                     <select name="status" id="status" value={modalData?.status !== undefined ? modalData?.status : ''} onChange={handleInputChange} required>
@@ -218,9 +181,52 @@ export const ModalFormBody = ({ modalData }) => {
                         ))}
                     </select>
                 </label>
-                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} />}
-                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
-            </form>
-        </div>
+            </div>
+            <label htmlFor="img1">
+                <p>Imagen de Perfume</p>
+                <input
+                    type="file"
+                    name="img1"
+                    id="img1"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    required={!isUpdate}
+                />
+                {(modalData?.img1Preview || modalData?.parfum_img) && (
+                    <div style={{ marginTop: '10px' }}>
+                        <img
+                            src={modalData?.img1Preview ? modalData.img1Preview : `${URLServer}${modalData?.parfum_img}`}
+                            alt="Vista previa"
+                            style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                        />
+                    </div>
+                )}
+            </label>
+
+            <label htmlFor="img2">
+                <p>Imagen de Fondo</p>
+                <input
+                    type="file"
+                    name="img2"
+                    id="img2"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    required={!isUpdate}
+                />
+                {(modalData?.img2Preview || modalData?.back_img) && (
+                    <div style={{ marginTop: '10px' }}>
+                        <img
+                            src={modalData?.img2Preview ? modalData.img2Preview : `${URLServer}${modalData?.back_img}`}
+                            alt="Vista previa"
+                            style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
+                        />
+                    </div>
+                )}
+            </label>
+            <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
+                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
+            </div>
+        </form>
     );
 };

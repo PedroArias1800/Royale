@@ -47,6 +47,99 @@ export const getTypes = async (req, res) => {
 };
 
 
+export const getFilteredTypes = async (req, res) => {
+    try {
+        const { filter } = req.body; // Filtro ingresado por el usuario
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+
+        const skip = (page - 1) * limit;
+
+        let costFilter = null
+        if ("activado".toLowerCase().includes(filter)) {
+            costFilter = 1;
+        } else if ("desactivado".toLowerCase().includes(filter)) {
+            costFilter = 0;
+        }
+
+        let priceFilter = null
+        if ("activado".toLowerCase().includes(filter)) {
+            priceFilter = 1;
+        } else if ("desactivado".toLowerCase().includes(filter)) {
+            priceFilter = 0;
+        }
+
+        let oldPriceFilter = null
+        if ("activado".toLowerCase().includes(filter)) {
+            oldPriceFilter = 1;
+        } else if ("desactivado".toLowerCase().includes(filter)) {
+            oldPriceFilter = 0;
+        }
+
+        let statusFilter = null
+        if ("activado".toLowerCase().includes(filter)) {
+            statusFilter = 1;
+        } else if ("desactivado".toLowerCase().includes(filter)) {
+            statusFilter = 0;
+        }
+        
+        // Construcción de la consulta dinámica
+        const query = filter
+            ? {
+                $or: [
+                    { ml: { $regex: filter, $options: "i" } },
+                    { description: { $regex: filter, $options: "i" } },
+                    ...(costFilter !== null
+                        ? [{ cost: costFilter }]
+                        : []),
+                    ...(priceFilter !== null
+                        ? [{ price: priceFilter }]
+                        : []),
+                    ...(oldPriceFilter !== null
+                        ? [{ old_price: oldPriceFilter }]
+                        : []),
+                    ...(statusFilter !== null
+                        ? [{ status: statusFilter }]
+                        : []),
+                    { "brand_id_fk.title": { $regex: filter, $options: "i" } },
+                ],
+              }
+            : {};
+
+        // Búsqueda con filtros y paginación
+        const parfums = await Parfum.find(query)
+            .populate({
+                path: 'version_id_fk',
+                select: 'version_name',
+            })
+            .populate({
+                path: 'brand_id_fk',
+                select: 'brand_name',
+            })
+            .skip(skip)
+            .limit(limit)
+            .sort({ createdAt: -1 });
+
+        // Conteo total de registros que coinciden con el filtro
+        const total = await Parfum.countDocuments(query);
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: parfums,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error al obtener los registros filtrados" });
+    }
+};
+
+
 export const getType = async(req, res) => {
     const type = await Type.findById(req.params.id)
     if (!type) return res.status(404).json({ message: "Type not Found" })

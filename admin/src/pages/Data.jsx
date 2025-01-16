@@ -84,10 +84,19 @@ export const Data = () => {
     };
 
     const filtrar = async (e) => {
+        e.preventDefault();
+        
         const filter = {
-            "filter": String(e.target.value)
+            "filter": String(e.target.querySelector('.inputFilter').value)
         }
         await filtrarData(id, page, filter)
+    }
+
+    const validarFiltrar = async (e) => {
+        const longitudFiltrar = e.target.value;
+        if (longitudFiltrar.length == 0){
+            await cargarDataTables(id, page);
+        } 
     }
 
   return (
@@ -100,9 +109,12 @@ export const Data = () => {
             <div className='pageHeader1'>
                 <div className='volverAnadir'>
                     <button onClick={volver}>Volver</button>
-                    <button onClick={openModal}>Añadir</button>
+                    <button onClick={openModal} style={{display: id!=7 ? 'block': 'none'}}>Añadir</button>
                 </div>
-                <input type="text" placeholder='filter' className='inputFilter' onChange={filtrar} />
+                <form onSubmit={filtrar} className='formFilter'>
+                    <input type="submit" className='btnFilter' value="Buscar" />
+                    <input type="text" placeholder='Filtrar' className='inputFilter' onChange={validarFiltrar}/>
+                </form>
             </div>
         </div>
         <div className='dataTable'>

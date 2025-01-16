@@ -69,16 +69,18 @@ export const ModalFormBrand = ({ modalData }) => {
     }
 
     return (
-        <div>
-            <form onSubmit={enviarDatos}>
-                <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+        <form onSubmit={enviarDatos}>
+            <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+            <div className='form-group3'>
                 <label htmlFor="brand_name">
                     <p>Título</p>
                     <input type="text" name="brand_name" id="brand_name" value={modalData?.brand_name || ''} onChange={handleInputChange} required={true} />
                 </label>
-                {isUpdate ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
-                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} />
-            </form>
-        </div>
+            </div>
+            <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
+                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
+            </div>
+        </form>
     );
 };

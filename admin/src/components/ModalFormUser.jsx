@@ -69,9 +69,9 @@ export const ModalFormUser = ({ modalData }) => {
     }
 
     return (
-        <div>
-            <form onSubmit={enviarDatos}>
-                <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+        <form onSubmit={enviarDatos}>
+            <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+            <div className="form-group3">
                 <label htmlFor="firstname">
                     <p>Nombre</p>
                     <input type="text" name="firstname" id="firstname" value={modalData?.firstname || ''} onChange={handleInputChange} required={true} />
@@ -80,6 +80,8 @@ export const ModalFormUser = ({ modalData }) => {
                     <p>Apellido</p>
                     <input type="text" name="lastname" id="lastname" value={modalData?.lastname || ''} onChange={handleInputChange} required={true} />
                 </label>
+            </div>
+            <div className="form-group3">
                 <label htmlFor="email">
                     <p>Correo</p>
                     <input type="text" name="email" id="email" value={modalData?.email || ''} onChange={handleInputChange} required={true}  />
@@ -88,10 +90,12 @@ export const ModalFormUser = ({ modalData }) => {
                     <p>Contraseña</p>
                     <input type="text" name="password" id="password" value={user.rol == 1 ? modalData?.password : ''} onChange={handleInputChange} placeholder='**********' required={true} disabled={user.rol == 1 ? false : true} />
                 </label>
+            </div>
+            <div className="form-group3">
                 {
                     (user.rol == 1) && (
                         <label htmlFor="rol">
-                            <p>Estado</p>
+                            <p>Rol</p>
                             <select
                                 name="rol"
                                 id="rol"
@@ -114,15 +118,18 @@ export const ModalFormUser = ({ modalData }) => {
                         value={modalData?.status !== undefined ? modalData?.status : ''}
                         onChange={handleInputChange}
                         required={true}
+                        disabled={user.rol != 1}
                     >
                         <option value="" disabled>Selecciona una opción</option>
                         <option value="1">Activado</option>
                         <option value="0">Desactivado</option>
                     </select>
                 </label>
-                {isUpdate && user.rol == 1 ? <input type="button" value="Borrar" onClick={deleteDatos} /> : ''}
-                { user.rol == 1 ? <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} /> : ''}
-            </form>
-        </div>
+            </div>
+            <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
+                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
+            </div>
+        </form>
     );
 };

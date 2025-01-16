@@ -7,7 +7,7 @@ import { getTransactionsRequest, putTransactionsRequest } from '../api/Admin.api
 const URLAdmin = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5174'
 
 export const Header = () => {
-  const { isAuthenticated, closeSession, transaction, setTransaction } = useAuth();
+  const { isAuthenticated, closeSession, transaction, setTransaction, user } = useAuth();
   const [mostrarSesion, setMostrarSesion] = useState(false)
   const [showTransaction, setShowTransaction] = useState(false)
   const navigate = useNavigate();
@@ -52,7 +52,7 @@ return (
         <a href={URLAdmin}><img src="/icons/RoyaleDorado.webp" alt="Logo de Royale Panamá" /></a>
         <div className='DivCerrarSesion'>
           <div onClick={handleViewTransaction} className='inbox'>
-            <div className='numberInbox'>
+            <div className='numberInbox' style={{display: isAuthenticated && user?.rol == 1 ? 'flex' : 'none'}}>
               {
                 transaction.length > 0 && (
                   <p>{transaction.length}</p>

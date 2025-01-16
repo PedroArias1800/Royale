@@ -254,9 +254,12 @@ export const AuthProvider = ({ children }) => {
             <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>
         </div>
         {modalVisible && (
-            <div className="modal-overlay">
+            <div className="modal">
                 <div className="modal-content">
-                    <button onClick={closeModal}>Cerrar</button>
+                    <div className="modal-header">
+                        <h2>Añadir Nuevo Registro</h2>
+                        <h2 onClick={closeModal} className="btnX">X</h2>
+                    </div>
                     {modalContent}
                 </div>
             </div>
