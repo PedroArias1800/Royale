@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { upload } from '../middlewares/upload.middleware.js';
-import { authRequired } from '../middlewares/ValidateToken.js'
+import { authRequired } from '../middlewares/validateToken.js'
 import { getType, getTypes, getAllTypes, createType, getFilteredTypes, updateType, deleteType } from '../controllers/type.controller.js';
 
 const router = Router();

@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authRequired } from '../middlewares/ValidateToken.js'
+import { authRequired } from '../middlewares/validateToken.js'
 import { getParfum, getParfums, getAllParfums, getFilteredParfums, createParfum, updateParfum, deleteParfum } from '../controllers/parfum.controller.js';
 
 const router = Router();

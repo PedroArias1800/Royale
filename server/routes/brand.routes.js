@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { authRequired } from '../middlewares/ValidateToken.js'
+import { authRequired } from '../middlewares/validateToken.js'
 import { getBrand, getBrands, getAllBrands, getFilteredBrands, createBrand, updateBrand, deleteBrand } from '../controllers/brand.controller.js';
 
 const router = Router();
