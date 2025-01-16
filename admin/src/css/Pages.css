@@ -193,3 +193,19 @@
     background-color: #8d093f;
     text-transform: uppercase;
 }
+
+.width100{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sinDatosParaMostrar{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: black;
+    width: 100%;
+    margin: auto;
+    text-align: center;
+}

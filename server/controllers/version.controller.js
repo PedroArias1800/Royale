@@ -1,4 +1,5 @@
 import Version from '../models/version.model.js'
+import Parfum from '../models/parfum.model.js'
 
 export const getAllVersions = async(req, res) => {
     const versions = await Version.find()
@@ -60,6 +61,11 @@ export const updateVersion = async(req, res) => {
 }
 
 export const deleteVersion = async(req, res) => {
+    const parfumCount = await Parfum.countDocuments({ version_id_fk: req.params.id });
+    if (parfumCount > 0) {
+        return res.status(202).json({ message: "Esta Versión está siendo usado en Perfumes, no se puede eliminar." });
+    }
+
     const version = await Version.findByIdAndDelete(req.params.id, {
         new: true
     });

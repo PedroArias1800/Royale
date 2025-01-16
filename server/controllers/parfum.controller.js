@@ -1,4 +1,6 @@
 import Parfum from '../models/parfum.model.js'
+import Body from '../models/body.model.js'
+import Type from '../models/types.model.js'
 
 export const getAllParfums = async(req, res) => {
     const parfums = await Parfum.find()
@@ -154,9 +156,20 @@ export const updateParfum = async(req, res) => {
 }
 
 export const deleteParfum = async(req, res) => {
+    const bodyCount = await Body.countDocuments({ parfum_id_fk: req.params.id });
+    if (bodyCount > 0) {
+        return res.status(202).json({ message: "Este Parfum está siendo usado en Fondos de Inicio, no se puede eliminar." });
+    }
+
+    const typeCount = await Type.countDocuments({ parfum_id_fk: req.params.id });
+    if (typeCount > 0) {
+        return res.status(202).json({ message: "Este Parfum está siendo usado en Tipos de Perfumes, no se puede eliminar." });
+    }
+
     const parfum = await Parfum.findByIdAndDelete(req.params.id, {
         new: true
     });
+
     if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
     res.json(parfum)
 }

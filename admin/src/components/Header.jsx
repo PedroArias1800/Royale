@@ -37,6 +37,9 @@ export const Header = () => {
       } else {
         setTransaction([])
       }
+      if (response.data == 0){
+        handleViewTransaction()
+      }
     } catch (e){
       console.log(e)
     }
@@ -80,6 +83,13 @@ return (
                   <FontAwesomeIcon icon={faCheck} className='updateTransactionCheck' onClick={() => updateTransaction(tran._id)}/>
                 </div>
               ))
+            }
+            {
+              console.log(transaction)
+            }{
+              transaction.length == 0 && (
+                <h3 style={{color: 'black', textAlign: 'center', alignSelf: 'center'}}>No hay nuevas transacciones</h3>
+              )
             }
           </div>
         </div>

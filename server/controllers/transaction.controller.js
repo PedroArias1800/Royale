@@ -11,16 +11,6 @@ export const getAllTransactions = async (req, res) => {
 
         const transactions = await Transaction.find()
             .populate({
-                path: 'products',
-                model: 'Parfum',
-                populate: {
-                    path: 'brand_id_fk',
-                    model: 'Brand',
-                    select: 'brand_name -_id',
-                },
-                select: 'title brand_id_fk _id',
-            })
-            .populate({
                 path: 'productsTypes',
                 model: 'Types',
                 select: 'ml -_id',
@@ -31,7 +21,6 @@ export const getAllTransactions = async (req, res) => {
 
         const transformedTransactions = transactions.map(transaction => ({
             ...transaction.toObject(),
-            products: transaction.products.map(product => (`${product._id}=${product.brand_id_fk?.brand_name} ${product.title}`)),
             productsTypes: transaction.productsTypes.map(productType => (`${productType.ml}`)),
         }));
 

@@ -73,7 +73,18 @@ export const Search = () => {
   return (
     <div className="app">
       <Filter onFilter={handleFilter} brands={brands} id={id} type={type} />
-      <ProductList products={{ Parfum: filteredProducts }} />
+      {
+        filteredProducts.length == 0 && (
+          <div className='sinDatosParaMostrar'>
+            <h1>No hay datos para mostrar</h1>
+          </div>
+        )
+      }
+      {
+        filteredProducts.length > 0 && (
+          <ProductList products={{ Parfum: filteredProducts }} />
+        )
+      }
     </div>
   );
 };

@@ -75,6 +75,8 @@ export const ModalFormParfum = ({ modalData }) => {
             const res = await deleteParfumsRequest(modalData?._id);
             if (res.status == 200){
                 showAlert('Datos eliminados con éxito', 1);
+            } else if (res.status == 202) {
+                showAlert(res.data.message);
             } else {
                 showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
             }

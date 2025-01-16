@@ -52,7 +52,7 @@ export const CartResume = ({ products }) => {
           old_price: product.type.old_price,
           subTotal: price * quantity
         });
-        productsId.push(product.parfum?._id)
+        productsId.push(`${product.parfum?._id}=${product.parfum?.title}`)
         typesId.push(product.type?._id)
         quantities.push(quantity)
       }

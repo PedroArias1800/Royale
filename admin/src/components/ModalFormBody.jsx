@@ -111,11 +111,14 @@ export const ModalFormBody = ({ modalData }) => {
         try {
             const res = await deleteBodiesRequest(modalData?._id);
             if (res.status === 200) {
-                console.log('Datos eliminados con éxito');
+                showAlert('Datos eliminados con éxito', 1);
+            } else if (res.status == 202) {
+                showAlert(res.data.message);
             } else {
-                console.error('Ocurrió un error al eliminar los datos.');
+                showAlert('Ocurrió un error al eliminar los datos.', 0);
             }
         } catch (error) {
+            showAlert('Ocurrió un error al eliminar los datos.', 0);
             console.error('Error al eliminar los datos:', error);
         }
 

@@ -35,7 +35,7 @@ const transactionSchema = new mongoose.Schema({
         default: false
     },
     products: {
-        type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Parfum' }],
+        type: [String],
         require: true,
     },
     productsTypes: {

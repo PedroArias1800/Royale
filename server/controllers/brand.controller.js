@@ -1,4 +1,5 @@
 import Brand from '../models/brand.model.js'
+import Parfum from '../models/parfum.model.js'
 
 export const getAllBrands = async(req, res) => {
     const brands = await Brand.find()
@@ -99,6 +100,11 @@ export const updateBrand = async(req, res) => {
 }
 
 export const deleteBrand = async(req, res) => {
+    const parfumCount = await Parfum.countDocuments({ brand_id_fk: req.params.id });
+    if (parfumCount > 0) {
+        return res.status(202).json({ message: "Esta Marca está siendo usado en Perfumes, no se puede eliminar." });
+    }
+    
     const brand = await Brand.findByIdAndDelete(req.params.id, {
         new: true
     });

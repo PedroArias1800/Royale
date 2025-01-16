@@ -117,8 +117,19 @@ export const Data = () => {
                 </form>
             </div>
         </div>
-        <div className='dataTable'>
-            <DataTable data={response} idCategory={id}/>
+        <div className='dataTable' style={{display: response.length > 0 ? 'block' : 'flex', justifyContent: 'center', alignItems: 'center'}}>
+            {
+                response.length > 0 && (
+                    <DataTable data={response} idCategory={id}/>
+                )
+            }
+            {
+                response.length == 0 && (
+                    <div className='sinDatosParaMostrar'>
+                        <h1>No hay datos para mostrar</h1>
+                    </div>
+                )
+            }
         </div>
     </div>
   )
