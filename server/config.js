@@ -1,8 +1,8 @@
 export const PORT = 4001
 
 export const FRONTEND_URL = process.env.FRONTEND_URL || "http://93.188.162.15:5173";
-export const FRONTEND_URL_DOMAIN = process.env.FRONTEND_URL_DOMAIN || "http://royalepanama.com";
-export const FRONTEND_URL_DOMAIN_WWW = process.env.FRONTEND_URL_DOMAIN || "http://www.royalepanama.com";
+export const FRONTEND_URL_DOMAIN_CERTIFICATE = process.env.FRONTEND_URL_DOMAIN_CERTIFICATE || "https://royalepanama.com";
+export const FRONTEND_URL_DOMAIN_CERTIFICATE_WWW = process.env.FRONTEND_URL_DOMAIN_CERTIFICATE_WWW || "https://www.royalepanama.com";
 export const ADMIN_URL = process.env.ADMIN_URL || "http://93.188.162.15:5174";
 
 export const DB_HOST = process.env.DB_HOST || 'dpg-ctkseglds78s73c2disg-a';
