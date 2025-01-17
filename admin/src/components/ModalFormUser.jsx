@@ -1,4 +1,4 @@
-import { postVersionsRequest, putVersionsRequest, deleteVersionsRequest } from '../api/Version.api.js';
+import { postUsersRequest, putUsersRequest } from '../api/User.api.js';
 import { useAuth } from '../context/AuthProvider';
 
 export const ModalFormUser = ({ modalData }) => {
@@ -24,7 +24,7 @@ export const ModalFormUser = ({ modalData }) => {
         try {
             if (isUpdate) {
                 // Llamar a la API de actualización
-                const res = await putVersionsRequest(modalData._id, modalData);
+                const res = await putUsersRequest(modalData._id, modalData);
                 if (res.status == 200){
                     showAlert('Datos actualizados con éxito', 1);
                     cargarDataTables(6)
@@ -32,7 +32,7 @@ export const ModalFormUser = ({ modalData }) => {
                 }
             } else {
                 // Llamar a la API de creación
-                const res = await postVersionsRequest(modalData);
+                const res = await postUsersRequest(modalData);
                 if (res.status == 200){
                     showAlert('Datos creados con éxito', 1);
                     cargarDataTables(6)
@@ -47,19 +47,19 @@ export const ModalFormUser = ({ modalData }) => {
     };
 
     const deleteDatos = async () => {
-        try {
-            const res = await deleteVersionsRequest(modalData?._id);
-            if (res.status == 200){
-                showAlert('Datos eliminados con éxito', 1);
-            } else if (res.status == 202) {
-                showAlert(res.data.message);
-            } else {
-                showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
-            }
-        } catch (error) {
-            console.error('Error al eliminar los datos:', error);
-            showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
-        }
+        // try {
+        //     const res = await deleteVersionsRequest(modalData?._id);
+        //     if (res.status == 200){
+        //         showAlert('Datos eliminados con éxito', 1);
+        //     } else if (res.status == 202) {
+        //         showAlert(res.data.message);
+        //     } else {
+        //         showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
+        //     }
+        // } catch (error) {
+        //     console.error('Error al eliminar los datos:', error);
+        //     showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
+        // }
         
         closeModal()
         setModalData(null);
