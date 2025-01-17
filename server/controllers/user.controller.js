@@ -92,11 +92,7 @@ export const postUser = async(req, res) => {
 export const putUser = async(req, res) => {
     const { firstname, lastname, email, password, rol, status } = req.body
     
-    try {
-        
-        const userFound = await User.findOne({ email })
-        if (userFound) return res.status(400).json(["El Correo ya está en uso"])
-            
+    try {            
         const passwordHash = await bcrypt.hash(password, 10)
         
         const putUser = new User({
