@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAllParfumsRequest } from '../api/Admin.api';
 import { postBodiesRequest, putBodiesRequest, deleteBodiesRequest } from '../api/Body.api';
 import { useAuth } from '../context/AuthProvider';
-const URLServer = process.env.VITE_SERVER_URL || 'http://localhost:4001';
+const URLServer = 'http://localhost:4001';
 
 export const ModalFormBody = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();

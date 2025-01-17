@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faInbox } from '@fortawesome/free-solid-svg-icons';
 import { getTransactionsRequest, putTransactionsRequest } from '../api/Admin.api.js';
-const URLAdmin = process.env.VITE_ADMIN_URL || 'http://localhost:5174'
+const URLAdmin = 'http://localhost:5174'
 
 export const Header = () => {
   const { isAuthenticated, closeSession, transaction, setTransaction, user } = useAuth();
