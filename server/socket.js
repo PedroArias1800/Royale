@@ -7,9 +7,10 @@ import { FRONTEND_URL, ADMIN_URL } from './config.js';
 const server = http.createServer(app);
 export const io = new Server(server, {
     cors: {
-        origin: [ADMIN_URL], // Asegúrate de configurar correctamente la URL
+        origin: [FRONTEND_URL, ADMIN_URL], // Asegúrate de configurar correctamente la URL
         methods: ['GET', 'POST'],
     },
+    transports: ["websocket", "polling"],
 });
 
 // Escuchar eventos de conexión

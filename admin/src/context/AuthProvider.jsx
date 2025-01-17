@@ -17,7 +17,9 @@ import { useNavigate } from "react-router-dom";
 
 import { io } from 'socket.io-client';
 const URLServer = 'http://localhost:4001'
-const socket = io(URLServer);
+const socket = io(URLServer, {
+  transports: ['websocket'],  // Forzar WebSocket
+});
 
 
 export const AuthContext = createContext();
