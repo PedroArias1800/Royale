@@ -91,15 +91,15 @@ export const postUser = async(req, res) => {
 
 export const putUser = async(req, res) => {
     const { firstname, lastname, email, password, rol, status } = req.body
-
+    
     try {
-
+        
         const userFound = await User.findOne({ email })
         if (userFound) return res.status(400).json(["El Correo ya está en uso"])
-
+            
         const passwordHash = await bcrypt.hash(password, 10)
-
-        const newUser = new User({
+        
+        const putUser = new User({
             firstname,
             lastname,
             email,
@@ -107,19 +107,20 @@ export const putUser = async(req, res) => {
             rol,
             status
         });
-    
-        const userSaved = await newUser.save()
-        const token = await createAccessToken({ id: userSaved._id })
-        res.cookie("token", token)
+        
+        const userUpdated = await User.findByIdAndUpdate(req.params.id, req.body, {
+            new: true
+        });
+
         res.json({
-            id: userSaved._id,
-            firstname: userSaved.firstname,
-            lastname: userSaved.lastname,
-            email: userSaved.email,
-            rol: getRol(userSaved.rol),
-            status: userSaved.status,
-            createdAt: userSaved.createdAt,
-            updatedAt: userSaved.updatedAt
+            id: userUpdated._id,
+            firstname: userUpdated.firstname,
+            lastname: userUpdated.lastname,
+            email: userUpdated.email,
+            rol: getRol(userUpdated.rol),
+            status: userUpdated.status,
+            createdAt: userUpdated.createdAt,
+            updatedAt: userUpdated.updatedAt
         })   
     } catch (error) {
         res.status(500).json([error.message])
