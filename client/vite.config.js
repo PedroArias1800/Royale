@@ -1,7 +1,16 @@
 import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
-})
+  server: {
+    port: 5173, // Puerto para admin
+    proxy: {
+      "/socket.io": {
+        target: URLServer, // Servidor
+        ws: true, // Activa WebSocket
+        changeOrigin: true, // Cambia el origen para evitar problemas de CORS
+      },
+    },
+  },
+});
