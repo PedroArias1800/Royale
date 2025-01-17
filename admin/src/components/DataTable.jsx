@@ -1,8 +1,8 @@
 import { columnMappings, excludedColumns } from "../js/mappings";
 import { useAuth } from "../context/AuthProvider.jsx";
 import { useEffect } from "react";
-const URLServer = 'http://localhost:4001'
-const URLFrontend = 'http://localhost:5173'
+const URLServer = 'http://93.188.162.15:4001'
+const URLFrontend = 'http://93.188.162.15:5173'
 
 export const DataTable = ({ data, idCategory }) => {
   const { setModalData, setIdNumber, closeModal } = useAuth();

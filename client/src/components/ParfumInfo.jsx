@@ -4,8 +4,8 @@ import React, { useState, useEffect, useContext } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
 import { Alert } from '../components/Alert'
 import { Link } from 'react-router-dom';
-const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
-const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:5173'
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://93.188.162.15:4001'
+const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://93.188.162.15:5173'
 
 export const ParfumInfo = ({ product }) => {
   const [selectedType, setSelectedType] = useState();

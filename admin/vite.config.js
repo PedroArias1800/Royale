@@ -8,7 +8,7 @@ export default defineConfig({
     port: 5174, // Puerto para admin
     proxy: {
       "/socket.io": {
-        target: 'http://localhost:4001', // Servidor
+        target: 'http://93.188.162.15:4001', // Servidor
         ws: true, // Activa WebSocket
         changeOrigin: true, // Cambia el origen para evitar problemas de CORS
       },

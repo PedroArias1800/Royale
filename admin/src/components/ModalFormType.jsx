@@ -3,7 +3,7 @@ import { getAllParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
 import { getParfumsIconGallery } from '../api/Img.api.js'
-const URLServer = 'http://localhost:4001'
+const URLServer = 'http://93.188.162.15:4001'
 
 export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
