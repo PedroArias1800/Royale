@@ -95,8 +95,9 @@ export const putUser = async(req, res) => {
     try {            
         console.log(password)
         const passwordHash = await bcrypt.hash(password, 10)
-        console.log(password)
+        console.log(passwordHash)
         const putUser = new User({
+            id: req.params.id,
             firstname,
             lastname,
             email,

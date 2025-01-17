@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { getParfumsBodyRequest } from '../api/Parfum.api.js';
-const URLServer = import.meta.env.VITE_SERVER_URL || 'http://93.188.162.15:4001'
-const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://93.188.162.15:5173'
+const URLServer = 'http://93.188.162.15:4001'
+const URLFrontend = 'http://93.188.162.15:5173'
 
 export const BodyInicial = () => {
 
