@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 
 import { io } from 'socket.io-client';
-const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+const URLServer = process.env.VITE_SERVER_URL || 'http://localhost:4001'
 const socket = io(URLServer);
 
 

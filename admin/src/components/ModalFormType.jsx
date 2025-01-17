@@ -3,7 +3,7 @@ import { getAllParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
 import { getParfumsIconGallery } from '../api/Img.api.js'
-const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+const URLServer = process.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
