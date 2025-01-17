@@ -5,7 +5,7 @@ import { postPagarRequest, postTransactionRequest } from '../api/Cart.api';
 
 
 export const CartResume = ({ products }) => {
-  const URL = 'http://93.188.162.15:5173'
+  const URL = import.meta.env.VITE_FRONTEND_URL || 'http://93.188.162.15:5173'
   const { cart, clearCart } = useContext(ParfumContext);  // Obtenemos el carrito desde el contexto
   const [isModalOpen, setModalOpen] = useState(false);
   const handleOpenModal = () => setModalOpen(true);

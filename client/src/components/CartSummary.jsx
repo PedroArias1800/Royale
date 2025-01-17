@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { Link } from 'react-router-dom';
 import { ParfumContext } from "../context/ParfumContext";
-const URLServer = 'http://93.188.162.15:4001'
-const URLFrontend = 'http://93.188.162.15:5173'
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://93.188.162.15:4001'
+const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://93.188.162.15:5173'
 
 export const CartSummary = ({ product }) => {
   // Estado para mostrar el modal de confirmación
