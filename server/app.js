@@ -6,7 +6,7 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 
 import { connectDB } from './db.js';
-import { FRONTEND_URL, ADMIN_URL } from './config.js';
+import { FRONTEND_URL, ADMIN_URL, FRONTEND_URL_DOMAIN } from './config.js';
 import authRoutes from './routes/auth.routes.js';
 import bodyRoutes from './routes/body.routes.js';
 import brandRoutes from './routes/brand.routes.js';
@@ -25,7 +25,7 @@ connectDB();
 export const app = express();
 
 app.use(cors({
-    origin: [FRONTEND_URL, ADMIN_URL],
+    origin: [FRONTEND_URL, ADMIN_URL, FRONTEND_URL_DOMAIN],
     credentials: true,
 }));
 app.use(morgan('dev'));
