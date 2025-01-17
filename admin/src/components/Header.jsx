@@ -17,7 +17,9 @@ export const Header = () => {
       const response = await getTransactionsRequest()
       setTransaction(response.data)
     }
-    loadTransaction()
+    if (isAuthenticated){
+      loadTransaction()
+    }
   }, [])
 
   useEffect(() => {

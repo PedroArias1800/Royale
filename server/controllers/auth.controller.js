@@ -6,6 +6,7 @@ import { TOKEN_SECRET } from '../config.js'
 
 export const logIn = async(req, res) => {
     const { email, password } = req.body
+    console.log('Yes')
 
     try {
 
