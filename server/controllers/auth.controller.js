@@ -19,7 +19,7 @@ export const logIn = async(req, res) => {
     
         res.cookie('token', token, {
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',  // Solo en producción con HTTPS
+            secure: true,  // Solo en producción con HTTPS
             sameSite: 'None',  // Permite cookies cross-site
             expires: new Date(Date.now() + 3600000), // Expira en 1 hora
             path: '/'
