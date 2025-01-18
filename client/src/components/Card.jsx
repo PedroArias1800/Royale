@@ -2,7 +2,7 @@ import { faBookmark, faTag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-const URLServer = import.meta.env.VITE_SERVER_URL || 'http://93.188.162.15:4001'
+const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
 
 export const Card = ({element, cardsRef, index, width100}) => {
 

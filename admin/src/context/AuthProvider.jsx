@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 
 import { io } from 'socket.io-client';
-const URLServer = 'http://93.188.162.15:4001'
+const URLServer = 'https://api.royalepanama.com'
 const socket = io(URLServer, {
   transports: ['websocket'],  // Forzar WebSocket
 });

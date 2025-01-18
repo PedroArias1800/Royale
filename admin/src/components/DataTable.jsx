@@ -1,7 +1,7 @@
 import { columnMappings, excludedColumns } from "../js/mappings";
 import { useAuth } from "../context/AuthProvider.jsx";
 import { useEffect } from "react";
-const URLServer = 'http://93.188.162.15:4001'
+const URLServer = 'https://api.royalepanama.com'
 const URLFrontend = 'http://93.188.162.15:5173'
 
 export const DataTable = ({ data, idCategory }) => {

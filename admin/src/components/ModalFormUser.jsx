@@ -90,7 +90,7 @@ export const ModalFormUser = ({ modalData }) => {
                 </label>
                 <label htmlFor="password">
                     <p>Contraseña</p>
-                    <input type="password" name="password" id="password" value={user.rol == 1 ? modalData?.password : ''} onChange={handleInputChange} placeholder='**********' required={true} disabled={user.rol == 1 ? false : true} />
+                    <input type="password" name="password" id="password" value={user.rol == 1 ? modalData?.password : ''} onChange={handleInputChange} placeholder='**********' required={!isUpdate} disabled={user.rol == 1 ? false : true} />
                 </label>
             </div>
             <div className="form-group3">
