@@ -18,11 +18,11 @@ export const logIn = async(req, res) => {
         const token = await createAccessToken({ id: userFound._id })
     
         res.cookie('token', token, {
-            httpOnly: true,      // No accesible por JavaScript
-            secure: process.env.NODE_ENV === 'production', // Solo en HTTPS en producción
-            sameSite: 'Strict',  // Protección CSRF
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',  // Solo en producción con HTTPS
+            sameSite: 'Lax',   // Permite que la cookie se envíe en algunas solicitudes cross-site
             expires: new Date(Date.now() + 3600000), // Expira en 1 hora
-            path: '/'            // Asegura que la cookie esté disponible en todo el sitio
+            path: '/'
         });
         res.json({
             id: userFound._id,
