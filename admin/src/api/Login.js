@@ -22,4 +22,6 @@ export const postLogOutRequest = async () =>
     });
 
 export const verifyTokenRequest = async () => 
-    await axios.get(`/api/verify`)
+    await axios.get(`/api/verify`, { 
+        withCredentials: true
+    });
