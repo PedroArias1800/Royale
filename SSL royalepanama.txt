@@ -4,12 +4,12 @@ sudo apt update && sudo apt upgrade -y
 
 sudo apt install certbot python3-certbot-nginx -y
 
-sudo nano /etc/nginx/sites-available/api.royalepanama:
+sudo nano /etc/nginx/sites-available/admin.royalepanama:
 # Configuración para HTTP
 server {
     listen 80;
     listen [::]:80;
-    server_name api.royalepanama.com www.api.royalepanama.com;
+    server_name admin.royalepanama.com www.admin.royalepanama.com;
 
     # Redirigir todo el tráfico HTTP a HTTPS
     return 301 https://$host$request_uri;
@@ -19,11 +19,11 @@ server {
 server {
     listen 443 ssl;
     listen [::]:443 ssl;
-    server_name api.royalepanama.com www.api.royalepanama.com;
+    server_name admin.royalepanama.com www.admin.royalepanama.com;
 
     # Rutas a los certificados SSL generados por Certbot
-    ssl_certificate /etc/letsencrypt/live/api.royalepanama.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/api.royalepanama.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/admin.royalepanama.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/admin.royalepanama.com/privkey.pem;
 
     # Configuración de seguridad SSL recomendada
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -38,7 +38,7 @@ server {
 
     # Configuración de proxy hacia tu aplicación
     location / {
-        proxy_pass http://93.188.162.15:4001;
+        proxy_pass http://93.188.162.15:5174;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -51,7 +51,7 @@ sudo nginx -t
 
 sudo systemctl reload nginx
 
-sudo certbot --nginx -d api.royalepanama.com -d www.api.royalepanama.com: seleccionar 1
+sudo certbot --nginx -d admin.royalepanama.com -d www.admin.royalepanama.com: seleccionar 1
 sudo systemctl reload nginx
 
 
