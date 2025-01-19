@@ -38,7 +38,9 @@ export const getAllUsersRequest = async () =>
 
 
 export const getTransactionsRequest = async () =>
-    await axios.get(`/transaction`)
+    await axios.get(`/transaction`, { 
+        withCredentials: true
+    });
 
 export const putTransactionsRequest = async (id) =>
         await axios.put(`/transaction/${id}`)
