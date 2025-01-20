@@ -1,37 +1,63 @@
 import Type from '../models/types.model.js'
 
-export const getAllTypes = async(req, res) => {
-    try{
-        const parfums = await Parfum.find()
-            .populate({
-                path: 'version_id_fk',
-                select: 'version_name',
-            })
-            .populate({
-                path: 'brand_id_fk',
-                select: 'brand_name',
-            });
-        res.json(parfums)
+export const getAllTypes = async (req, res) => {
+    try {
+        const types = await Types.aggregate([
+            {
+                $lookup: {
+                    from: 'parfums', // Nombre de la colección referenciada
+                    localField: 'parfum_id_fk',
+                    foreignField: '_id',
+                    as: 'parfum',
+                },
+            },
+            {
+                $unwind: '$parfum', // Desempaqueta el array resultado del lookup
+            },
+            {
+                $sort: { 'parfum.title': 1 }, // Ordena por el campo title del modelo Parfum
+            },
+        ]);
+
+        res.json(types);
     } catch (error) {
-        res.status(500).json({ message: "Types not Found" })
+        res.status(500).json({ message: 'Types not Found', error });
     }
-}
+};
+
 
 export const getTypes = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 15;
-        
         const skip = (page - 1) * limit;
 
-        const types = await Type.find()
-            .populate({
-                path: 'parfum_id_fk',
-                select: 'title',
-            })
-            .skip(skip)
-            .limit(limit);
+        const aggregateQuery = [
+            {
+                $lookup: {
+                    from: 'parfums', // Nombre de la colección referenciada
+                    localField: 'parfum_id_fk',
+                    foreignField: '_id',
+                    as: 'parfum',
+                },
+            },
+            {
+                $unwind: '$parfum', // Desempaqueta el array resultado del lookup
+            },
+            {
+                $sort: { 'parfum.title': 1 }, // Ordena por el campo title del modelo Parfum
+            },
+            {
+                $skip: skip, // Salta documentos según la página
+            },
+            {
+                $limit: limit, // Limita la cantidad de resultados
+            },
+        ];
 
+        const types = await Type.aggregate(aggregateQuery);
+
+        // Obtener el total de documentos para la paginación
         const total = await Type.countDocuments();
         const totalPages = Math.ceil(total / limit);
 

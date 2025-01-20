@@ -12,7 +12,8 @@ export const getAllParfums = async(req, res) => {
             .populate({
                 path: 'brand_id_fk',
                 select: 'brand_name',
-            });
+            })
+            .sort({ title: 1 });
         res.json(parfums)
     } catch (error) {
         res.status(500).json({ message: "Parfums not Found" })
@@ -70,6 +71,7 @@ export const getFilteredParfums = async (req, res) => {
                 path: 'brand_id_fk',
                 select: 'brand_name',
             })
+            .sort({ title: 1 })
             .skip(skip)
             .limit(limit);
 
@@ -109,6 +111,7 @@ export const getParfums = async (req, res) => {
                 path: 'brand_id_fk',
                 select: 'brand_name',
             })
+            .sort({ title: 1 })
             .skip(skip)
             .limit(limit);
 

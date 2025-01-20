@@ -3,8 +3,9 @@ import Parfum from '../models/parfum.model.js'
 
 export const getAllBrands = async(req, res) => {
     try{
-
         const brands = await Brand.find()
+        .sort({ brand_name: 1 })
+
         res.json(brands)
     } catch (error) {
         res.status(500).json({ message: "Brand not Found" })
@@ -19,6 +20,7 @@ export const getBrands = async (req, res) => {
         const skip = (page - 1) * limit;
 
         const brand = await Brand.find()
+            .sort({ title: 1 })
             .skip(skip)
             .limit(limit);
 
@@ -58,6 +60,7 @@ export const getFilteredBrands = async (req, res) => {
             : {};
 
         const brand = await Brand.find(query)
+            .sort({ brand_name: 1 })
             .skip(skip)
             .limit(limit);
 
