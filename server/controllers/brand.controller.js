@@ -2,8 +2,13 @@ import Brand from '../models/brand.model.js'
 import Parfum from '../models/parfum.model.js'
 
 export const getAllBrands = async(req, res) => {
-    const brands = await Brand.find()
-    res.json(brands)
+    try{
+
+        const brands = await Brand.find()
+        res.json(brands)
+    } catch (error) {
+        res.status(500).json({ message: "Brand not Found" })
+    }
 }
 
 export const getBrands = async (req, res) => {
@@ -76,38 +81,55 @@ export const getFilteredBrands = async (req, res) => {
 
 
 export const getBrand = async(req, res) => {
-    const brand = await Brand.findById(req.params.id)
-    if (!brand) return res.status(404).json({ message: "Brand not Found" })
+    try{
+        const brand = await Brand.findById(req.params.id)
+        if (!brand) return res.status(404).json({ message: "Brand not Found" })
+    } catch (error) {
+        res.status(500).json({ message: "Brand not Found" })
+    }
 }
 
 export const createBrand = async(req, res) => {
-    const { brand_name } = req.body
+    try{
+        const { brand_name } = req.body
 
-    const newBrand = new Brand({
-        brand_name
-    })
+        const newBrand = new Brand({
+            brand_name
+        })
 
-    const brandSaved = await newBrand.save()
-    res.json(brandSaved);
+        const brandSaved = await newBrand.save()
+        res.json(brandSaved);
+    } catch (error) {
+        res.status(500).json({ message: "Brand not Found" })
+    }
 }
 
 export const updateBrand = async(req, res) => {
-    const brand = await Brand.findByIdAndUpdate(req.params.id, req.body, {
-        new: true
-    });
-    if (!brand) return res.status(404).json({ message: "Brand not Found" })
-    res.json(brand)
+    try{
+        const brand = await Brand.findByIdAndUpdate(req.params.id, req.body, {
+            new: true
+        });
+        if (!brand) return res.status(404).json({ message: "Brand not Found" })
+        res.json(brand)
+    } catch (error) {
+        res.status(500).json({ message: "Brand not Found" })
+    }
 }
 
 export const deleteBrand = async(req, res) => {
-    const parfumCount = await Parfum.countDocuments({ brand_id_fk: req.params.id });
-    if (parfumCount > 0) {
-        return res.status(202).json({ message: "Esta Marca está siendo usado en Perfumes, no se puede eliminar." });
+    try{
+
+        const parfumCount = await Parfum.countDocuments({ brand_id_fk: req.params.id });
+        if (parfumCount > 0) {
+            return res.status(202).json({ message: "Esta Marca está siendo usado en Perfumes, no se puede eliminar." });
+        }
+        
+        const brand = await Brand.findByIdAndDelete(req.params.id, {
+            new: true
+        });
+        if (!brand) return res.status(404).json({ message: "Brand not Found" })
+            res.json(brand)
+    } catch (error) {
+        res.status(500).json({ message: "Brand not Found" })
     }
-    
-    const brand = await Brand.findByIdAndDelete(req.params.id, {
-        new: true
-    });
-    if (!brand) return res.status(404).json({ message: "Brand not Found" })
-    res.json(brand)
 }
