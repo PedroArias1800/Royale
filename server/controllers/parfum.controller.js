@@ -71,9 +71,9 @@ export const getFilteredParfums = async (req, res) => {
                 path: 'brand_id_fk',
                 select: 'brand_name',
             })
-            .sort({ title: 1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .sort({ title: 1 });
 
         // Conteo total de registros que coinciden con el filtro
         const total = await Parfum.countDocuments(query);
@@ -111,9 +111,9 @@ export const getParfums = async (req, res) => {
                 path: 'brand_id_fk',
                 select: 'brand_name',
             })
-            .sort({ title: 1 })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .sort({ title: 1 });
 
         const total = await Parfum.countDocuments();
         const totalPages = Math.ceil(total / limit);

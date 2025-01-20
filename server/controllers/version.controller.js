@@ -4,6 +4,7 @@ import Parfum from '../models/parfum.model.js'
 export const getAllVersions = async(req, res) => {
     try{
         const versions = await Version.find()
+        .sort({version_name: 1});
         res.json(versions)
     } catch (error) {
         res.status(500).json({ message: "Versions not Found" })
@@ -19,7 +20,8 @@ export const getVersions = async (req, res) => {
 
         const version = await Version.find()
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .sort({version_name: 1});
 
         const total = await Version.countDocuments();
         const totalPages = Math.ceil(total / limit);
