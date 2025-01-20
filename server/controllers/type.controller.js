@@ -1,16 +1,20 @@
 import Type from '../models/types.model.js'
 
 export const getAllTypes = async(req, res) => {
-    const parfums = await Parfum.find()
-        .populate({
-            path: 'version_id_fk',
-            select: 'version_name',
-        })
-        .populate({
-            path: 'brand_id_fk',
-            select: 'brand_name',
-        });
-    res.json(parfums)
+    try{
+        const parfums = await Parfum.find()
+            .populate({
+                path: 'version_id_fk',
+                select: 'version_name',
+            })
+            .populate({
+                path: 'brand_id_fk',
+                select: 'brand_name',
+            });
+        res.json(parfums)
+    } catch (error) {
+        res.status(500).json({ message: "Types not Found" })
+    }
 }
 
 export const getTypes = async (req, res) => {
@@ -141,60 +145,76 @@ export const getFilteredTypes = async (req, res) => {
 
 
 export const getType = async(req, res) => {
-    const type = await Type.findById(req.params.id)
-    if (!type) return res.status(404).json({ message: "Type not Found" })
+    try{
+        const type = await Type.findById(req.params.id)
+        if (!type) return res.status(404).json({ message: "Type not Found" })
+    } catch (error) {
+        res.status(500).json({ message: "Type not Found" })
+    }
 }
 
 export const createType = async(req, res) => {
-    const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body
-    const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
+    try{
+        const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body
+        const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
 
-    const newType = new Type({
-        ml,
-        img: imgPath,
-        cost,
-        price,
-        old_price,
-        status,
-        parfum_id_fk
-    })
+        const newType = new Type({
+            ml,
+            img: imgPath,
+            cost,
+            price,
+            old_price,
+            status,
+            parfum_id_fk
+        })
 
-    const typeSaved = await newType.save()
-    res.json(typeSaved);
+        const typeSaved = await newType.save()
+        res.json(typeSaved);
+    } catch (error) {
+        res.status(500).json({ message: "Type not Found" })
+    }
 }
 
 export const updateType = async (req, res) => {
-    const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body;
-    console.log(imgServer, 'prueba')
-    const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
+    try{
+        const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body;
+        console.log(imgServer, 'prueba')
+        const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
 
-    const updatedData = {
-        ml,
-        cost,
-        price,
-        old_price,
-        status,
-        parfum_id_fk
-    };
+        const updatedData = {
+            ml,
+            cost,
+            price,
+            old_price,
+            status,
+            parfum_id_fk
+        };
 
-    if (imgPath) updatedData.img = imgPath;
+        if (imgPath) updatedData.img = imgPath;
 
-    console.log(req.params.id, updatedData);
+        console.log(req.params.id, updatedData);
 
-    const type = await Type.findByIdAndUpdate(req.params.id, updatedData, {
-        new: true,
-        runValidators: true
-    });
+        const type = await Type.findByIdAndUpdate(req.params.id, updatedData, {
+            new: true,
+            runValidators: true
+        });
 
-    if (!type) return res.status(404).json({ message: "Type not Found" });
-    
-    res.json(type);
+        if (!type) return res.status(404).json({ message: "Type not Found" });
+        
+        res.json(type);
+    } catch (error) {
+        res.status(500).json({ message: "Type not Found" })
+    }
 }
 
 export const deleteType = async(req, res) => {
-    const type = await Type.findByIdAndDelete(req.params.id, req.body, {
-        new: true
-    });
-    if (!type) return res.status(404).json({ message: "Type not Found" })
-    res.json(type)
+    try{
+        const type = await Type.findByIdAndDelete(req.params.id, req.body, {
+            new: true
+        });
+        if (!type) return res.status(404).json({ message: "Type not Found" })
+        res.json(type)
+    } catch (error) {
+        res.status(500).json({ message: "Type not Found" })
+    }
 }

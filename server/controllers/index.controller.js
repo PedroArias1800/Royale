@@ -5,8 +5,8 @@ import Transaction from '../models/transaction.model.js'
 
 
 export const parfumVersion = async (req, res) => {
-    const id = req.query.id;
     try {
+        const id = req.query.id;
         const parfums = await Parfum.aggregate([
             {
                 $match: {
@@ -141,9 +141,9 @@ export const getTransaction = async (req, res) => {
 
 
 export const createTransaction = async (req, res) => {
-    const { userName, phone, direction, email, subTotal, total, products, productsTypes, quantities } = req.body
-    
     try {
+        const { userName, phone, direction, email, subTotal, total, products, productsTypes, quantities } = req.body
+    
         const newTransaction = new Transaction({
             userName,
             phone,

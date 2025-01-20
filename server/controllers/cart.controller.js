@@ -2,9 +2,9 @@ import Parfum from '../models/parfum.model.js';
 import Types from '../models/types.model.js';
 
 export const postCart = async (req, res) => {
-    const cartItems = req.body;
-
     try {
+        const cartItems = req.body;
+
         // Extrae los IDs de Parfum y Types del cuerpo de la solicitud.
         const parfumIds = cartItems.map(item => item.id);
         const typesIds = cartItems.map(item => item.types_id);

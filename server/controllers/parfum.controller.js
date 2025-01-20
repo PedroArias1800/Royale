@@ -3,16 +3,20 @@ import Body from '../models/body.model.js'
 import Type from '../models/types.model.js'
 
 export const getAllParfums = async(req, res) => {
-    const parfums = await Parfum.find()
-        .populate({
-            path: 'version_id_fk',
-            select: 'version_name',
-        })
-        .populate({
-            path: 'brand_id_fk',
-            select: 'brand_name',
-        });
-    res.json(parfums)
+    try{
+        const parfums = await Parfum.find()
+            .populate({
+                path: 'version_id_fk',
+                select: 'version_name',
+            })
+            .populate({
+                path: 'brand_id_fk',
+                select: 'brand_name',
+            });
+        res.json(parfums)
+    } catch (error) {
+        res.status(500).json({ message: "Parfums not Found" })
+    }
 }
 
 
@@ -127,49 +131,65 @@ export const getParfums = async (req, res) => {
 };
 
 export const getParfum = async(req, res) => {
-    const parfum = await Parfum.findById(req.params.id)
-    if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
+    try{
+        const parfum = await Parfum.findById(req.params.id)
+        if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
+    } catch (error) {
+        res.status(500).json({ message: "Parfum not Found" })
+    }
 }
 
 export const createParfum = async(req, res) => {
-    const { title, description, gender, status, version_id_fk, brand_id_fk, } = req.body
+    try{
+        const { title, description, gender, status, version_id_fk, brand_id_fk, } = req.body
 
-    const newParfum = new Parfum({
-        title,
-        description,
-        gender,
-        status,
-        version_id_fk,
-        brand_id_fk,
-    })
+        const newParfum = new Parfum({
+            title,
+            description,
+            gender,
+            status,
+            version_id_fk,
+            brand_id_fk,
+        })
 
-    const parfumSaved = await newParfum.save()
-    res.json(parfumSaved);
+        const parfumSaved = await newParfum.save()
+        res.json(parfumSaved);
+    } catch (error) {
+        res.status(500).json({ message: "Parfum not Found" })
+    }
 }
 
 export const updateParfum = async(req, res) => {
-    const parfum = await Parfum.findByIdAndUpdate(req.params.id, req.body, {
-        new: true
-    });
-    if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
-    res.json(parfum)
+    try{
+        const parfum = await Parfum.findByIdAndUpdate(req.params.id, req.body, {
+            new: true
+        });
+        if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
+        res.json(parfum)
+    } catch (error) {
+        res.status(500).json({ message: "Parfum not Found" })
+    }
 }
 
 export const deleteParfum = async(req, res) => {
-    const bodyCount = await Body.countDocuments({ parfum_id_fk: req.params.id });
-    if (bodyCount > 0) {
-        return res.status(202).json({ message: "Este Parfum está siendo usado en Fondos de Inicio, no se puede eliminar." });
+    try{
+        const bodyCount = await Body.countDocuments({ parfum_id_fk: req.params.id });
+        if (bodyCount > 0) {
+            return res.status(202).json({ message: "Este Parfum está siendo usado en Fondos de Inicio, no se puede eliminar." });
+        }
+
+        const typeCount = await Type.countDocuments({ parfum_id_fk: req.params.id });
+        if (typeCount > 0) {
+            return res.status(202).json({ message: "Este Parfum está siendo usado en Tipos de Perfumes, no se puede eliminar." });
+        }
+
+        const parfum = await Parfum.findByIdAndDelete(req.params.id, {
+            new: true
+        });
+
+        if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
+        res.json(parfum)
+    } catch (error) {
+        res.status(500).json({ message: "Parfum not Found" })
     }
-
-    const typeCount = await Type.countDocuments({ parfum_id_fk: req.params.id });
-    if (typeCount > 0) {
-        return res.status(202).json({ message: "Este Parfum está siendo usado en Tipos de Perfumes, no se puede eliminar." });
-    }
-
-    const parfum = await Parfum.findByIdAndDelete(req.params.id, {
-        new: true
-    });
-
-    if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
-    res.json(parfum)
 }

@@ -5,10 +5,14 @@ import jwt from 'jsonwebtoken'
 import { TOKEN_SECRET } from '../config.js'
 
 const getRol = (id) => {
-    if (id == 1){
-        return 'Admin'
-    } else if (id == 2){
-        return 'Vendedor'
+    try{
+        if (id == 1){
+            return 'Admin'
+        } else if (id == 2){
+            return 'Vendedor'
+        }
+    } catch (error) {
+        res.status(500).json({ message: "GetRol not Found" })
     }
 }
 
@@ -53,9 +57,8 @@ export const getUsers = async (req, res) => {
 };
 
 export const postUser = async(req, res) => {
-    const { firstname, lastname, email, password, rol, status } = req.body
-
     try {
+        const { firstname, lastname, email, password, rol, status } = req.body
 
         const userFound = await User.findOne({ email })
         if (userFound) return res.status(400).json(["El Correo ya está en uso"])
@@ -90,9 +93,9 @@ export const postUser = async(req, res) => {
 }
 
 export const putUser = async(req, res) => {
-    const { firstname, lastname, email, password, rol, status } = req.body
-    
     try {            
+        const { firstname, lastname, email, password, rol, status } = req.body
+    
         console.log(password)
         const passwordHash = await bcrypt.hash(password, 10)
         console.log(passwordHash)

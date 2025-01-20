@@ -5,9 +5,8 @@ import jwt from 'jsonwebtoken'
 import { TOKEN_SECRET } from '../config.js'
 
 export const logIn = async(req, res) => {
-    const { email, password } = req.body
-
     try {
+        const { email, password } = req.body
 
         const userFound = await User.findOne({email})
         if (!userFound) return res.status(400).json(["Invalid Credentials"])
@@ -40,33 +39,41 @@ export const logIn = async(req, res) => {
 }
 
 export const logOut = async(req, res) => {
-    res.cookie('token', "", {
-        expires: new Date(0)
-    })
-    return res.sendStatus(200)
+    try{
+        res.cookie('token', "", {
+            expires: new Date(0)
+        })
+        return res.sendStatus(200)
+    } catch (error) {
+        res.status(500).json({ message: "LogOut not Found" })
+    }
 }
 
 export const profile = async(req, res) => {
-    const userFound = await User.findById(req.user.id)
-    if (!userFound) return res.status(400).json({ message: "User not Found" })
+    try{
+        const userFound = await User.findById(req.user.id)
+        if (!userFound) return res.status(400).json({ message: "User not Found" })
 
-    return res.json({
-        id: userFound._id,
-        firstname: userFound.firstname,
-        lastname: userFound.lastname,
-        email: userFound.email,
-        rol: userFound.rol,
-        status: userFound.status,
-        createdAt: userFound.createdAt,
-        updatedAt: userFound.updatedAt
-    })
+        return res.json({
+            id: userFound._id,
+            firstname: userFound.firstname,
+            lastname: userFound.lastname,
+            email: userFound.email,
+            rol: userFound.rol,
+            status: userFound.status,
+            createdAt: userFound.createdAt,
+            updatedAt: userFound.updatedAt
+        })
+    } catch (error) {
+        res.status(500).json({ message: "Profile not Found" })
+    }
 }
 
 export const verifyToken = async (req, res) => {
-    const { token } = req.cookies;
-    if (!token) return res.status(401).json(["No token, authorization denied"]);
-
     try {
+        const { token } = req.cookies;
+        if (!token) return res.status(401).json(["No token, authorization denied"]);
+
         const user = await new Promise((resolve, reject) => {
             jwt.verify(token, TOKEN_SECRET, (err, decoded) => {
                 if (err) reject("Invalid token");
