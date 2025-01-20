@@ -177,23 +177,23 @@ export const AuthProvider = ({ children }) => {
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 2){
-            response = await getTypesRequest();
+            response = await getTypesRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 3){
-            response = await getBrandsRequest();
+            response = await getBrandsRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 4){
-            response = await getVersionsRequest();
+            response = await getVersionsRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 5){
-            response = await getBodiesRequest();
+            response = await getBodiesRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 6){
-            response = await getUsersRequest();
+            response = await getUsersRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 7){
