@@ -60,7 +60,6 @@ export const getFilteredBrands = async (req, res) => {
             : {};
 
         const brand = await Brand.find(query)
-            .sort({ brand_name: 1 })
             .skip(skip)
             .limit(limit);
 
