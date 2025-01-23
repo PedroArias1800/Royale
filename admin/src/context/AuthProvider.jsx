@@ -83,6 +83,9 @@ export const AuthProvider = ({ children }) => {
     const signIn = async (user) => {
         try {
             const res = await postLoginRequest(user);
+            const cookie = Cookies.get()
+            localStorage.setItem("user", JSON.stringify(res.data));
+            localStorage.setItem("cookie", cookie.token);
             setUser(res.data)
             setIsAuthenticated(true)
         } catch (error) {
@@ -117,11 +120,16 @@ export const AuthProvider = ({ children }) => {
             const cookie = Cookies.get()
             if (cookie.token){
                 try{
-                    const res = await verifyTokenRequest(cookie.token)
-                    if (!res.data) return setIsAuthenticated(false)
+                    const res = await verifyTokenRequest(localStorage.getItem("cookie"))
+                    if (!res.data) {
+                        localStorage.removeItem("cookie");
+                        localStorage.removeItem("user");
+                        return setIsAuthenticated(false)
+                    } else {
+                        setIsAuthenticated(true)
+                        setUser(localStorage.getItem("user"))
+                    }
     
-                    setIsAuthenticated(true)
-                    setUser(res.data)
                 } catch(err) {
                     setIsAuthenticated(false)
                     setUser(null)

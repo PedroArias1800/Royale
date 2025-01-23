@@ -181,7 +181,6 @@ export const createType = async(req, res) => {
 export const updateType = async (req, res) => {
     try{
         const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body;
-        console.log(imgServer, 'prueba')
         const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
 
         const updatedData = {
@@ -194,8 +193,6 @@ export const updateType = async (req, res) => {
         };
 
         if (imgPath) updatedData.img = imgPath;
-
-        console.log(req.params.id, updatedData);
 
         const type = await Type.findByIdAndUpdate(req.params.id, updatedData, {
             new: true,
