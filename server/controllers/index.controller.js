@@ -69,20 +69,30 @@ export const allParfums = async (req, res) => {
         const parfums = await Parfum.aggregate([
             {
                 $match: {
-                    status: 1 // Solo registros con status igual a 1
+                    status: 1 // Filtrar Parfum donde su status sea 1
                 }
             },
             {
                 $lookup: {
-                    from: "types", // Nombre de la colección de MongoDB
-                    localField: "_id", // Campo de referencia en Parfum
-                    foreignField: "parfum_id_fk", // Campo de referencia en Types
-                    as: "types" // Nombre del array resultante
+                    from: "types",
+                    let: { parfumId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$status", 1] } // Filtrar donde status en Types sea 1
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "types"
                 }
             },
             {
                 $match: {
-                    "types.0": { $exists: true } // Filtrar solo registros donde 'types' contenga al menos un objeto
+                    "types.0": { $exists: true } // Solo incluir Parfum si tiene al menos un Type asociado con status igual a 1
                 }
             },
             {
@@ -111,7 +121,7 @@ export const allParfums = async (req, res) => {
 
         res.json(parfums); // Responder con los datos combinados
     } catch (error) {
-        console.log(error.message)
+        console.log(error.message);
         res.status(500).json({ message: "Error al obtener los datos" });
     }
 };
