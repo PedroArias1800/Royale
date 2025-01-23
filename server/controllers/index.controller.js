@@ -10,15 +10,26 @@ export const parfumVersion = async (req, res) => {
         const parfums = await Parfum.aggregate([
             {
                 $match: {
-                    _id: new mongoose.Types.ObjectId(id) // Filtrar únicamente los Parfum donde status es igual a 1
+                    _id: new mongoose.Types.ObjectId(id)
                 }
             },
             {
                 $lookup: {
-                    from: "types", // Nombre de la colección de MongoDB (debe estar en minúscula/pluralizada por defecto)
-                    localField: "_id", // Campo de referencia en Parfum
-                    foreignField: "parfum_id_fk", // Campo de referencia en Types
-                    as: "types" // Nombre del array resultante que contendrá los datos de Types
+                    from: "types",
+                    localField: "_id",
+                    foreignField: "parfum_id_fk",
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$status", 1] }
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "types"
                 }
             },
             {
@@ -47,7 +58,7 @@ export const parfumVersion = async (req, res) => {
 
         res.json(parfums[0]); // Responder con los datos combinados
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: "Error al obtener los datos" });
     }
 };
@@ -100,7 +111,7 @@ export const allParfums = async (req, res) => {
 
         res.json(parfums); // Responder con los datos combinados
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: "Error al obtener los datos" });
     }
 };
@@ -115,8 +126,8 @@ export const parfumsBody = async (req, res) => {
             });
 
         res.json(bodies);
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.log(error.message)
         res.status(500).send("Error al obtener los bodies");
     }
 };
@@ -133,8 +144,8 @@ export const getTransaction = async (req, res) => {
         ])
 
         res.json(transaction);
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.log(error.message)
         res.status(500).send("Error al obtener las transacciones");
     }
 }
@@ -158,8 +169,8 @@ export const createTransaction = async (req, res) => {
     
         const transactionSaved = await newTransaction.save()
         res.json(transactionSaved);
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.log(error.message)
         res.status(500).send("Error al guardar la transacción");
     }
 };
@@ -191,7 +202,7 @@ export const updateTransaction = async (req, res) => {
         
         res.json(transactionReload);
     } catch (error) {
-        console.error("Error updating transaction status:", error);
+        console.log(error.message)
         res.status(500).json({ message: "Error updating transaction status" });
     }
 };

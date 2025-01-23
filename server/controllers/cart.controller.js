@@ -36,8 +36,8 @@ export const postCart = async (req, res) => {
         });
 
         res.json(result);
-    } catch (err) {
-        console.error(err);
+    } catch (error) {
+        console.log(error.message)
         res.status(500).send("Error al obtener los datos");
     }
 };

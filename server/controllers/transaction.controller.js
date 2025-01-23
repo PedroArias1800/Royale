@@ -37,7 +37,7 @@ export const getAllTransactions = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
@@ -116,7 +116,7 @@ export const getFilteredTransactions = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };

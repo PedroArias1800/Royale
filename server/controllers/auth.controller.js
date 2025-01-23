@@ -34,6 +34,7 @@ export const logIn = async(req, res) => {
             updatedAt: userFound.updatedAt
         })   
     } catch (error) {
+        console.log(error.message)
         res.status(500).json([error.message])
     }
 }
@@ -45,6 +46,7 @@ export const logOut = async(req, res) => {
         })
         return res.sendStatus(200)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "LogOut not Found" })
     }
 }
@@ -65,6 +67,7 @@ export const profile = async(req, res) => {
             updatedAt: userFound.updatedAt
         })
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Profile not Found" })
     }
 }
@@ -93,6 +96,7 @@ export const verifyToken = async (req, res) => {
             status: userFound.status,
         });
     } catch (error) {
+        console.log(error.message)
         return res.status(401).json([error]);
     }
 };

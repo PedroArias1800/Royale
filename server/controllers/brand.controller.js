@@ -8,6 +8,7 @@ export const getAllBrands = async(req, res) => {
 
         res.json(brands)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }
@@ -37,7 +38,7 @@ export const getBrands = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
@@ -77,7 +78,7 @@ export const getFilteredBrands = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: "Error al obtener los registros filtrados" });
     }
 };
@@ -88,6 +89,7 @@ export const getBrand = async(req, res) => {
         const brand = await Brand.findById(req.params.id)
         if (!brand) return res.status(404).json({ message: "Brand not Found" })
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }
@@ -103,6 +105,7 @@ export const createBrand = async(req, res) => {
         const brandSaved = await newBrand.save()
         res.json(brandSaved);
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }
@@ -115,6 +118,7 @@ export const updateBrand = async(req, res) => {
         if (!brand) return res.status(404).json({ message: "Brand not Found" })
         res.json(brand)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }
@@ -133,6 +137,7 @@ export const deleteBrand = async(req, res) => {
         if (!brand) return res.status(404).json({ message: "Brand not Found" })
             res.json(brand)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }

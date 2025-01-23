@@ -16,6 +16,7 @@ export const getAllParfums = async(req, res) => {
             .sort({ title: 1 });
         res.json(parfums)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Parfums not Found" })
     }
 }
@@ -89,7 +90,7 @@ export const getFilteredParfums = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: "Error al obtener los registros filtrados" });
     }
 };
@@ -128,7 +129,7 @@ export const getParfums = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los perfumes' });
     }
 };
@@ -138,6 +139,7 @@ export const getParfum = async(req, res) => {
         const parfum = await Parfum.findById(req.params.id)
         if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Parfum not Found" })
     }
 }
@@ -158,6 +160,7 @@ export const createParfum = async(req, res) => {
         const parfumSaved = await newParfum.save()
         res.json(parfumSaved);
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Parfum not Found" })
     }
 }
@@ -170,6 +173,7 @@ export const updateParfum = async(req, res) => {
         if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
         res.json(parfum)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Parfum not Found" })
     }
 }
@@ -193,6 +197,7 @@ export const deleteParfum = async(req, res) => {
         if (!parfum) return res.status(404).json({ message: "Parfum not Found" })
         res.json(parfum)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Parfum not Found" })
     }
 }

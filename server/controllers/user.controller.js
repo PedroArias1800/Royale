@@ -12,6 +12,7 @@ const getRol = (id) => {
             return 'Vendedor'
         }
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "GetRol not Found" })
     }
 }
@@ -21,7 +22,7 @@ export const getAllUsers = async (req, res) => {
         const Users = await User.find().select('firstname lastname email rol status');
         res.json(Users);
     } catch (error) {
-        console.error("Error al obtener los usuarios:", error);
+        console.log(error.message)
         res.status(500).send("Error al obtener los usuarios");
     }
 };
@@ -51,7 +52,7 @@ export const getUsers = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
@@ -88,6 +89,7 @@ export const postUser = async(req, res) => {
             updatedAt: userSaved.updatedAt
         })   
     } catch (error) {
+        console.log(error.message)
         res.status(500).json([error.message])
     }
 }
@@ -124,6 +126,7 @@ export const putUser = async(req, res) => {
             updatedAt: userUpdated.updatedAt
         })   
     } catch (error) {
+        console.log(error.message)
         res.status(500).json([error.message])
     }
 }

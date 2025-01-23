@@ -26,6 +26,7 @@ export const getParfumsGallery = (req, res) => {
             res.status(200).json({ images: imageFiles });
         });
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Image Gallery not Found" })
     }
 };
@@ -49,6 +50,7 @@ export const getParfumsIconGallery = (req, res) => {
             res.status(200).json({ images: imageFiles });
         });
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Image Gallery not Found" })
     }
 };

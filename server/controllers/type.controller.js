@@ -13,6 +13,7 @@ export const getAllTypes = async(req, res) => {
             });
         res.json(parfums)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Types not Found" })
     }
 }
@@ -45,7 +46,7 @@ export const getTypes = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
@@ -138,7 +139,7 @@ export const getFilteredTypes = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: "Error al obtener los registros filtrados" });
     }
 };
@@ -149,6 +150,7 @@ export const getType = async(req, res) => {
         const type = await Type.findById(req.params.id)
         if (!type) return res.status(404).json({ message: "Type not Found" })
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Type not Found" })
     }
 }
@@ -171,6 +173,7 @@ export const createType = async(req, res) => {
         const typeSaved = await newType.save()
         res.json(typeSaved);
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Type not Found" })
     }
 }
@@ -203,6 +206,7 @@ export const updateType = async (req, res) => {
         
         res.json(type);
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Type not Found" })
     }
 }
@@ -215,6 +219,7 @@ export const deleteType = async(req, res) => {
         if (!type) return res.status(404).json({ message: "Type not Found" })
         res.json(type)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Type not Found" })
     }
 }

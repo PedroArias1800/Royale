@@ -101,6 +101,37 @@ CREATE TABLE `parfum` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Estructura de tabla para la tabla `types`
+--
+
+CREATE TABLE `types` (
+  `types_id` int(8) NOT NULL,
+  `ml` varchar(10) NOT NULL,
+  `img` varchar(200) NOT NULL,
+  `price` double(10,2) NOT NULL,
+  `old_price` double(10,2) NOT NULL,
+  `status` int(1) NOT NULL,
+  `parfum_id_fk` int(8) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
+
+--
+-- Volcado de datos para la tabla `version`
+--
+
+INSERT INTO `version` (`version_id`, `version_name`, `description`, `created_at`, `updated_at`) VALUES
+(2, 'Eau De Parfum', 'Intensidad y elegancia en cada gota. Una fragancia duradera que envuelve tu piel con notas profundas y sofisticadas, ideal para destacar en ocasiones especiales o noches inolvidables.', '2024-12-17 19:49:24', '2024-12-19 15:02:01'),
+(3, 'Parfum', 'La esencia pura del lujo. Con una concentración excepcional, esta fragancia se adhiere a tu piel, ofreciendo una experiencia olfativa intensa y prolongada que te hará inolvidable.', '2024-12-17 19:49:24', '2024-12-19 15:02:15'),
+(4, 'Elixir', 'Una joya de alta perfumería. La máxima expresión de intensidad y refinamiento, diseñada para quienes buscan un aroma exclusivo y audaz que deja una huella inconfundible.', '2024-12-17 20:15:36', '2024-12-19 15:02:27'),
+(5, 'Eau de Toilette', 'Frescura en su máxima expresión. Una fragancia ligera y vibrante que realza tu personalidad con un toque sutil, perfecta para el día a día y momentos llenos de energía.', '2024-12-19 15:50:35', '2024-12-21 03:01:43');
+
+
 --
 -- Volcado de datos para la tabla `parfum`
 --
@@ -131,23 +162,6 @@ INSERT INTO `parfum` (`parfum_id`, `brand_id_fk`, `title`, `description`, `gende
 (23, 3, 'Phantom', 'Esta alucinante fragancia nació del atrevido encuentro de un energizante destello verde de limón y vetiver con una irresistible lavanda cremosa y vainilla amaderada.', 2, 1, 5, '2024-12-23 06:04:19', '2024-12-23 06:04:19'),
 (24, 3, 'One Million', 'Para una nueva generación masculina, aquel hombre que no teme lo extremo, confidente y poderoso, exitoso y excesivo, un hombre poderoso. El hombre que todos los demás hombres sueñan en convertirse, no es un hombre en un millón, es único y también lo es su perfume.', 2, 1, 5, '2024-12-23 06:08:33', '2024-12-23 06:08:33');
 
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `types`
---
-
-CREATE TABLE `types` (
-  `types_id` int(8) NOT NULL,
-  `ml` varchar(10) NOT NULL,
-  `img` varchar(200) NOT NULL,
-  `price` double(10,2) NOT NULL,
-  `old_price` double(10,2) NOT NULL,
-  `status` int(1) NOT NULL,
-  `parfum_id_fk` int(8) NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Volcado de datos para la tabla `types`
@@ -210,15 +224,6 @@ CREATE TABLE `version` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `version`
---
-
-INSERT INTO `version` (`version_id`, `version_name`, `description`, `created_at`, `updated_at`) VALUES
-(2, 'Eau De Parfum', 'Intensidad y elegancia en cada gota. Una fragancia duradera que envuelve tu piel con notas profundas y sofisticadas, ideal para destacar en ocasiones especiales o noches inolvidables.', '2024-12-17 19:49:24', '2024-12-19 15:02:01'),
-(3, 'Parfum', 'La esencia pura del lujo. Con una concentración excepcional, esta fragancia se adhiere a tu piel, ofreciendo una experiencia olfativa intensa y prolongada que te hará inolvidable.', '2024-12-17 19:49:24', '2024-12-19 15:02:15'),
-(4, 'Elixir', 'Una joya de alta perfumería. La máxima expresión de intensidad y refinamiento, diseñada para quienes buscan un aroma exclusivo y audaz que deja una huella inconfundible.', '2024-12-17 20:15:36', '2024-12-19 15:02:27'),
-(5, 'Eau de Toilette', 'Frescura en su máxima expresión. Una fragancia ligera y vibrante que realza tu personalidad con un toque sutil, perfecta para el día a día y momentos llenos de energía.', '2024-12-19 15:50:35', '2024-12-21 03:01:43');
 
 --
 -- Índices para tablas volcadas

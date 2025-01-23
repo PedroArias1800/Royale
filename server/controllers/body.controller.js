@@ -10,6 +10,7 @@ export const getAllBodies = async(req, res) => {
 
         res.json(bodies)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }
@@ -42,7 +43,7 @@ export const getBodies = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
@@ -104,7 +105,7 @@ export const getFilteredBodies = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: "Error al obtener los registros filtrados" });
     }
 };
@@ -115,6 +116,7 @@ export const getBody = async(req, res) => {
         const body = await Body.findById(req.params.id)
         if (!body) return res.status(404).json({ message: "Body not Found" })
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }
@@ -140,6 +142,7 @@ export const createBody = async(req, res) => {
         const bodySaved = await newBody.save()
         res.json(bodySaved);
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Brand not Found" })
     }
 }
@@ -160,6 +163,7 @@ export const updateBody = async(req, res) => {
         if (!body) return res.status(404).json({ message: "Body not Found" })
         res.json(body)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Body not Found" })
     }
 }
@@ -172,6 +176,7 @@ export const deleteBody = async(req, res) => {
         if (!body) return res.status(404).json({ message: "Body not Found" })
         res.json(body)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Body not Found" })
     }
 }

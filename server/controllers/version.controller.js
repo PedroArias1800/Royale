@@ -7,6 +7,7 @@ export const getAllVersions = async(req, res) => {
         .sort({version_name: 1});
         res.json(versions)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Versions not Found" })
     }
 }
@@ -36,7 +37,7 @@ export const getVersions = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
@@ -46,6 +47,7 @@ export const getVersion = async(req, res) => {
         const version = await Version.findById(req.params.id)
         if (!version) return res.status(404).json({ message: "Version not Found" })
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Version not Found" })
     }
 }
@@ -62,6 +64,7 @@ export const createVersion = async(req, res) => {
         const versionSaved = await newVersion.save()
         res.json(versionSaved);
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Version not Found" })
     }
 }
@@ -74,6 +77,7 @@ export const updateVersion = async(req, res) => {
         if (!version) return res.status(404).json({ message: "Version not Found" })
         res.json(version)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Version not Found" })
     }
 }
@@ -91,6 +95,7 @@ export const deleteVersion = async(req, res) => {
         if (!version) return res.status(404).json({ message: "Version not Found" })
         res.json(version)
     } catch (error) {
+        console.log(error.message)
         res.status(500).json({ message: "Version not Found" })
     }
 }
