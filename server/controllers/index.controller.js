@@ -68,11 +68,13 @@ export const allParfums = async (req, res) => {
     try {
         const parfums = await Parfum.aggregate([
             {
+                // Filtrar los Parfum con status 1
                 $match: {
-                    status: 1 // Filtrar Parfum donde su status sea 1
+                    status: 1
                 }
             },
             {
+                // Realizar el lookup con la colección Types
                 $lookup: {
                     from: "types",
                     let: { parfumId: "$_id" },
@@ -81,7 +83,8 @@ export const allParfums = async (req, res) => {
                             $match: {
                                 $expr: {
                                     $and: [
-                                        { $eq: ["$status", 1] } // Filtrar donde status en Types sea 1
+                                        { $eq: ["$parfum_id_fk", "$$parfumId"] }, // Relación entre Parfum y Types
+                                        { $eq: ["$status", 1] } // Filtrar Types con status 1
                                     ]
                                 }
                             }
@@ -91,11 +94,13 @@ export const allParfums = async (req, res) => {
                 }
             },
             {
+                // Filtrar únicamente Parfum donde existan Types asociados con status 1
                 $match: {
-                    "types.0": { $exists: true } // Solo incluir Parfum si tiene al menos un Type asociado con status igual a 1
+                    "types.0": { $exists: true } // Asegurarse de que la lista no esté vacía
                 }
             },
             {
+                // Realizar el lookup con la colección Versions
                 $lookup: {
                     from: "versions",
                     localField: "version_id_fk",
@@ -104,9 +109,11 @@ export const allParfums = async (req, res) => {
                 }
             },
             {
-                $unwind: "$version" // Desanidar la versión (si solo quieres un objeto en lugar de un array)
+                // Desanidar la versión (si solo quieres un objeto en lugar de un array)
+                $unwind: "$version"
             },
             {
+                // Realizar el lookup con la colección Brands
                 $lookup: {
                     from: "brands",
                     localField: "brand_id_fk",
@@ -115,7 +122,8 @@ export const allParfums = async (req, res) => {
                 }
             },
             {
-                $unwind: "$brand" // Desanidar la marca
+                // Desanidar la marca
+                $unwind: "$brand"
             }
         ]);
 
