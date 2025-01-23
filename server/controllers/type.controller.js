@@ -33,6 +33,13 @@ export const getTypes = async (req, res) => {
             .skip(skip)
             .limit(limit);
 
+        // Ordenar manualmente después del populate
+        types.sort((a, b) => {
+            const titleA = a.parfum_id_fk?.title?.toLowerCase() || '';
+            const titleB = b.parfum_id_fk?.title?.toLowerCase() || '';
+            return titleA.localeCompare(titleB);
+        });
+
         const total = await Type.countDocuments();
         const totalPages = Math.ceil(total / limit);
 
@@ -106,24 +113,26 @@ export const getFilteredTypes = async (req, res) => {
                     ...(statusFilter !== null
                         ? [{ status: statusFilter }]
                         : []),
-                    { "brand_id_fk.title": { $regex: filter, $options: "i" } },
+                    { "parfum_id_fk.title": { $regex: filter, $options: "i" } },
                 ],
               }
             : {};
 
         // Búsqueda con filtros y paginación
-        const parfums = await Parfum.find(query)
+        const parfums = await Type.find(query)
             .populate({
-                path: 'version_id_fk',
-                select: 'version_name',
-            })
-            .populate({
-                path: 'brand_id_fk',
-                select: 'brand_name',
+                path: 'parfum_id_fk',
+                select: 'title',
             })
             .skip(skip)
-            .limit(limit)
-            .sort({ createdAt: -1 });
+            .limit(limit);
+
+        // Ordenar manualmente después del populate
+        types.sort((a, b) => {
+            const titleA = a.parfum_id_fk?.title?.toLowerCase() || '';
+            const titleB = b.parfum_id_fk?.title?.toLowerCase() || '';
+            return titleA.localeCompare(titleB);
+        });
 
         // Conteo total de registros que coinciden con el filtro
         const total = await Parfum.countDocuments(query);
