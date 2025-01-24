@@ -103,19 +103,7 @@ export const getFilteredTypes = async (req, res) => {
             },
             {
                 $sort: { 'parfum.title': 1 }, // Ordenar por el campo `title` de la colección `parfum`
-            },
-            {
-                $skip: skip, // Paginación
-            },
-            {
-                $limit: limit, // Paginación
-            },
-            {
-                $project: {
-                    parfum: 1, // Incluye la información de la colección relacionada
-                    // Otros campos de tu modelo si es necesario
-                },
-            },
+            }
         ]);
 
         // Conteo total de registros que coinciden con el filtro
