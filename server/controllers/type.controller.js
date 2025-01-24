@@ -29,23 +29,30 @@ export const getTypes = async (req, res) => {
             {
                 $lookup: {
                     from: 'parfums', // Nombre de la colección relacionada
-                    localField: 'parfum_id_fk',
-                    foreignField: '_id',
-                    as: 'parfum',
+                    localField: 'parfum_id_fk', // Campo en `Type` que se relaciona con `_id` en `Parfum`
+                    foreignField: '_id', // Campo en `Parfum` que coincide con `localField`
+                    as: 'parfum', // Nombre del campo que contendrá los datos relacionados
                 },
             },
             {
-                $unwind: '$parfum', // Desempaquetar la referencia
+                $unwind: '$parfum', // Desempaqueta el array `parfum` para que sea un documento individual
             },
             {
-                $sort: { 'parfum.title': 1 }, // Ordenar por el campo `title` de la colección `parfum`
+                $sort: { 'parfum.title': 1 }, // Ordenar por el campo `title` de la colección `Parfum`
             },
             {
-                $skip: skip, // Paginación
+                $skip: skip, // Paginación: número de documentos a saltar
             },
             {
-                $limit: limit, // Paginación
-            }
+                $limit: limit, // Paginación: número máximo de documentos a devolver
+            },
+            {
+                $project: {
+                    _id: 1, // Incluye el ID del documento principal
+                    name: 1, // Incluye otros campos necesarios de la colección principal (`Type`)
+                    'parfum.title': 1, // Incluye el campo `title` de la colección relacionada
+                },
+            },
         ]);
         
 
