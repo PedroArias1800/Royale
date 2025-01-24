@@ -25,20 +25,38 @@ export const getTypes = async (req, res) => {
         
         const skip = (page - 1) * limit;
 
-        const types = await Type.find()
-            .populate({
-                path: 'parfum_id_fk',
-                select: 'title',
-            })
-            .skip(skip)
-            .limit(limit);
-
-        // Ordenar manualmente después del populate
-        types.sort((a, b) => {
-            const titleA = a.parfum_id_fk?.title?.toLowerCase() || '';
-            const titleB = b.parfum_id_fk?.title?.toLowerCase() || '';
-            return titleA.localeCompare(titleB);
-        });
+        const types = await Type.aggregate([
+            {
+                $lookup: {
+                    from: 'parfums', // Nombre de la colección relacionada
+                    localField: 'parfum_id_fk', // Campo en `Type` que se relaciona con `_id` en `Parfum`
+                    foreignField: '_id', // Campo en `Parfum` que coincide con `localField`
+                    as: 'parfum_data', // Nombre temporal del campo que contendrá los datos relacionados
+                },
+            },
+            {
+                $unwind: '$parfum_data', // Desempaqueta el array `parfum_data`
+            },
+            {
+                $sort: { 'parfum_data.title': 1 }, // Ordena por el campo `title` de la colección `Parfum`
+            },
+            {
+                $skip: skip, // Paginación: número de documentos a omitir
+            },
+            {
+                $limit: limit, // Paginación: número máximo de documentos a devolver
+            },
+            {
+                $addFields: {
+                    parfum_id_fk: '$parfum_data', // Mueve el contenido de `parfum_data` a `parfum_id_fk`
+                },
+            },
+            {
+                $project: {
+                    parfum_data: 0, // Elimina el campo temporal `parfum_data`
+                },
+            },
+        ]);        
 
         const total = await Type.countDocuments();
         const totalPages = Math.ceil(total / limit);
