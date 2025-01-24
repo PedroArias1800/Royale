@@ -89,21 +89,34 @@ export const getFilteredTypes = async (req, res) => {
             : {};
 
         // Búsqueda con filtros y paginación
-        const parfums = await Type.find(query)
-            .populate({
-                path: 'parfum_id_fk',
-                select: 'title',
-            })
-            .skip(skip)
-            .limit(limit)
-            .sort({'parfum_id_fk.title': 1});
-
-        // // Ordenar manualmente después del populate
-        // types.sort((a, b) => {
-        //     const titleA = a.parfum_id_fk?.title?.toLowerCase() || '';
-        //     const titleB = b.parfum_id_fk?.title?.toLowerCase() || '';
-        //     return titleA.localeCompare(titleB);
-        // });
+        const types = await Type.aggregate([
+            {
+                $lookup: {
+                    from: 'parfums', // Nombre de la colección relacionada
+                    localField: 'parfum_id_fk',
+                    foreignField: '_id',
+                    as: 'parfum',
+                },
+            },
+            {
+                $unwind: '$parfum', // Desempaquetar la referencia
+            },
+            {
+                $sort: { 'parfum.title': 1 }, // Ordenar por el campo `title` de la colección `parfum`
+            },
+            {
+                $skip: skip, // Paginación
+            },
+            {
+                $limit: limit, // Paginación
+            },
+            {
+                $project: {
+                    parfum: 1, // Incluye la información de la colección relacionada
+                    // Otros campos de tu modelo si es necesario
+                },
+            },
+        ]);
 
         // Conteo total de registros que coinciden con el filtro
         const total = await Parfum.countDocuments(query);
