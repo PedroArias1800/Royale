@@ -35,9 +35,6 @@ export const getTypes = async (req, res) => {
                 },
             },
             {
-                $unwind: '$parfum', // Desempaqueta el array `parfum` para que sea un documento individual
-            },
-            {
                 $sort: { 'parfum.title': 1 }, // Ordenar por el campo `title` de la colección `Parfum`
             },
             {
@@ -45,14 +42,7 @@ export const getTypes = async (req, res) => {
             },
             {
                 $limit: limit, // Paginación: número máximo de documentos a devolver
-            },
-            {
-                $project: {
-                    _id: 1, // Incluye el ID del documento principal
-                    name: 1, // Incluye otros campos necesarios de la colección principal (`Type`)
-                    'parfum.title': 1, // Incluye el campo `title` de la colección relacionada
-                },
-            },
+            }
         ]);
         
 
