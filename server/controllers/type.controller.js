@@ -74,27 +74,6 @@ export const getFilteredTypes = async (req, res) => {
             costFilter = 0;
         }
 
-        let priceFilter = null
-        if ("activado".toLowerCase().includes(filter)) {
-            priceFilter = 1;
-        } else if ("desactivado".toLowerCase().includes(filter)) {
-            priceFilter = 0;
-        }
-
-        let oldPriceFilter = null
-        if ("activado".toLowerCase().includes(filter)) {
-            oldPriceFilter = 1;
-        } else if ("desactivado".toLowerCase().includes(filter)) {
-            oldPriceFilter = 0;
-        }
-
-        let statusFilter = null
-        if ("activado".toLowerCase().includes(filter)) {
-            statusFilter = 1;
-        } else if ("desactivado".toLowerCase().includes(filter)) {
-            statusFilter = 0;
-        }
-        
         // Construcción de la consulta dinámica
         const query = filter
             ? {
@@ -103,15 +82,6 @@ export const getFilteredTypes = async (req, res) => {
                     { description: { $regex: filter, $options: "i" } },
                     ...(costFilter !== null
                         ? [{ cost: costFilter }]
-                        : []),
-                    ...(priceFilter !== null
-                        ? [{ price: priceFilter }]
-                        : []),
-                    ...(oldPriceFilter !== null
-                        ? [{ old_price: oldPriceFilter }]
-                        : []),
-                    ...(statusFilter !== null
-                        ? [{ status: statusFilter }]
                         : []),
                     { "parfum_id_fk.title": { $regex: filter, $options: "i" } },
                 ],
@@ -125,14 +95,15 @@ export const getFilteredTypes = async (req, res) => {
                 select: 'title',
             })
             .skip(skip)
-            .limit(limit);
+            .limit(limit)
+            .sort({'parfum_id_fk.title': 1});
 
-        // Ordenar manualmente después del populate
-        types.sort((a, b) => {
-            const titleA = a.parfum_id_fk?.title?.toLowerCase() || '';
-            const titleB = b.parfum_id_fk?.title?.toLowerCase() || '';
-            return titleA.localeCompare(titleB);
-        });
+        // // Ordenar manualmente después del populate
+        // types.sort((a, b) => {
+        //     const titleA = a.parfum_id_fk?.title?.toLowerCase() || '';
+        //     const titleB = b.parfum_id_fk?.title?.toLowerCase() || '';
+        //     return titleA.localeCompare(titleB);
+        // });
 
         // Conteo total de registros que coinciden con el filtro
         const total = await Parfum.countDocuments(query);
