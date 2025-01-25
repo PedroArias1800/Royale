@@ -38,14 +38,14 @@ export const getTypes = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: 'brands', // Nombre de la colección relacionada para obtener el `Brand`
-                    localField: 'parfum_data.brand_id_fk', // Campo en `Parfum` que se relaciona con `_id` en `Brand`
-                    foreignField: '_id', // Campo en `Brand` que coincide con `localField`
-                    as: 'brand_data', // Nombre temporal del campo que contendrá los datos relacionados
+                    from: 'versions', // Nombre de la colección relacionada para obtener el `Version`
+                    localField: 'parfum_data.version_id_fk', // Campo en `Parfum` que se relaciona con `_id` en `Version`
+                    foreignField: '_id', // Campo en `Version` que coincide con `localField`
+                    as: 'version_data', // Nombre temporal del campo que contendrá los datos relacionados
                 },
             },
             {
-                $unwind: '$brand_data', // Desempaqueta el array `brand_data`
+                $unwind: '$version_data', // Desempaqueta el array `version_data`
             },
             {
                 $sort: { 'parfum_data.title': 1 }, // Ordena por el campo `title` de la colección `Parfum`
@@ -58,13 +58,13 @@ export const getTypes = async (req, res) => {
             },
             {
                 $addFields: {
-                    // Concatenar el `title` de `Parfum` con el `title` de `Brand`
+                    // Concatenar el `title` de `Parfum` con el `title` de `Version`
                     parfum_id_fk: {
                         title: {
                             $concat: [
                                 '$parfum_data.title', // Título del Parfum
                                 ' - ', // Guion entre ambos títulos
-                                '$brand_data.brand_name', // Título del Brand
+                                '$version_data.version_name', // Título del Version
                             ],
                         },
                     },
@@ -73,7 +73,7 @@ export const getTypes = async (req, res) => {
             {
                 $project: {
                     parfum_data: 0, // Elimina el campo temporal `parfum_data`
-                    brand_data: 0,  // Elimina el campo temporal `brand_data`
+                    version_data: 0,  // Elimina el campo temporal `version_data`
                 },
             },
         ]);
