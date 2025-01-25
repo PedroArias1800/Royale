@@ -22,6 +22,7 @@ export const getTypes = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 15;
+        
         const skip = (page - 1) * limit;
 
         const types = await Type.aggregate([
@@ -37,17 +38,6 @@ export const getTypes = async (req, res) => {
                 $unwind: '$parfum_data', // Desempaqueta el array `parfum_data`
             },
             {
-                $lookup: {
-                    from: 'versions', // Nombre de la colección relacionada para obtener el `Version`
-                    localField: 'parfum_data.version_id_fk', // Campo en `Parfum` que se relaciona con `_id` en `Version`
-                    foreignField: '_id', // Campo en `Version` que coincide con `localField`
-                    as: 'version_data', // Nombre temporal del campo que contendrá los datos relacionados
-                },
-            },
-            {
-                $unwind: '$version_data', // Desempaqueta el array `version_data`
-            },
-            {
                 $sort: { 'parfum_data.title': 1 }, // Ordena por el campo `title` de la colección `Parfum`
             },
             {
@@ -58,25 +48,15 @@ export const getTypes = async (req, res) => {
             },
             {
                 $addFields: {
-                    // Concatenar el `title` de `Parfum` con el `title` de `Version`
-                    parfum_id_fk: {
-                        title: {
-                            $concat: [
-                                '$parfum_data.title', // Título del Parfum
-                                ' - ', // Guion entre ambos títulos
-                                '$version_data.version_name', // Título del Version
-                            ],
-                        },
-                    },
+                    parfum_id_fk: '$parfum_data', // Mueve el contenido de `parfum_data` a `parfum_id_fk`
                 },
             },
             {
                 $project: {
                     parfum_data: 0, // Elimina el campo temporal `parfum_data`
-                    version_data: 0,  // Elimina el campo temporal `version_data`
                 },
             },
-        ]);
+        ]);        
 
         const total = await Type.countDocuments();
         const totalPages = Math.ceil(total / limit);
@@ -91,7 +71,7 @@ export const getTypes = async (req, res) => {
             },
         });
     } catch (error) {
-        console.log(error.message);
+        console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };

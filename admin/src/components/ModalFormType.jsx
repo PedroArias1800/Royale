@@ -229,7 +229,7 @@ export const ModalFormType = ({ modalData }) => {
                         <option value="" disabled>Selecciona una opción</option>
                         {parfums.map((parfum) => (
                             <option key={parfum._id} value={parfum._id}>
-                                {parfum.title}
+                                {parfum.title} - {parfum.version_id_fk.version_name}
                             </option>
                         ))}
                     </select>
