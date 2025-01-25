@@ -188,7 +188,7 @@
     }
     .semiFooter div{
         width: 80%;
-        margin: 2vh 0;
+        margin: 2vh auto;
     }
     .logoRoyaleFooter{
         max-width: 150px;

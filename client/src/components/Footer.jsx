@@ -27,7 +27,7 @@ export const Footer = () => {
             <div className='semiFooter'>
                 <div>
                     <HashLink to={'/#MasBuscados'}>
-                        <img className='logoRoyaleFooter' src="icons/RoyalePanama.png" alt="Logo de Royale"/>
+                        <img className='logoRoyaleFooter' src="icons/RoyalePanama2.png" alt="Logo de Royale"/>
                     </HashLink>
                 </div>
                 <div>
