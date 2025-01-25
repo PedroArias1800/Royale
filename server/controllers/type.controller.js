@@ -22,7 +22,6 @@ export const getTypes = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
         const limit = 15;
-        
         const skip = (page - 1) * limit;
 
         const types = await Type.aggregate([
@@ -38,6 +37,17 @@ export const getTypes = async (req, res) => {
                 $unwind: '$parfum_data', // Desempaqueta el array `parfum_data`
             },
             {
+                $lookup: {
+                    from: 'brands', // Nombre de la colección relacionada para obtener el `Brand`
+                    localField: 'parfum_data.brand_id_fk', // Campo en `Parfum` que se relaciona con `_id` en `Brand`
+                    foreignField: '_id', // Campo en `Brand` que coincide con `localField`
+                    as: 'brand_data', // Nombre temporal del campo que contendrá los datos relacionados
+                },
+            },
+            {
+                $unwind: '$brand_data', // Desempaqueta el array `brand_data`
+            },
+            {
                 $sort: { 'parfum_data.title': 1 }, // Ordena por el campo `title` de la colección `Parfum`
             },
             {
@@ -48,15 +58,25 @@ export const getTypes = async (req, res) => {
             },
             {
                 $addFields: {
-                    parfum_id_fk: '$parfum_data', // Mueve el contenido de `parfum_data` a `parfum_id_fk`
+                    // Concatenar el `title` de `Parfum` con el `title` de `Brand`
+                    parfum_id_fk: {
+                        title: {
+                            $concat: [
+                                '$parfum_data.title', // Título del Parfum
+                                ' - ', // Guion entre ambos títulos
+                                '$brand_data.title', // Título del Brand
+                            ],
+                        },
+                    },
                 },
             },
             {
                 $project: {
                     parfum_data: 0, // Elimina el campo temporal `parfum_data`
+                    brand_data: 0,  // Elimina el campo temporal `brand_data`
                 },
             },
-        ]);        
+        ]);
 
         const total = await Type.countDocuments();
         const totalPages = Math.ceil(total / limit);
@@ -71,7 +91,7 @@ export const getTypes = async (req, res) => {
             },
         });
     } catch (error) {
-        console.log(error.message)
+        console.log(error.message);
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
