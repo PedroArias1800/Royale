@@ -64,7 +64,7 @@ export const getTypes = async (req, res) => {
                             $concat: [
                                 '$parfum_data.title', // Título del Parfum
                                 ' - ', // Guion entre ambos títulos
-                                '$brand_data.title', // Título del Brand
+                                '$brand_data.brand_name', // Título del Brand
                             ],
                         },
                     },
