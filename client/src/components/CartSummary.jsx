@@ -4,7 +4,7 @@ import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { Link } from 'react-router-dom';
 import { ParfumContext } from "../context/ParfumContext";
 const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
-const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://93.188.162.15:5173'
+const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'https://www.royalepanama.com'
 
 export const CartSummary = ({ product }) => {
   // Estado para mostrar el modal de confirmación
