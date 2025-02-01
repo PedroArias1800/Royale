@@ -88,9 +88,13 @@ export const DataTable = ({ data, idCategory }) => {
                       <p key={id}>{item}</p>
                     ))
                     : <p>{row[header]}</p>
-                  : (["img", "back_img", "parfum_img"].includes(header)) && row[header]
-                  ? <img src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100px", height: "100px", margin: 'auto !important' }} />
-                  : row[header]
+                    : (["img", "back_img", "parfum_img"].includes(header)) && row[header]
+                    ? <img src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100px", height: "100px", margin: 'auto !important' }} />
+                    : (["media"].includes(header)) && row[header]
+                      ? row[header]?.includes('.mp4') || row[header]?.includes(".webm") || row[header]?.includes(".ogg") 
+                        ? <video src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100%", height: "200px", margin: 'auto !important' }} autoPlay={true} />
+                        : <img src={`${URLServer}${row[header]}`} alt={row[header]} style={{ width: "100%", height: "200px", margin: 'auto !important', objectFit: 'contain'}} />
+                    : row[header]
                 }
               </td>
             ))}

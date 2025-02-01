@@ -4,6 +4,8 @@ export const FRONTEND_URL = process.env.FRONTEND_URL || "http://93.188.162.15:51
 export const FRONTEND_URL_DOMAIN_CERTIFICATE = process.env.FRONTEND_URL_DOMAIN_CERTIFICATE || "https://royalepanama.com";
 export const FRONTEND_URL_DOMAIN_CERTIFICATE_WWW = process.env.FRONTEND_URL_DOMAIN_CERTIFICATE_WWW || "https://www.royalepanama.com";
 export const ADMIN_URL = process.env.ADMIN_URL || "http://93.188.162.15:5174";
+export const FRONTEND_URL_LOCAL = process.env.FRONTEND_URL_LOCAL || "http://localhost:5173";
+export const ADMIN_URL_LOCAL = process.env.ADMIN_URL_LOCAL || "http://localhost:5174";
 
 export const DB_HOST = process.env.DB_HOST || 'dpg-ctkseglds78s73c2disg-a';
 export const DB_PORT = process.env.DB_PORT || '5432';

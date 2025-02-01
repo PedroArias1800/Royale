@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { getParfumsBodyRequest } from '../api/Parfum.api.js';
 const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
-const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'https://www.royalepanama.com'
 
 export const BodyInicial = () => {
 

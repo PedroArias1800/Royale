@@ -257,6 +257,9 @@
     .listCart{
         height: auto !important;
     }
+    .banner-carousel-item {
+        height: 50vh;
+    }
 }
 
 @media only screen and (max-width: 600px) {
@@ -328,6 +331,9 @@
     .seccionMail{
         display: block !important;
     }
+    .banner-carousel-item {
+        height: 40vh;
+    }
 }
 @media only screen and (max-width: 450px) {
     .menuDesplegable{
@@ -356,4 +362,8 @@
         justify-content: center;
         grid-template-columns: repeat(auto-fit, minmax(250px, auto)) !important;
     }
+    .banner-carousel-item {
+        height: 30vh;
+    }
+
 }

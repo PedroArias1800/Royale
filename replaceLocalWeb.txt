@@ -1,0 +1,4 @@
+de https://api.royalepanama.com a http://localhost:4001
+de https://www.royalepanama.com a http://localhost:5173
+de https://royalepanama.com a http://localhost:5173 en DataTable.jsxx de Admin (5)
+de http://93.188.162.15:5174 a http://localhost:5174

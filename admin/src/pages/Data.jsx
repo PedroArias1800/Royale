@@ -49,6 +49,10 @@ export const Data = () => {
             else if (user?.rol == 1 && id == 7){
                 setConsulta('Transacciones')
             }
+            else if (id == 8){
+                setConsulta('Promociones')
+            }
+
     
             await cargarDataTables(id, page);
         }

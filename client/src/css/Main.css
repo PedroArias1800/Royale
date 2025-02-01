@@ -82,6 +82,68 @@ body {
   transition: all .35s;
 }
 
+
+/* Banner de Promociones */
+.banner-carousel-container {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.banner-carousel {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.banner-carousel-item {
+  min-width: 100%;
+  height: 85vh;
+  box-sizing: border-box;
+  text-align: center;
+  background: cover;
+  background: radial-gradient(circle, var(--color-rojo) 70%, var(--color-rojo-2) 100%);
+}
+
+.banner-carousel-media {
+  max-width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  text-align: center;
+}
+.banner-carousel-img {
+  width: auto !important;
+}
+
+
+.carousel-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: transparent;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 2rem;
+  padding: 1px 10px;
+  cursor: pointer;
+  z-index: 10;
+  transition: all .35s ease;
+}
+
+.prev-btn {
+  left: 10px;
+}
+
+.next-btn {
+  right: 10px;
+}
+
+.carousel-btn:hover {
+  background-color: var(--color-rojo);
+}
+
+
+
 .content{
   background-size: cover;
   background-position: center;

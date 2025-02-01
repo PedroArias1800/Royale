@@ -36,6 +36,11 @@ export const getUsersRequest = async (page = 1) =>
 export const getAllUsersRequest = async () =>
     await axios.get(`/api/users/all`)
 
+export const getPromotionsRequest = async (page = 1) =>
+    await axios.get(`/api/promotions?page=${page}`)
+
+export const getAllPromotionsRequest = async () =>
+    await axios.get(`/api/promotions/all`)
 
 export const getTransactionsRequest = async () =>
     await axios.get(`/transaction`, { 
