@@ -78,6 +78,7 @@ export const profile = async(req, res) => {
 export const verifyToken = async (req, res) => {
     try {
         const { token } = req.cookies;
+        console.log(token)
         if (!token) return res.status(401).json(["No token, authorization denied"]);
 
         const user = await new Promise((resolve, reject) => {
