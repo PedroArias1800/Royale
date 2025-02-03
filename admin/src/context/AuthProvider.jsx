@@ -118,26 +118,18 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
         async function checkLogin () {
-            const cookie = Cookies.get()
-            if (cookie.token){
-                try{
-                    const res = await verifyTokenRequest(cookie.token)
-                    // if (!res.data) return setIsAuthenticated(false)
-                    console.log('Entro en el TRY', res)
-                    // setIsAuthenticated(true)
-                    // setUser(res.data)
-                } catch(err) {
-                    console.log('Entro en el CATCH', cookie, err)
-                    setIsAuthenticated(false)
-                    setUser(null)
-                    // navigate('/login')
-                } 
-            } else {
-                console.log('Entro en el ELSE', cookie)
+            try{
+                const res = await verifyTokenRequest()
+                // if (!res.data) return setIsAuthenticated(false)
+                console.log('Entro en el TRY', res)
+                // setIsAuthenticated(true)
+                // setUser(res.data)
+            } catch(err) {
+                console.log('Entro en el CATCH', err)
                 setIsAuthenticated(false)
                 setUser(null)
                 // navigate('/login')
-            }
+            } 
         }
         checkLogin()
     }, [])

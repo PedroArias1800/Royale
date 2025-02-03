@@ -85,8 +85,6 @@ export const postUser = async(req, res) => {
             maxAge: 1000 * 60 * 60 * 24 * 365, // 1 año de duración
             path: '/'
         });
-        console.log(token)
-        console.log(res.cookie)
 
         res.json({
             id: userSaved._id,
