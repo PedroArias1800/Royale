@@ -19,7 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { io } from 'socket.io-client';
 const URLServer = 'https://api.royalepanama.com'
 const URLFrontend = 'https://royalepanama.com'
-const URLAdmin = 'http://93.188.162.15:5174'
+const URLAdmin = 'https://admin.royalepanama.com'
 const socket = io(URLServer, {
   transports: ['websocket'],  // Forzar WebSocket
 });

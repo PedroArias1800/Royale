@@ -4,25 +4,26 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { TOKEN_SECRET } from '../config.js'
 
-export const logIn = async(req, res) => {
+export const logIn = async (req, res) => {
     try {
-        const { email, password } = req.body
+        const { email, password } = req.body;
 
-        const userFound = await User.findOne({email})
-        if (!userFound) return res.status(400).json(["Invalid Credentials"])
+        const userFound = await User.findOne({ email });
+        if (!userFound) return res.status(400).json(["Invalid Credentials"]);
 
-        const isMatch = await bcrypt.compare(password, userFound.password)
-        if (!isMatch) return res.status(400).json(["Invalid Credentials"])
+        const isMatch = await bcrypt.compare(password, userFound.password);
+        if (!isMatch) return res.status(400).json(["Invalid Credentials"]);
 
-        const token = await createAccessToken({ id: userFound._id })
-    
+        const token = await createAccessToken({ id: userFound._id });
+
         res.cookie('token', token, {
             httpOnly: true,
-            secure: true,  // Solo en producción con HTTPS
-            sameSite: 'None',  // Permite cookies cross-site
-            expires: new Date(Date.now() + 3600000), // Expira en 1 hora
+            secure: true,      // Solo en producción con HTTPS
+            sameSite: 'None',  // Permite cookies cross-site si es necesario
+            maxAge: 1000 * 60 * 60 * 24 * 365, // 1 año de duración
             path: '/'
         });
+
         res.json({
             id: userFound._id,
             firstname: userFound.firstname,
@@ -32,12 +33,13 @@ export const logIn = async(req, res) => {
             status: userFound.status,
             createdAt: userFound.createdAt,
             updatedAt: userFound.updatedAt
-        })   
+        });
     } catch (error) {
-        console.log(error.message)
-        res.status(500).json([error.message])
+        console.log(error.message);
+        res.status(500).json([error.message]);
     }
-}
+};
+
 
 export const logOut = async(req, res) => {
     try{
