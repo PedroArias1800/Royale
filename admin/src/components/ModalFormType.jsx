@@ -3,10 +3,9 @@ import { getAllParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
 import { getParfumsIconGallery } from '../api/Img.api.js'
-const URLServer = 'https://api.royalepanama.com'
 
 export const ModalFormType = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert, URLServer } = useAuth();
     const [parfums, setParfum] = useState([]);
     const [parfumsGallery, setParfumsGallery] = useState([]);
     const [required, setRequired] = useState(Boolean(modalData?._id))

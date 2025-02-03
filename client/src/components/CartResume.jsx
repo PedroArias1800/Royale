@@ -1,12 +1,11 @@
-import React, { useMemo, useContext, useState } from 'react';
-import { ParfumContext } from "../context/ParfumContext";
+import { useMemo, useState } from 'react';
 import { PaymentModal } from './PaymentModal';
 import { postPagarRequest, postTransactionRequest } from '../api/Cart.api';
+import { useParfum } from '../context/ParfumContext'
 
 
 export const CartResume = ({ products }) => {
-  const URL = import.meta.env.VITE_FRONTEND_URL || 'https://www.royalepanama.com'
-  const { cart, clearCart } = useContext(ParfumContext);  // Obtenemos el carrito desde el contexto
+  const { cart, clearCart, URLFrontend } = useParfum();  // Obtenemos el carrito desde el contexto
   const [isModalOpen, setModalOpen] = useState(false);
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
@@ -117,7 +116,7 @@ export const CartResume = ({ products }) => {
       message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
       message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
       message += `Cantidad: ${item.quantity}\n`;
-      message += `Enlace: ${URL}/parfum?id=${item.parfum_id}\n\n`;
+      message += `Enlace: ${URLFrontend}/parfum?id=${item.parfum_id}\n\n`;
     });
   
     const total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);

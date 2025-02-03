@@ -20,6 +20,8 @@ export const ParfumContextProvider = ({ children }) => {
     const [alertMessage, setAlertMessage] = useState();
     const [color, setColor] = useState();
     const [color2, setColor2] = useState();
+    const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com';
+    const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'https://royalepanama.com'
 
     useEffect(() => {
         localStorage.setItem("cart", JSON.stringify(cart));
@@ -159,7 +161,7 @@ export const ParfumContextProvider = ({ children }) => {
       };
         
 
-    return <ParfumContext.Provider value={{ cart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2 }}>
+    return <ParfumContext.Provider value={{ cart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend }}>
         {children}
     </ParfumContext.Provider>
 

@@ -2,11 +2,12 @@ import { faBookmark, faTag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
+import { useParfum } from '../context/ParfumContext'
 
 export const Card = ({element, cardsRef, index, width100}) => {
 
     const [width, setWidth] = useState(false);
+    const { URLServer } = useParfum();
 
     useEffect(() => {
         if (element?.types[0]?.align == 'auto'){

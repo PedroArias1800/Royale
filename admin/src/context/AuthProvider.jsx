@@ -18,9 +18,12 @@ import { useNavigate } from "react-router-dom";
 
 import { io } from 'socket.io-client';
 const URLServer = 'https://api.royalepanama.com'
+const URLFrontend = 'https://royalepanama.com'
+const URLAdmin = 'http://93.188.162.15:5174'
 const socket = io(URLServer, {
   transports: ['websocket'],  // Forzar WebSocket
 });
+
 
 
 export const AuthContext = createContext();
@@ -259,7 +262,7 @@ export const AuthProvider = ({ children }) => {
     }
 
 
-    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction, filtrarData }}>
+    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction, filtrarData, URLServer, URLFrontend, URLAdmin }}>
         {children}
         <div className='mostrarAlerta'>
             <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>

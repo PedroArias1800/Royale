@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { getAllParfumsRequest } from '../api/Admin.api';
 import { postBodiesRequest, putBodiesRequest, deleteBodiesRequest } from '../api/Body.api';
 import { useAuth } from '../context/AuthProvider';
-const URLServer = 'https://api.royalepanama.com';
 
 export const ModalFormBody = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert, URLServer } = useAuth();
     const [parfums, setParfums] = useState([]);
     const isUpdate = Boolean(modalData?._id);
 

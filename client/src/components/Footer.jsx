@@ -3,11 +3,10 @@ import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faInstagram, faTwitter, faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 import { faEnvelope } from '@fortawesome/free-solid-svg-icons';
-import { ParfumContext } from '../context/ParfumContext';
-import { useContext } from 'react';
+import { useParfum } from '../context/ParfumContext';
 
 export const Footer = () => {
-    const { openModal } = useContext(ParfumContext);
+    const { openModal } = useParfum();
 
     const returnWhatsapp = () => {
         const userAgent = navigator.userAgent.toLowerCase();

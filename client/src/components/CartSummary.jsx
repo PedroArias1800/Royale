@@ -1,18 +1,14 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { Link } from 'react-router-dom';
-import { ParfumContext } from "../context/ParfumContext";
-const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
-const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'https://www.royalepanama.com'
+import { useParfum } from '../context/ParfumContext'
 
 export const CartSummary = ({ product }) => {
   // Estado para mostrar el modal de confirmación
   const [showModal, setShowModal] = useState(false);
   const [nodeDrop, setNodeDrop] = useState({});
-
-  // Obtén las funciones y el estado del carrito del contexto
-  const { cart, addToCart, decreaseQuantity, removeFromCart } = useContext(ParfumContext);
+  const { cart, addToCart, decreaseQuantity, removeFromCart, URLServer, URLFrontend } = useParfum();
 
   // Encuentra la cantidad del producto en el carrito
   const currentItem = cart.find(

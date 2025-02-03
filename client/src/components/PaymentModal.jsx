@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { ParfumContext } from "../context/ParfumContext";
 
 export const PaymentModal = ({ isOpen, onClose, onSubmit }) => {

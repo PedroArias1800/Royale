@@ -2,10 +2,9 @@ import { useEffect, useState } from 'react';
 import { getAllPromotionsRequest } from '../api/Admin.api';
 import { postPromotionsRequest, putPromotionsRequest, deletePromotionsRequest } from '../api/Promotion.api';
 import { useAuth } from '../context/AuthProvider';
-const URLServer = 'https://api.royalepanama.com'
 
 export const ModalFormPromotion = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert, URLServer } = useAuth();
     const [promotions, setPromotion] = useState([]);
     const isUpdate = Boolean(modalData?._id)
     

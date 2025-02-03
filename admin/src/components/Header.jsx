@@ -4,10 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCheck, faInbox } from '@fortawesome/free-solid-svg-icons';
 import { getTransactionsRequest, putTransactionsRequest } from '../api/Admin.api.js';
-const URLAdmin = 'http://93.188.162.15:5174'
 
 export const Header = () => {
-  const { isAuthenticated, closeSession, transaction, setTransaction, user } = useAuth();
+  const { isAuthenticated, closeSession, transaction, setTransaction, user, URLAdmin } = useAuth();
   const [mostrarSesion, setMostrarSesion] = useState(false)
   const [showTransaction, setShowTransaction] = useState(false)
   const navigate = useNavigate();

@@ -1,8 +1,7 @@
-import { useContext } from 'react';
-import { ParfumContext } from '../context/ParfumContext';
+import { useParfum } from '../context/ParfumContext';
 
 export const PrivacyTermModal = () => {
-    const { isModalOpen, modalContent, closeModal } = useContext(ParfumContext);
+    const { isModalOpen, modalContent, closeModal } = useParfum();
 
     if (!isModalOpen) return null;
 

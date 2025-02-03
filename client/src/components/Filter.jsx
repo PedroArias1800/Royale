@@ -1,7 +1,7 @@
 import { faChevronDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { HashLink } from "react-router-hash-link";
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export const Filter = ({ onFilter, brands, type }) => {
   const [search, setSearch] = useState("");

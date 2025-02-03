@@ -1,17 +1,17 @@
-import React, { useEffect, useState, useContext } from 'react';
+import { useEffect, useState } from 'react';
 import { CartSummary } from '../components/CartSummary';
 import { CartResume } from '../components/CartResume';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShoppingCart } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { postCartRequest } from '../api/Cart.api.js';
-import { ParfumContext } from "../context/ParfumContext";
+import { useParfum } from "../context/ParfumContext";
 import { Alert } from '../components/Alert.jsx';
 
 export const Cart = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { getTotalQuantity, alertMessage, color, color2, setAlertMessage } = useContext(ParfumContext);
+  const { getTotalQuantity, alertMessage, color, color2, setAlertMessage } = useParfum();
 
   // Cargar el carrito del localStorage y obtener los datos desde la API
   useEffect(() => {

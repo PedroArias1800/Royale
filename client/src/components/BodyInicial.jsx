@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
 import { getParfumsBodyRequest } from '../api/Parfum.api.js';
-const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
+import { useParfum } from '../context/ParfumContext';
 
 export const BodyInicial = () => {
 
     const [bodyContent, setBodyContent] = useState([])
-
     const [hovered, setHovered] = useState(false);
+    const { URLServer } = useParfum();
 
     const handleMouseEnter = () => setHovered(true);
     const handleMouseLeave = () => setHovered(false);

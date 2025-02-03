@@ -3,37 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faUser, faHeart, faCartShopping } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router-dom';
 import { HashLink } from 'react-router-hash-link';
-import { useState, useRef, useContext } from 'react';
-import { ParfumContext } from "../context/ParfumContext";
+import { useState } from 'react';
+import { useParfum } from "../context/ParfumContext";
 
 export const Header = () => {
-  const formRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
-  const [isInputValid, setIsInputValid] = useState(true); // Estado para la validación del input
-
-  const { getTotalQuantity } = useContext(ParfumContext);
+  const { getTotalQuantity } = useParfum();
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
-  };
-
-  const submitForm = (event) => {
-    event.preventDefault(); // Previene el envío del formulario por defecto
-
-    // Obtener el valor del input
-    const input = formRef.current.querySelector('input');
-
-    // Verificar si el campo está vacío
-    if (input.value.trim() === '') {
-      setIsInputValid(false); // Cambiar el estado para indicar que el campo es inválido
-    } else {
-      setIsInputValid(true); // Campo válido, envía el formulario
-      formRef.current.submit();
-    }
-  };
-
-  const handleFocus = () => {
-    setIsInputValid(true); // Restablece el estado a válido cuando el input recibe el foco
   };
   
 return (

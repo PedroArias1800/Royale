@@ -1,15 +1,15 @@
 import { faBookmark, faShare } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
 import { Alert } from '../components/Alert'
 import { Link } from 'react-router-dom';
-const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
-const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://royalepanama.com'
+import { useParfum } from '../context/ParfumContext'
 
 export const ParfumInfo = ({ product }) => {
   const [selectedType, setSelectedType] = useState();
   const [alertMessage, setAlertMessage] = useState("");
+  const { URLServer, URLFrontend } = useParfum();
 
   const { addToCart } = useContext(ParfumContext);
 

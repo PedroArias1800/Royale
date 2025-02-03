@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com';
+import { useParfum } from '../context/ParfumContext'
 
 export const BannerPromos = ({ data }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [intervalId, setIntervalId] = useState(null);
+    const { URLServer } = useParfum();
 
     // Iniciar el contador cada 5 segundos
     useEffect(() => {
