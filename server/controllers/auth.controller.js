@@ -18,6 +18,7 @@ export const logIn = async (req, res) => {
 
         res.cookie('token', token, {
             httpOnly: true,
+            domain: '.royalepanama.com',
             secure: true,      // Solo en producción con HTTPS
             sameSite: 'None',  // Permite cookies cross-site si es necesario
             maxAge: 1000 * 60 * 60 * 24 * 365, // 1 año de duración
