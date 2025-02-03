@@ -120,15 +120,13 @@ export const AuthProvider = ({ children }) => {
         async function checkLogin () {
             try{
                 const res = await verifyTokenRequest()
-                // if (!res.data) return setIsAuthenticated(false)
-                console.log('Entro en el TRY', res)
-                // setIsAuthenticated(true)
-                // setUser(res.data)
+                if (!res.data) return setIsAuthenticated(false)
+                setIsAuthenticated(true)
+                setUser(res.data)
             } catch(err) {
-                console.log('Entro en el CATCH', err)
                 setIsAuthenticated(false)
                 setUser(null)
-                // navigate('/login')
+                navigate('/login')
             } 
         }
         checkLogin()
