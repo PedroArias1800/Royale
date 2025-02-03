@@ -122,19 +122,21 @@ export const AuthProvider = ({ children }) => {
             if (cookie.token){
                 try{
                     const res = await verifyTokenRequest(cookie.token)
-                    if (!res.data) return setIsAuthenticated(false)
-    
-                    setIsAuthenticated(true)
-                    setUser(res.data)
+                    // if (!res.data) return setIsAuthenticated(false)
+                    console.log('Entro en el TRY', res)
+                    // setIsAuthenticated(true)
+                    // setUser(res.data)
                 } catch(err) {
+                    console.log('Entro en el CATCH', cookie, err)
                     setIsAuthenticated(false)
                     setUser(null)
-                    navigate('/login')
+                    // navigate('/login')
                 } 
             } else {
+                console.log('Entro en el ELSE', cookie)
                 setIsAuthenticated(false)
                 setUser(null)
-                navigate('/login')
+                // navigate('/login')
             }
         }
         checkLogin()
