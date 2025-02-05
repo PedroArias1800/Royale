@@ -1,12 +1,18 @@
 import { useMemo, useState } from 'react';
 import { PaymentModal } from './PaymentModal';
-import { postPagarRequest, postTransactionRequest } from '../api/Cart.api';
+import { postPagarRequest, postTransactionRequest, getCuponRequest } from '../api/Cart.api';
 import { useParfum } from '../context/ParfumContext'
 
 
 export const CartResume = ({ products }) => {
   const { cart, clearCart, URLFrontend } = useParfum();  // Obtenemos el carrito desde el contexto
   const [isModalOpen, setModalOpen] = useState(false);
+  const [percentage, setPercentage] = useState(0);
+  const [dataCupon, setDataCupon] = useState({
+    _id: '',
+    valido: false,
+    texto: '¿Tienes un cupón de descuento?'
+  });
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
@@ -90,7 +96,8 @@ export const CartResume = ({ products }) => {
       direction: data.address,
       email: data.email,
       subTotal: subTotal.toFixed(2),
-      total: totalPrice.toFixed(2),
+      total: (totalPrice.toFixed(2)-(totalPrice.toFixed(2)*percentage/100).toFixed(2)).toFixed(2),
+      code: dataCupon._id,
       products: productsId,
       productsTypes: typesId,
       quantities: quantities,
@@ -119,8 +126,12 @@ export const CartResume = ({ products }) => {
       message += `Enlace: ${URLFrontend}/parfum?id=${item.parfum_id}\n\n`;
     });
   
-    const total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
-    message += `Total: $${total.toFixed(2)}\n\n`;
+    let total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
+    if (dataCupon.valido){
+      message += `Cupón: ${dataCupon.code}, -${(total*percentage/100).toFixed(2)} (-${dataCupon.texto})\n\n`;
+      total = (total-(total*percentage/100).toFixed(2)).toFixed(2)
+    }
+    message += `Total: $${total}\n\n`;
     message += `Me puedes contactar de la siguiente manera:\n`;
     message += `Número de Teléfono: +507 ${data.phone}\n`;
     message += `Correo: ${data.email}`;
@@ -155,6 +166,24 @@ export const CartResume = ({ products }) => {
 
     window.open(whatsappURL, "_blank");
   };
+
+  const searchCupon = async () => {
+    const cupon = document.getElementById('cupon').value
+    try{
+      const response = await getCuponRequest(cupon)
+      setDataCupon(response.data)
+      setPercentage(response.data.percentage)
+    } catch (error) {
+      console.log(error)
+      setDataCupon({
+        _id: '',
+        valido: false,
+        texto: 'Cupón no Válido'
+      })     
+    }
+  }
+
+
   return (
     <div className='cardResume'>
       <h2>Resumen del Pedido</h2>
@@ -174,10 +203,21 @@ export const CartResume = ({ products }) => {
           <p>Promociones</p>
           <p style={{ 'color': 'red' }}>-${totalSavings.toFixed(2)}</p>
         </div>
+        <div className='liResumen' style={{display: dataCupon.valido ? 'flex' : 'none'}}>
+          <p>Cupón</p>
+          <p style={{ 'color': 'red' }}>-${(totalPrice.toFixed(2)*percentage/100).toFixed(2)} (-{dataCupon.percentage}%)</p>
+        </div>
+        <input type="hidden" name="codeId" id="codeId" value={dataCupon._id}/>
+        <p style={{fontSize: '14px', color: dataCupon.valido ? 'var(--color-rojo)' : 'black', margin: '0px'}}>{dataCupon.texto}</p>
+        <div className='liResumen' style={{marginTop: '4px'}}>
+          <input type="text" className='cuponRoyale' name='cupon' id='cupon' placeholder='CUPONROYALE' readOnly={dataCupon.valido}
+            style={{color: dataCupon.valido ? 'grey' : 'black'}} />
+          <button onClick={(e) => {e.preventDefault(); searchCupon()}} className='anadirCupon' disabled={dataCupon.valido}>Añadir</button>
+        </div>
         <hr />
         <div className='liResumen'>
           <p>Total</p>
-          <p>${totalPrice.toFixed(2)}</p>
+          <p>${(totalPrice.toFixed(2)-(totalPrice.toFixed(2)*percentage/100).toFixed(2)).toFixed(2)}</p>
         </div>
       </div>
       <div className='div2'>

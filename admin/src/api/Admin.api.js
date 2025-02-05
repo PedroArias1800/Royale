@@ -47,5 +47,12 @@ export const getTransactionsRequest = async () =>
         withCredentials: true
     });
 
+    
 export const putTransactionsRequest = async (id) =>
         await axios.put(`/transaction/${id}`)
+
+export const getCouponsRequest = async (page = 1) =>
+    await axios.get(`/api/coupons?page=${page}`)
+
+export const getAllCouponsRequest = async () =>
+    await axios.get(`/api/coupons/all`)

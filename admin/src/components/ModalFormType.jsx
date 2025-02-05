@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAllParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
-import { getParfumsIconGallery } from '../api/Img.api.js'
+import { getParfumsIconGallery, getParfumsIconGallery2 } from '../api/Img.api.js'
 
 export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, URLServer } = useAuth();
@@ -12,6 +12,11 @@ export const ModalFormType = ({ modalData }) => {
     const [selectedImage, setSelectedImage] = useState(modalData?.img || '');  
     const [showImgServer, setShowImgServer] = useState(false)
     const isUpdate = Boolean(modalData?._id)
+    const [parfumsGallery2, setParfumsGallery2] = useState([]);
+    const [selectedImage2, setSelectedImage2] = useState(modalData?.multiImg2 || '');  
+    const [showImgServer2, setShowImgServer2] = useState(false)
+    const [previews, setPreviews] = useState([]);
+    const [files, setFiles] = useState([]);
     
     useEffect(() => {
         async function loadParfum() {
@@ -22,8 +27,13 @@ export const ModalFormType = ({ modalData }) => {
             const response = await getParfumsIconGallery();
             setParfumsGallery(Array.isArray(response.data.images) ? response.data.images : []);
         }
+        async function loadParfumGallery2() {
+            const response = await getParfumsIconGallery2();
+            setParfumsGallery2(Array.isArray(response.data.images) ? response.data.images : []);
+        }
         loadParfum();
         loadParfumGallery();
+        loadParfumGallery2();
     }, []);
 
     useEffect(() => {
@@ -79,25 +89,58 @@ export const ModalFormType = ({ modalData }) => {
         }
     }
 
-    const handleImagesChange = (e) => {
-        const files = e.target.files;
-    
-        if (files.length > 3) {
-            alert("Solo puedes seleccionar hasta 3 imágenes.");
-            e.target.value = "";
+    const handleFileChange2 = (e) => {
+        const file = e.target.files[0]; // Obtén el primer archivo seleccionado
+        if (file) {
+            // const multiImgPreviews = URL.createObjectURL(file); // Crear una URL de la imagen
+            setModalData((prevData) => ({
+                ...prevData,
+                // multiImg2: file, // Guarda el archivo en el estado
+                // multiImgPreviews, // Guarda la URL de vista previa
+            }));
+        }
+    };
+
+    const handleImagesChange2 = (e) => {
+        const selectedFiles = Array.from(e.target.files);
+
+        if (selectedFiles.length > 4) {
+            alert('Solo puedes seleccionar un máximo de 4 archivos.');
             return;
         }
-    
-        // const selectedFiles = Array.from(files);
-    
-        // setSelectedImages(selectedFiles);
+
+        const imagePreviews = selectedFiles.map(file => URL.createObjectURL(file));
+        setPreviews(imagePreviews);
+        setFiles(selectedFiles);
     };
+
+    const deletePreviewImages = (srcToDelete, index) => {
+        const updatedPreviews = previews.filter(preview => preview !== srcToDelete);
+        const updatedFiles = files.filter((_, i) => i !== index);
+        URL.revokeObjectURL(srcToDelete);
+    
+        setPreviews(updatedPreviews);
+        setFiles(updatedFiles);
+    
+        // Actualizar el input de archivos
+        const inputElement = document.getElementById('multiImage');
+        const dataTransfer = new DataTransfer();
+    
+        updatedFiles.forEach(file => dataTransfer.items.add(file));
+        inputElement.files = dataTransfer.files;
+    
+        console.log(inputElement.files);
+    };
+    
+
 
     const enviarDatos = async (e) => {
             e.preventDefault();
             modalData.status =  parseInt(modalData.status, 10)
 
             const formData = new FormData();
+            // files.forEach(file => formData.append('multiImages', file));
+            files.forEach(file => formData.append('multiImages', URL.createObjectURL(file)));
             for (const key in modalData) {
                 if (key == 'imgPreview'){
                     formData.append('img', modalData[key]);
@@ -175,6 +218,21 @@ export const ModalFormType = ({ modalData }) => {
 
     const handleShowImgServer = () => {
         setShowImgServer(!showImgServer)
+        setRequired(true)
+    }
+
+    // const handleSelectImage2 = (image) => {
+    //     setSelectedImage2(image);
+    //     setModalData((prevData) => ({
+    //         ...prevData,
+    //         imgServer2: image.split("uploads/parfumsMultiImages/")[1], // Guarda solo el nombre de la imagen
+    //         multiImg2: null, // Limpiar el input de archivo
+    //         multiImgPreviews: null, // Limpiar la vista previa
+    //     }));
+    // };
+
+    const handleShowImgServer2 = () => {
+        setShowImgServer2(!showImgServer2)
         setRequired(true)
     }
 
@@ -272,6 +330,54 @@ export const ModalFormType = ({ modalData }) => {
                         alt="Imagen seleccionada"
                         style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
                     />
+                )}
+            </div>
+
+            <p>Selecciona Imágenes Demostrativas</p>
+            <div className="form-group3">
+                <label htmlFor="multiImage" style={{display: !showImgServer2 ? 'block' : 'none'}}>
+                    <input type="file" name="multiImage" id="multiImage" accept="image/*" onChange={(e) => {handleFileChange2(e); handleImagesChange2(e)}} required={!required}  style={{display: !showImgServer2 ? 'block' : 'none'}} multiple />
+                </label>
+                {/* <div onClick={handleShowImgServer2}>
+                    <p className='mostrarImg' style={{display: !showImgServer2 ? 'block' : 'none'}}>Desde el Servidor</p>
+                    <div style={{ display: showImgServer2 ? 'flex' : 'none', flexWrap: 'wrap', justifyContent: 'center', width: '100%'}}>
+                        {parfumsGallery2.map((image, index) => (
+                            <div 
+                                key={index} 
+                                style={{ margin: '10px', cursor: 'pointer', border: selectedImage2 === `${URLServer}/uploads/parfumsMultiImages/${image}` ? '2px solid blue' : 'none' }}
+                                onClick={() => {handleSelectImage2(`${URLServer}/uploads/parfumsMultiImages/${image}`); handleShowImgServer2()}}
+                            >
+                                <img
+                                    src={`${URLServer}/uploads/parfumsMultiImages/${image}`}
+                                    alt={image}
+                                    style={{ width: '100px', height: '100px', objectFit: 'cover' }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div> */}
+            </div>
+            <div>
+                {(modalData?.multiImgPreviews || modalData?.multiImg2) && (
+                    previews.map((src, index) => (
+                        <img
+                            key={index}
+                            src={src}
+                            alt={`preview-${index}`}
+                            style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
+                            onClick={(e) => deletePreviewImages(src, index)}
+                        />
+                    ))                
+                )}
+                {selectedImage2 && !modalData?.multiImg2 && !modalData?.multiImgPreviews && (
+                    previews.map((src, index) => (
+                        <img
+                            key={index}
+                            src={src}
+                            alt={`preview-${index}`}
+                            style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '8px' }}
+                        />
+                    ))
                 )}
             </div>
 

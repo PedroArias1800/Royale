@@ -10,7 +10,6 @@
 }
 
 .pageAdmin{
-    height: 75vh;
     padding: 2vh 2vw;
 }
 .pageAdmin h1{
@@ -40,7 +39,7 @@
 }
 .adminLinks{
     font-size: .8em;
-    height: 75% !important;
+    padding: 0 0 2% 0;
 }
 .pageAdmin section{
     display: flex;

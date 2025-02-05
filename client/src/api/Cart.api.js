@@ -33,3 +33,7 @@ export const postTransactionRequest = async (transaction) =>
             'Content-Type': 'application/json' // Asegúrate de que el servidor entienda que es JSON
         }
     });
+
+    
+export const getCuponRequest = async (cupon) =>
+    await axios.get(`${URL}/cupon?id=${cupon}`)

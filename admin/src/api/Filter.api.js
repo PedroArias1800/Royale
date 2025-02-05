@@ -21,10 +21,6 @@ export const postFilteredUsersRequest = async (page = 1, filter) =>
 export const postFilteredTransactionsRequest = async (page = 1, filter) =>
     await axios.post(`/api/transactions/filtered?page=${page}`, filter)
 
-
-
-
-
-
-
+export const postFilteredCouponsRequest = async (page = 1, filter) =>
+    await axios.post(`/api/coupons/filtered?page=${page}`, filter)
 

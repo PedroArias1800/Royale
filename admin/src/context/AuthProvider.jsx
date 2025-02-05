@@ -1,9 +1,8 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
-import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getTransactionsRequest, getPromotionsRequest } from '../api/Admin.api.js'
-import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest } from '../api/Filter.api.js'
+import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getTransactionsRequest, getPromotionsRequest, getCouponsRequest } from '../api/Admin.api.js'
+import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest, postFilteredCouponsRequest } from '../api/Filter.api.js'
 import { getAllTransactionsRequest } from "../api/Transaction.api.js";
-import Cookies from 'js-cookie'
 
 import { ModalFormParfum } from "../components/ModalFormParfum";
 import { ModalFormVersion } from "../components/ModalFormVersion";
@@ -17,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 
 
 import { io } from 'socket.io-client';
+import { ModalFormCoupon } from "../components/ModalFormCoupon.jsx";
 const URLServer = 'https://api.royalepanama.com'
 const URLFrontend = 'https://royalepanama.com'
 const URLAdmin = 'https://admin.royalepanama.com'
@@ -161,6 +161,10 @@ export const AuthProvider = ({ children }) => {
             setModalContent(<ModalFormPromotion modalData={modalData} />);
             setModalVisible(true);
         }
+        else if (modalData && idNumber === 9) {
+            setModalContent(<ModalFormCoupon modalData={modalData} />);
+            setModalVisible(true);
+        }
     }, [modalData, idNumber]);
 
     const closeModal = () => {
@@ -200,6 +204,10 @@ export const AuthProvider = ({ children }) => {
         }
         else if (id == 8){
             response = await getPromotionsRequest(page);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 9){
+            response = await getCouponsRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else{
@@ -248,6 +256,10 @@ export const AuthProvider = ({ children }) => {
         }
         else if (id == 7){
             response = await postFilteredTransactionsRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 9){
+            response = await postFilteredCouponsRequest(page, filter);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         setPagination(response.data.pagination)

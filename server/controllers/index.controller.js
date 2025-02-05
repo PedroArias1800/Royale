@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import Parfum from '../models/parfum.model.js'
 import Body from '../models/body.model.js'
+import Coupon from '../models/coupon.model.js'
 import Transaction from '../models/transaction.model.js'
 
 
@@ -224,3 +225,40 @@ export const updateTransaction = async (req, res) => {
         res.status(500).json({ message: "Error updating transaction status" });
     }
 };
+
+
+export const getCupon = async(req, res) => {
+    try {
+        const code = req.query.id
+        const cupon = await Coupon.findOne({ code })
+        if (cupon){
+            if (cupon.status == 0) return res.status(200).json({
+                _id: '',
+                valido: false,
+                texto: `Este cupón no está disponible`,
+                percentage: 0,
+            })
+            return res.status(200).json({
+                _id: cupon._id,
+                valido: true,
+                texto: `${cupon.percentage}% de descuento por ${cupon.title}`,
+                percentage: cupon.percentage,
+                code: cupon.code
+            })
+        }
+        else {
+            return res.status(404).json({
+                _id: '',
+                valido: false,
+                texto: "Cupón no Válido"
+            })
+        }
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({
+            _id: '',
+            valido: false,
+            texto: "Cupón no Válido"
+        })
+    }
+}

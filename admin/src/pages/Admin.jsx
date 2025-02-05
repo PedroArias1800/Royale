@@ -26,6 +26,9 @@ export const Admin = () => {
             <Link to="/data?id=5">Fondos de Inicio</Link>
             <Link to="/data?id=8">Promociones</Link>
             {
+              (user.rol == 1 ? <Link to="/data?id=9">Cupones</Link> : '')
+            }
+            {
               (user.rol == 1 ? <Link to="/data?id=6">Usuarios</Link> : '')
             }
             {
