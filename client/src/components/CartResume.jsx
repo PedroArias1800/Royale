@@ -168,7 +168,7 @@ export const CartResume = ({ products }) => {
   };
 
   const searchCupon = async () => {
-    const cupon = document.getElementById('cupon').value
+    const cupon = document.getElementById('cupon').value.toUpperCase()
     try{
       const response = await getCuponRequest(cupon)
       setDataCupon(response.data)
