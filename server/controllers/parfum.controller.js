@@ -1,3 +1,11 @@
+import XLSX from "xlsx";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import Parfum from '../models/parfum.model.js'
 import Body from '../models/body.model.js'
 import Type from '../models/types.model.js'
@@ -201,3 +209,49 @@ export const deleteParfum = async(req, res) => {
         res.status(500).json({ message: "Parfum not Found" })
     }
 }
+
+
+export const getExportParfumData = async (req, res) => {
+    try {
+        // 1️⃣ Obtener los datos de MongoDB
+        const parfums = await Parfum.find()
+            .populate({ path: "version_id_fk", select: "version_name" })
+            .populate({ path: "brand_id_fk", select: "brand_name" })
+            .sort({ title: 1 });
+
+        if (!parfums.length) {
+            return res.status(404).json({ message: "No hay perfumes disponibles" });
+        }
+
+        // 2️⃣ Convertir los datos en un formato compatible con Excel
+        const data = parfums.map((parfum) => ({
+            ID: parfum._id,
+            Nombre: parfum.title,
+            Versión: parfum.version_id_fk ? parfum.version_id_fk.version_name : "N/A",
+            Marca: parfum.brand_id_fk ? parfum.brand_id_fk.brand_name : "N/A",
+        }));
+
+        // 3️⃣ Crear una hoja de Excel
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Perfumes");
+
+        // 4️⃣ Guardar el archivo en el servidor (opcional)
+        const filePath = path.join(__dirname, "../exports/Royale-Perfumes.xlsx");
+        XLSX.writeFile(wb, filePath);
+
+        // 5️⃣ Enviar el archivo como respuesta
+        res.download(filePath, "Royale-Perfumes.xlsx", (err) => {
+            if (err) {
+                console.error("Error al enviar el archivo:", err);
+                res.status(500).json({ message: "Error al generar el archivo" });
+            }
+            // Elimina el archivo después de enviarlo (opcional)
+            fs.unlinkSync(filePath);
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: "Error al obtener los perfumes" });
+    }
+};

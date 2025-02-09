@@ -1,3 +1,11 @@
+import XLSX from "xlsx";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 import Type from '../models/types.model.js'
 
 export const getAllTypes = async(req, res) => {
@@ -217,3 +225,51 @@ export const deleteType = async(req, res) => {
         res.status(500).json({ message: "Type not Found" })
     }
 }
+
+
+export const getExportTypesData = async (req, res) => {
+    try {
+        // 1️⃣ Obtener los datos de MongoDB
+        const parfums = await Parfum.find()
+            .populate({ path: "parfum_id_fk", select: "title" })
+            .sort({ title: 1 });
+
+        if (!parfums.length) {
+            return res.status(404).json({ message: "No hay Tipos de Perfumes disponibles" });
+        }
+
+        // 2️⃣ Convertir los datos en un formato compatible con Excel
+        const data = types.map((type) => ({
+            Mililitros: type.ml,
+            Imagen: type.img,
+            'Precio Costo': type.cost,
+            'Precio de Nosotros': type.price,
+            'Precio al Público': type.old_price,
+            Estado: type.status==1 ? "Activado" : "Desactivado",
+            Perfume: type.parfum_id_fk ? type.parfum_id_fk.title : "N/A",
+        }));
+
+        // 3️⃣ Crear una hoja de Excel
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Tipos de Perfumes");
+
+        // 4️⃣ Guardar el archivo en el servidor (opcional)
+        const filePath = path.join(__dirname, "../exports/Royale-Tipos-de-Perfumes.xlsx");
+        XLSX.writeFile(wb, filePath);
+
+        // 5️⃣ Enviar el archivo como respuesta
+        res.download(filePath, "Royale-Tipos-de-Perfumes.xlsx", (err) => {
+            if (err) {
+                console.error("Error al enviar el archivo:", err);
+                res.status(500).json({ message: "Error al generar el archivo" });
+            }
+            // Elimina el archivo después de enviarlo (opcional)
+            fs.unlinkSync(filePath);
+        });
+
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: "Error al obtener los Tipos de Perfumes" });
+    }
+};

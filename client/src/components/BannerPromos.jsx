@@ -39,6 +39,15 @@ export const BannerPromos = ({ data }) => {
         setIntervalId(newIntervalId); // Actualizar el id del intervalo
     };
 
+    document.addEventListener("DOMContentLoaded", () => {
+        document.querySelectorAll(".banner-carousel-media").forEach(video => {
+          video.addEventListener("canplaythrough", () => {
+            video.play().catch(err => console.warn("No se pudo reproducir el video:", err));
+          });
+        });
+      });
+      
+
     return (
         <div className="banner-carousel-container">
             <div
@@ -52,6 +61,9 @@ export const BannerPromos = ({ data }) => {
                                 src={`${URLServer}${item.media}`}
                                 autoPlay={true}
                                 loop={true}
+                                muted={true}
+                                playsInline={true}
+                                preload='auto'
                                 alt={`Video de la promoción ${item.title}`}
                                 className="banner-carousel-media"
                             />

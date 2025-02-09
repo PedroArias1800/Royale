@@ -109,7 +109,7 @@ export const ModalFormPromotion = ({ modalData }) => {
         
         closeModal()
         setModalData(null);
-        cargarDataTables(2)
+        cargarDataTables(8)
     }
 
     if (!modalData) {
