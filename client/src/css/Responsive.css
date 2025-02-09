@@ -334,6 +334,9 @@
     .banner-carousel-item {
         height: 40vh;
     }
+    .content{
+        background-attachment: none;
+    }
 }
 @media only screen and (max-width: 450px) {
     .menuDesplegable{
