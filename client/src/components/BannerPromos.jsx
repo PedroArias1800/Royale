@@ -10,7 +10,7 @@ export const BannerPromos = ({ data }) => {
     useEffect(() => {
         const newIntervalId = setInterval(() => {
             setCurrentIndex((prevIndex) => (prevIndex + 1) % data.length);
-        }, 2000); // Cambiar cada 5 segundos
+        }, 5000); // Cambiar cada 5 segundos
 
         setIntervalId(newIntervalId); // Guardamos el id del intervalo
 
