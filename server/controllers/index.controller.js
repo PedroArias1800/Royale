@@ -66,6 +66,7 @@ export const parfumVersion = async (req, res) => {
 
 
 export const allParfums = async (req, res) => {
+    const typeOfSale = req.query.type;
     try {
         const parfums = await Parfum.aggregate([
             {
@@ -85,7 +86,18 @@ export const allParfums = async (req, res) => {
                                 $expr: {
                                     $and: [
                                         { $eq: ["$parfum_id_fk", "$$parfumId"] }, // Relación entre Parfum y Types
-                                        { $eq: ["$status", 1] } // Filtrar Types con status 1
+                                        { $eq: ["$status", 1] }, // Filtrar Types con status 1
+                                        {
+                                            $or: [
+                                                { $eq: ["$type_of_sale", typeOfSale] }, // Coincide con typeOfSale
+                                                { 
+                                                    $and: [
+                                                        { $eq: [typeOfSale, "Normal"] }, // Si typeOfSale es "Normal"
+                                                        { $not: [{ $ifNull: ["$type_of_sale", false] }] } // Si type_of_sale no existe
+                                                    ]
+                                                }
+                                            ]
+                                        }
                                     ]
                                 }
                             }
@@ -262,3 +274,74 @@ export const getCupon = async(req, res) => {
         })
     }
 }
+
+
+export const getParfumsTypesOfSales = async (req, res) => {
+    try {
+        const parfums = await Parfum.aggregate([
+            {
+                // Filtrar los Parfum con status 1
+                $match: {
+                    status: 1
+                }
+            },
+            {
+                // Realizar el lookup con la colección Types
+                $lookup: {
+                    from: "types",
+                    let: { parfumId: "$_id" },
+                    pipeline: [
+                        {
+                            $match: {
+                                $expr: {
+                                    $and: [
+                                        { $eq: ["$parfum_id_fk", "$$parfumId"] }, // Relación entre Parfum y Types
+                                        { $eq: ["$status", 1] } // Filtrar Types con status 1
+                                    ]
+                                }
+                            }
+                        }
+                    ],
+                    as: "types"
+                }
+            },
+            {
+                // Filtrar únicamente Parfum donde existan Types asociados con status 1
+                $match: {
+                    "types.0": { $exists: true } // Asegurarse de que la lista no esté vacía
+                }
+            },
+            {
+                // Realizar el lookup con la colección Versions
+                $lookup: {
+                    from: "versions",
+                    localField: "version_id_fk",
+                    foreignField: "_id",
+                    as: "version"
+                }
+            },
+            {
+                // Desanidar la versión (si solo quieres un objeto en lugar de un array)
+                $unwind: "$version"
+            },
+            {
+                // Realizar el lookup con la colección Brands
+                $lookup: {
+                    from: "brands",
+                    localField: "brand_id_fk",
+                    foreignField: "_id",
+                    as: "brand"
+                }
+            },
+            {
+                // Desanidar la marca
+                $unwind: "$brand"
+            }
+        ]);
+
+        res.json(parfums); // Responder con los datos combinados
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: "Error al obtener los datos" });
+    }
+};

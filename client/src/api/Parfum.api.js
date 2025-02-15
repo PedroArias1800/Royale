@@ -4,8 +4,8 @@ const URL = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
 export const getParfumVersionRequest = async (id) => 
     await axios.get(`${URL}/parfum?id=${id}`);
 
-export const getParfumsRequest = async (limit) => 
-    await axios.get(`${URL}/parfums`, {
+export const getParfumsRequest = async (limit, type) => 
+    await axios.get(`${URL}/parfums?type=${type}`, {
         headers: {
             'limit': limit
         }

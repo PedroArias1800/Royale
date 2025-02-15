@@ -9,6 +9,7 @@ export const ParfumDetails = () => {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const id = params.get('id');
+  const type = params.get('type') || '100';
   const [product, setProduct] = useState();
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export const ParfumDetails = () => {
   return (
     <>
       <LinkWay product={product} id={id} />
-      <ParfumInfo product={product} />
+      <ParfumInfo product={product} typeParfum={type} />
     </>
   );
 };

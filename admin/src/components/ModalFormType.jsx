@@ -60,6 +60,14 @@ export const ModalFormType = ({ modalData }) => {
             ...prevData,
             [name]: value,
         }));
+
+        if (name == 'type_of_sale' && value == 'Normal') {
+            setModalData((prevData) => ({
+                ...prevData,
+                ['price_flash']: modalData?.price,
+                ['quantity_flash']: 0,
+            }));
+        }
     };
 
     const handleInputNumberChange = (e) => {
@@ -152,6 +160,10 @@ export const ModalFormType = ({ modalData }) => {
                     formData.append('price', Number(modalData[key]).toFixed(2));
                 } else if (key == 'old_price'){
                     formData.append('old_price', Number(modalData[key]).toFixed(2));
+                } else if (key == 'price_flash'){
+                    formData.append('price_flash', Number(modalData[key]).toFixed(2));
+                } else if (key == 'quantity_flash'){
+                    formData.append('quantity_flash', Number(modalData[key]));
                 } else {
                     formData.append(key, modalData[key]);
                 }
@@ -257,6 +269,32 @@ export const ModalFormType = ({ modalData }) => {
                 <label htmlFor="old_price">
                     <p>Precio al Público</p>
                     <input type="text" name="old_price" id="old_price" value={modalData?.old_price || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
+                </label>
+            </div>
+            <div className="form-group3">
+                <label htmlFor="type_of_sale">
+                    <p>Tipo de Venta</p>
+                    <select
+                        name="type_of_sale"
+                        id="type_of_sale"
+                        value={modalData?.type_of_sale !== undefined ? modalData?.type_of_sale : ''}
+                        onChange={handleInputChange}
+                        required={true}
+                    >
+                        <option value="" disabled>Selecciona una opción</option>
+                        <option value="Normal">Normal</option>
+                        <option value="Flash">Flash</option>
+                    </select>
+                </label>
+                <label htmlFor="price_flash">
+                    <p>Precio Flash</p>
+                    <input type="text" name="price_flash" id="price_flash" value={modalData?.type_of_sale == 'Normal' ? modalData?.price : modalData?.price_flash || ''} onChange={handleInputNumberChange} required={modalData?.type_of_sale === 'Flash' ? true : false} step="0.01" min="0.00" />
+                </label>
+            </div>
+            <div className="form-group3">
+                <label htmlFor="quantity_flash">
+                    <p>Cantidad Flash</p>
+                    <input type="text" name="quantity_flash" id="quantity_flash" value={modalData?.quantity_flash || ''} onChange={handleInputNumberChange} required={modalData?.type_of_sale === 'Flash' ? true : false} step="1" min="0" />
                 </label>
             </div>
             <div className="form-group3">

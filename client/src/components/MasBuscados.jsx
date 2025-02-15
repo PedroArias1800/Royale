@@ -1,23 +1,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Card } from './Card';
-import { getParfumsRequest } from '../api/Parfum.api.js';
 
 
-export const MasBuscados = () => {
+export const MasBuscados = ({ title, typeOfSale, parfum }) => {
   const cardsRef = useRef([]);
   const carouselContainerRef = useRef(null);
-  const [parfum, setParfum] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0);
   const [scrollInterval, setScrollInterval] = useState(10000); // Intervalo inicial de 10 segundos
-
-  useEffect(() => {
-    async function loadParfum() {
-      const response = await getParfumsRequest(10)
-      setParfum(response.data)
-    }
-    loadParfum()
-  }, []);
 
   useEffect(() => {
       const updateInterval = () => {
@@ -39,10 +29,10 @@ export const MasBuscados = () => {
           const totalCards = cardsRef.current.length;
 
           setCurrentIndex((prevIndex) => {
-              const nextIndex = prevIndex + 1;
-
-              if (nextIndex >= totalCards) {
-                  // Reiniciar al inicio
+            const nextIndex = prevIndex + 1;
+            
+            if (nextIndex >= totalCards) {
+              // Reiniciar al inicio
                   carouselContainerRef.current.scrollTo({ left: 0, behavior: 'smooth' });
                   return 0;
               } else {
@@ -57,22 +47,27 @@ export const MasBuscados = () => {
     }, [currentIndex, scrollInterval]);
 
     return (
-      <div className='MasBuscados' id="MasBuscados">
-        <p className='MasBuscadosTitle'>
-          PERFUMES<br/>
-          MÁS BUSCADOS
-        </p>
-        <div className="carousel-container" ref={carouselContainerRef}>
-          <div className="carousel">
-            {
-              parfum.map((element, index) => {
-                return (
-                  <Card element={element} cardsRef={cardsRef} index={index} key={element._id} width100={'340px'} />
-                )
-              })
-            }
-          </div>
-        </div>
-      </div>
+      <>
+        {
+          parfum.length > 0 && (
+            <div className={`MasBuscados ${typeOfSale == 'Flash' ? 'MasBuscadosVentasFlash' : ''}`} id="MasBuscados">
+              <p className='MasBuscadosTitle'>
+              {title}
+              </p>
+              <div className="carousel-container" ref={carouselContainerRef}>
+                <div className="carousel">
+                {
+                  parfum.map((element, index) => {
+                    return (
+                      <Card element={element} cardsRef={cardsRef} index={index} key={element._id} width100={'340px'} typeOfSale={typeOfSale} />
+                    )
+                  })
+                }
+                </div>
+              </div>
+            </div>
+          )
+        }
+      </>
     );
 };

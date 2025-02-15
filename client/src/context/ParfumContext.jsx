@@ -28,14 +28,14 @@ export const ParfumContextProvider = ({ children }) => {
     }, [cart]);
 
 
-    const addToCart = (productId, typesId, quantity = 1) => {
+    const addToCart = (productId, typesId, quantity, maxQuantity) => {
         setCart((prevCart) => {
           const existingProduct = prevCart.find(
             (item) => item.id === productId && item.types_id === typesId
           );
           if (existingProduct) {
             return prevCart.map((item) =>
-              item.id === productId && item.types_id === typesId && item.quantity < 10
+              item.id === productId && item.types_id === typesId && item.quantity < maxQuantity
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             );
@@ -161,7 +161,7 @@ export const ParfumContextProvider = ({ children }) => {
       };
         
 
-    return <ParfumContext.Provider value={{ cart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend }}>
+    return <ParfumContext.Provider value={{ cart, setCart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend }}>
         {children}
     </ParfumContext.Provider>
 

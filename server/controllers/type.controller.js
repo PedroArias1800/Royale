@@ -162,7 +162,7 @@ export const getType = async(req, res) => {
 
 export const createType = async(req, res) => {
     try{
-        const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body
+        const { ml, cost, price, old_price, status, type_of_sale, price_flash, quantity_flash, imgServer, parfum_id_fk } = req.body
         const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
 
         const newType = new Type({
@@ -172,6 +172,9 @@ export const createType = async(req, res) => {
             price,
             old_price,
             status,
+            type_of_sale,
+            price_flash,
+            quantity_flash,
             parfum_id_fk
         })
 
@@ -185,7 +188,7 @@ export const createType = async(req, res) => {
 
 export const updateType = async (req, res) => {
     try{
-        const { ml, cost, price, old_price, status, imgServer, parfum_id_fk } = req.body;
+        const { ml, cost, price, old_price, status, type_of_sale, price_flash, quantity_flash, imgServer, parfum_id_fk } = req.body;
         const imgPath = req.files?.img ? `/uploads/parfumIcon/${req.files.img[0].filename}` : imgServer !== undefined ? `/uploads/parfumIcon/${imgServer}` : null;
 
         const updatedData = {
@@ -194,6 +197,9 @@ export const updateType = async (req, res) => {
             price,
             old_price,
             status,
+            type_of_sale,
+            price_flash,
+            quantity_flash,
             parfum_id_fk
         };
 
@@ -245,6 +251,9 @@ export const getExportTypesData = async (req, res) => {
             'Precio Costo': type.cost,
             'Precio de Nosotros': type.price,
             'Precio al Público': type.old_price,
+            'Tipo de Venta': type_of_sale,
+            'Precio Flash': price_flash,
+            'Cantidad Flash': quantity_flash,
             Estado: type.status==1 ? "Activado" : "Desactivado",
             Perfume: type.parfum_id_fk ? type.parfum_id_fk.title : "N/A",
         }));

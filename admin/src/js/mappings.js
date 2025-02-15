@@ -21,6 +21,9 @@ export const columnMappings = {
     cost: 'Precio Costo',
     price: "Precio de Nosotros",
     old_price: "Precio al Público",
+    type_of_sale: "Tipo de Venta",
+    price_flash: "Precio Flash",
+    quantity_flash: 'Cantidad Flash',
     firstname: 'Nombre',
     lastname: 'Apellido',
     email: 'Email',
@@ -32,7 +35,9 @@ export const columnMappings = {
     total: 'Total',
     products: 'Productos',
     productsTypes: 'Tipos',
-    quantities: 'Cantidades'
+    quantities: 'Cantidades',
+    code: 'Código',
+    percentage: 'Porcentaje'
     // Agrega más columnas si es necesario
   };
 

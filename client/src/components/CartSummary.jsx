@@ -1,14 +1,23 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { Link } from 'react-router-dom';
 import { useParfum } from '../context/ParfumContext'
+import { faBoltLightning } from '@fortawesome/free-solid-svg-icons'
+
 
 export const CartSummary = ({ product }) => {
   // Estado para mostrar el modal de confirmación
   const [showModal, setShowModal] = useState(false);
   const [nodeDrop, setNodeDrop] = useState({});
   const { cart, addToCart, decreaseQuantity, removeFromCart, URLServer, URLFrontend } = useParfum();
+  const [actualPrice, setActualPrice] = useState(product?.type?.price);
+  const [validFlash, setValidFlash] = useState(product?.type?.type_of_sale == 'Flash' && product?.type?.quantity_flash > 0)
+
+  useEffect(() => {
+    if (validFlash)
+    setActualPrice(product?.type?.price_flash)
+  }, [product, validFlash]);
 
   // Encuentra la cantidad del producto en el carrito
   const currentItem = cart.find(
@@ -18,7 +27,11 @@ export const CartSummary = ({ product }) => {
 
   // Incrementar la cantidad
   const incrementQuantity = () => {
-    addToCart(product.parfum._id, product.type._id, 1); // Incrementa en 1
+    if (validFlash){
+      addToCart(product.parfum._id, product.type._id, 1, product.type.quantity_flash); // Incrementa en 1 y máximo hasta la cantidad establecida de productos flash 
+    } else {
+      addToCart(product.parfum._id, product.type._id, 1, 10); // Incrementa en 1 y máximo hasta 10
+    }
   };
 
   // Disminuir la cantidad
@@ -53,14 +66,23 @@ export const CartSummary = ({ product }) => {
     setShowModal(false);
   };
 
+  const gradientStyle = {
+    background: "linear-gradient(to bottom, #720c33, var(--color-rojo))",
+    WebkitBackgroundClip: "text", // Clipa el fondo al texto
+    WebkitTextFillColor: "transparent", // Hace el texto transparente
+    fontWeight: "bold", // Opcional: destaca el texto
+  };
+
   return (
     <div className='originalProductCart'>
       <div className="productCart">
         <div className="divImgProductCart">
-          <Link to={`${URLFrontend}/parfum?id=${product.parfum._id}`} >
+          <Link to={`${URLFrontend}/parfum?id=${product.parfum._id}`}>
             <img
               src={`${URLServer}${product.type.img}`}
               alt={`Imagen de ${product.parfum.brand_id_fk.brand_name} ${product.parfum.title}`}
+              className={`${validFlash ? 'demo animated' : ''}`}
+              style={{'border': validFlash ? '6px solid transparent' : 'none'}} 
             />
           </Link>
         </div>
@@ -68,6 +90,12 @@ export const CartSummary = ({ product }) => {
           <div className='titleProduct'>
             <h3>
               {product.parfum.brand_id_fk.brand_name} {product.parfum.title}
+              {
+                (validFlash) && (
+                  <FontAwesomeIcon icon={faBoltLightning} style={gradientStyle} className='boltFlash cartBoltFlash' />
+                )
+              }
+
             </h3>
             <Link to={`/search?type=${product.parfum.gender}`}>
               {product.parfum.gender === 1 ? 'Damas' : 'Caballeros'}
@@ -80,14 +108,21 @@ export const CartSummary = ({ product }) => {
             <div className="cardInfo1">
               <div>
                 <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.type.old_price).toFixed(2)}</p>
-                <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(product.type.price).toFixed(2)}</p>
+                <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(actualPrice).toFixed(2)}</p>
               </div>
               <p className='cardDiscount'>
-                {Math.ceil(-100 + (100 / Number(product.type.old_price).toFixed(2)) * Number(product.type.price).toFixed(2))}%
+                {Math.ceil(-100 + (100 / Number(product.type.old_price).toFixed(2)) * Number(actualPrice).toFixed(2))}%
               </p>
             </div>
             <div className='editQuantity'>
-              <p>Cantidad:{cantidad}</p>
+              <div style={{textAlign: 'right'}}>
+                <p>Cantidad:{cantidad}</p>
+                {
+                  (validFlash) && (
+                    <p style={{color: 'red', fontSize: '.8rem'}}>Solo {product.type.quantity_flash} disponibles</p>
+                  )
+                }
+              </div>
               <div className="cardInfo2">
                 <button onClick={incrementQuantity}>+</button>
                 <button onClick={decrementQuantity}>-</button>

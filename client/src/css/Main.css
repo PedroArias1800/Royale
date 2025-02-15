@@ -264,6 +264,10 @@ body {
   font-weight: bold;
 }
 
+.MasBuscadosVentasFlash::before{
+  background-image: url('/index/BackgroundVentasFlash.jpg') !important;
+}
+
 
 /* SemiFooter */
 .semiFooter{
@@ -478,6 +482,7 @@ body {
   right: 0;
   top: 0;
   color: var(--color-rojo);
+  filter: drop-shadow(15px 15px 0px white);
 }
 .discountPrice p{
   font-size: 16px;

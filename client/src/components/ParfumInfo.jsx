@@ -1,4 +1,5 @@
 import { faBookmark, faShare } from '@fortawesome/free-solid-svg-icons';
+import { faBoltLightning } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useEffect, useContext } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
@@ -6,25 +7,38 @@ import { Alert } from '../components/Alert'
 import { Link } from 'react-router-dom';
 import { useParfum } from '../context/ParfumContext'
 
-export const ParfumInfo = ({ product }) => {
+export const ParfumInfo = ({ product, typeParfum }) => {
   const [selectedType, setSelectedType] = useState();
   const [alertMessage, setAlertMessage] = useState("");
   const { URLServer, URLFrontend } = useParfum();
+  const [actualPrice, setActualPrice] = useState(product?.types[0]?.price);
+  const [validFlash, setValidFlash] = useState(false)
 
   const { addToCart } = useContext(ParfumContext);
 
-  const handleAddToCart = (productId, typesId) => {
-    addToCart(productId, typesId, 1);
+  const handleAddToCart = (productId, typesId, maxQuantity) => {
+    if (validFlash){
+      addToCart(productId, typesId, 1, maxQuantity); // Incrementa en 1 y máximo hasta la cantidad establecida de productos flash 
+    } else {
+      addToCart(productId, typesId, 1, 10); // Incrementa en 1 y máximo hasta 10
+    }
     setAlertMessage("¡Producto añadido al carrito!");
   };
 
   useEffect(() => {
     if (product && product?.types && product?.types?.length > 0) {
       setSelectedType(
-        product?.types.find((type) => type?.ml === "100") || product?.types[0]
+        product?.types.find((type) => type?.ml === typeParfum) || product?.types[0]
       );
+
+      setActualPrice(product?.types[0]?.price_flash)
     }
   }, [product]);
+
+  useEffect(() => {
+    setActualPrice(selectedType?.price_flash || selectedType?.price)
+    setValidFlash(selectedType?.type_of_sale == 'Flash' && selectedType.quantity_flash > 0)
+  }, [selectedType]);
 
   const gradientStyle = {
     background: "linear-gradient(to bottom, #ff006a,rgb(184, 14, 85))",
@@ -72,11 +86,16 @@ export const ParfumInfo = ({ product }) => {
       </div>
       <div className="parfumContainer">
         <div className="parfumImgGrande">
-          <div className="discountPrice">
-            <FontAwesomeIcon icon={faBookmark} style={gradientStyle} />
+          <div className={`discountPrice ${validFlash ? 'demo animated' : ''}`} style={{border: validFlash ? '10px solid transparent' : 'none', borderRadius: validFlash ? '10px' : ''}}>
+            <FontAwesomeIcon icon={faBookmark} style={gradientStyle} className='iconDiscountPrice' />
+            {
+              (validFlash) && (
+                <FontAwesomeIcon icon={faBoltLightning} style={gradientStyle} className='boltFlash' />
+              )
+            }
             <p>
-              {Math.ceil(
-                -100 + (100 / selectedType?.old_price) * selectedType?.price
+                {Math.ceil(
+                -100 + (100 / selectedType?.old_price) * actualPrice
               )}
               %
             </p>
@@ -84,6 +103,11 @@ export const ParfumInfo = ({ product }) => {
               src={`${URLServer}${selectedType?.img}`}
               alt={`Imágen de ${product?.brand?.brand_name} ${product?.title} versión ${product?.version?.version_name} - ${selectedType.ml} mililitros.`}
             />
+            {
+              (validFlash) && (
+                <p className='quantityFlash'>{selectedType?.quantity_flash} Disponibles</p>
+              )
+            }
           </div>
           <p className="parfumDescription esconder">{product.description}</p>
         </div>
@@ -100,7 +124,7 @@ export const ParfumInfo = ({ product }) => {
                 ${selectedType.old_price}
               </p>
               <p className="price" style={{ color: "red", margin: "auto 0" }}>
-                ${selectedType.price}
+                ${actualPrice}
               </p>
             </div>
             <p>
@@ -112,7 +136,7 @@ export const ParfumInfo = ({ product }) => {
           <hr />
           <div>
             <div className='mlShareParfum'>
-              <h5>{selectedType.ml}ml</h5>
+              <h5>{selectedType.ml}ml {validFlash ? `- Solo ${selectedType?.quantity_flash} disponibles` : ''}</h5>
               <FontAwesomeIcon icon={faShare} style={gradientStyle} onClick={handleShare}/>
             </div>
             <div className="vistaPrevia">
@@ -128,6 +152,8 @@ export const ParfumInfo = ({ product }) => {
                   <img
                     src={`${URLServer}${type.img}`}
                     alt={`Imágen de ${type.ml} ml`}
+                    className={`${selectedType === type && validFlash ? "demo animated" : ""}`}
+                    style={{border: selectedType === type && validFlash ? "4px solid transparent" : ""}}
                   />
                   <p>{type.ml} ml</p>
                 </div>
@@ -136,7 +162,7 @@ export const ParfumInfo = ({ product }) => {
           </div>
           <p className="parfumDescription esconder2">{product?.description}</p>
           <div className="enviarCesta">
-            <button onClick={() => handleAddToCart(product?._id, selectedType?._id)}>Añadir a la Cesta</button>
+            <button onClick={() => handleAddToCart(product?._id, selectedType?._id, selectedType?.quantity_flash)}>Añadir a la Cesta</button>
           </div>
         </div>
       </div>

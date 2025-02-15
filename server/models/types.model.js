@@ -25,6 +25,18 @@ const typesSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    type_of_sale:{
+        type: String,
+        required: true,
+    },
+    price_flash:{
+        type: Number,
+        required: true,
+    },
+    quantity_flash:{
+        type: Number,
+        required: true,
+    },
     parfum_id_fk: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Parfum',

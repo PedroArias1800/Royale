@@ -16,11 +16,12 @@ export const CartResume = ({ products }) => {
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const { totalItems, subTotal, totalPrice, totalSavings, productDetails, productsId, typesId, quantities } = useMemo(() => {
+  const { totalItems, subTotal, totalPrice, totalSavings, flashSavings, productDetails, productsId, typesId, quantities } = useMemo(() => {
     let subTotal = 0; 
     let totalPrice = 0; 
     let totalItems = 0;
     let totalSavings = 0;
+    let flashSavings = 0;
     let productDetails = [];
     let productsId = [];
     let typesId = [];
@@ -32,6 +33,7 @@ export const CartResume = ({ products }) => {
       const item = cart.find(
         (cartItem) => cartItem.id === product.parfum._id && cartItem.types_id === product.type._id
       );
+      const validFlash = product?.type?.type_of_sale == 'Flash' && product?.type?.quantity_flash > 0 ? true : false
 
       if (item) {
         const quantity = item.quantity;  // Cantidad desde el carrito
@@ -42,6 +44,7 @@ export const CartResume = ({ products }) => {
         subTotal += oldPrice * quantity;
         totalPrice += price * quantity; // El total antes de aplicar descuento
         totalItems += quantity; // Contamos las unidades
+        flashSavings += validFlash ? (product.type.price - product.type.price_flash) * item.quantity : 0
         totalSavings += (oldPrice - price) * quantity; // Calculamos el ahorro
 
         // Agregamos el detalle del producto al array de detalles, manteniendo el orden de 'products'
@@ -54,6 +57,7 @@ export const CartResume = ({ products }) => {
           version_name: product.parfum.version_id_fk.version_name,
           ml: product.type.ml,
           price: product.type.price,
+          price_flash: product.type.price_flash,
           old_price: product.type.old_price,
           subTotal: price * quantity
         });
@@ -64,8 +68,10 @@ export const CartResume = ({ products }) => {
     });
 
     totalSavings = subTotal - totalPrice;
+    totalPrice = totalPrice - flashSavings;
 
-    return { totalItems, subTotal, totalPrice, totalSavings, productDetails, productsId, typesId, quantities };
+
+    return { totalItems, subTotal, totalPrice, totalSavings, productDetails, productsId, typesId, quantities, flashSavings };
   }, [cart, products]); // Dependemos de 'cart' y 'products'
 
 
@@ -121,6 +127,9 @@ export const CartResume = ({ products }) => {
       message += `Producto: ${item.brand_name} ${item.title}\n`;
       message += `Versión: ${item.version_name} - ${item.ml}ml\n`;
       message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
+      if (item?.price_flash){
+        message += `Descuento Flash: $${(Number(item.price_flash).toFixed(2)-Number(item.price).toFixed(2)).toFixed(2)}\n`;
+      }
       message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
       message += `Cantidad: ${item.quantity}\n`;
       message += `Enlace: ${URLFrontend}/parfum?id=${item.parfum_id}\n\n`;
@@ -203,6 +212,14 @@ export const CartResume = ({ products }) => {
           <p>Promociones</p>
           <p style={{ 'color': 'red' }}>-${totalSavings.toFixed(2)}</p>
         </div>
+        {
+          (flashSavings > 0) && (
+            <div className='liResumen'>
+              <p>Descuentos Flash</p>
+              <p style={{ 'color': 'red' }}>-${flashSavings.toFixed(2)}</p>
+            </div>
+          )
+        }
         <div className='liResumen' style={{display: dataCupon.valido ? 'flex' : 'none'}}>
           <p>Cupón</p>
           <p style={{ 'color': 'red' }}>-${(totalPrice.toFixed(2)*percentage/100).toFixed(2)} (-{dataCupon.percentage}%)</p>
