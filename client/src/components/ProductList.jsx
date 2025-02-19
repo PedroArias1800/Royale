@@ -9,7 +9,7 @@ export const ProductList = ({ products }) => {
         products.Parfum.map((product, index) => {
           const selectedType = product.types.find((type) => type.ml === "100") || product.types[0];
           return (
-            <Card element={product} selectedType={selectedType} cardsRef={cardsRef} index={index} key={index} width100={'auto'}/>
+            <Card element={product} selectedType={selectedType} cardsRef={cardsRef} index={index} key={index} width100={'auto'} typeOfSale={selectedType?.types?.type_of_sale || 'Normal'}/>
           )
         })}
     </div>
