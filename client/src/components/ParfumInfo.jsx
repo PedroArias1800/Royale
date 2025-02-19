@@ -1,5 +1,5 @@
 import { faBookmark, faShare } from '@fortawesome/free-solid-svg-icons';
-import { faBoltLightning } from '@fortawesome/free-solid-svg-icons';
+import { faBolt } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useEffect, useContext } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
@@ -90,7 +90,7 @@ export const ParfumInfo = ({ product, typeParfum }) => {
             <FontAwesomeIcon icon={faBookmark} style={gradientStyle} className='iconDiscountPrice' />
             {
               (validFlash) && (
-                <FontAwesomeIcon icon={faBoltLightning} style={gradientStyle} className='boltFlash' />
+                <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash' />
               )
             }
             <p>

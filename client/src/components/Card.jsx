@@ -1,6 +1,6 @@
 import { faBookmark, faTag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBoltLightning } from '@fortawesome/free-solid-svg-icons'
+import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useParfum } from '../context/ParfumContext'
@@ -35,7 +35,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
               <FontAwesomeIcon icon={faBookmark} style={gradientStyle}/>
               {
                 (typeOfSales) && (
-                  <FontAwesomeIcon icon={faBoltLightning} style={gradientStyle} className='boltFlash' />
+                  <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash' />
                 )
               }
               <p>{(Math.ceil(-100+(100/element?.types[0]?.old_price*actualPrice)))}%</p>

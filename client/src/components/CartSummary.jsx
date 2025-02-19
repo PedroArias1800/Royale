@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { Link } from 'react-router-dom';
 import { useParfum } from '../context/ParfumContext'
-import { faBoltLightning } from '@fortawesome/free-solid-svg-icons'
+import { faBolt } from '@fortawesome/free-solid-svg-icons'
 
 
 export const CartSummary = ({ product }) => {
@@ -92,7 +92,7 @@ export const CartSummary = ({ product }) => {
               {product.parfum.brand_id_fk.brand_name} {product.parfum.title}
               {
                 (validFlash) && (
-                  <FontAwesomeIcon icon={faBoltLightning} style={gradientStyle} className='boltFlash cartBoltFlash' />
+                  <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash cartBoltFlash' />
                 )
               }
 
