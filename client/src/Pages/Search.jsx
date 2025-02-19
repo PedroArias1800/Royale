@@ -19,7 +19,7 @@ export const Search = () => {
   useEffect(() => {
     async function loadParfums() {
       try {
-        const response = await getParfumsRequest(50);
+        const response = await getParfumsRequest(50, 'Normal');
         setProducts(response.data);
         setFilteredProducts(response.data); // Inicializa con todos los productos
         const uniqueBrands = [...new Set(response.data.map((product) => product.brand.brand_name))];
