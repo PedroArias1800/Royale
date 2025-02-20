@@ -20,7 +20,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
         if (typeOfSales){
           setActualPrice(element?.types[0]?.price_flash)
         }
-      }, [element, typeOfSales, actualPrice]);
+      }, [element, typeOfSales]);
 
     console.log(actualPrice)
 
