@@ -16,11 +16,16 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
         if (element?.types[0]?.align == 'auto'){
             setWidth(true)
         }
-
         if (typeOfSales){
           setActualPrice(element?.types[0]?.price_flash)
         } 
-      }, [element]);
+        console.log(`Actual Price: ${actualPrice}`)
+        console.log(`Type Of Sales: ${typeOfSales}`)
+      }, [element, typeOfSales, actualPrice]);
+
+      useEffect(() => {
+
+      }, [])
 
     const gradientStyle = {
         background: "linear-gradient(to bottom, #720c33, var(--color-rojo))",
