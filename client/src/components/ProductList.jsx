@@ -1,8 +1,15 @@
-import { useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Card } from "./Card";
 
 export const ProductList = ({ products }) => {
-  const cardsRef = useRef([]);
+  const cardRef = useRef([]);
+  const [cardsRef, setCardsRef] = useState(cardRef);
+  
+  useEffect(() => {
+    setCardsRef(cardRef)
+  }, [products])
+  
+  console.log('Actualizado')
   console.log(products)
   return (
     <div className="product-list">
