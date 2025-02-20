@@ -29,7 +29,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
       };
 
     return (
-        <Link to={`/parfum?id=${element._id}&type=${element?.types[0]?.ml}`} className={`card si ${typeOfSale=='Flash' ? 'demo animated' : ''}`} key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`, border: typeOfSale=='Flash' ? '10px solid transparent' : 'none'}}>
+        <Link to={`/parfum?id=${element._id}&type=${element?.types[0]?.ml}`} className={`card si ${typeOfSale=='Flash' ? 'demo animated' : ''}`} key={index} style={{'width': `${width100}`, border: typeOfSale=='Flash' ? '10px solid transparent' : 'none'}}>
             <div className='discountPrice infoCardsFlash'>
               <FontAwesomeIcon icon={faBookmark} style={gradientStyle}/>
               {
