@@ -9,18 +9,14 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
 
     const [width, setWidth] = useState(false);
     const { URLServer } = useParfum();
-    const [actualPrice, setActualPrice] = useState(element?.types[0]?.price);
-    console.log(actualPrice)
     const [typeOfSales, setTypeOfSales] = useState(typeOfSale=='Normal' ? false : true)
+    let actualPrice = typeOfSales ? element?.types[0]?.price_flash : element?.types[0]?.price;
 
     useEffect(() => {
         if (element?.types[0]?.align == 'auto'){
             setWidth(true)
         }
-        if (typeOfSales){
-          setActualPrice(element?.types[0]?.price_flash)
-        }
-      }, [element, typeOfSales]);
+      }, [element]);
 
     console.log(actualPrice)
 
