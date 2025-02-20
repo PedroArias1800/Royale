@@ -19,8 +19,6 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
         if (typeOfSales){
           setActualPrice(element?.types[0]?.price_flash)
         } 
-        console.log(`Actual Price ${element?.title}: ${actualPrice}`)
-        console.log(`Type Of Sales: ${typeOfSales}`)
       }, [element, typeOfSales, actualPrice]);
 
     const gradientStyle = {
