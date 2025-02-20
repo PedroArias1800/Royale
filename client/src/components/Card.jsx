@@ -10,6 +10,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
     const [width, setWidth] = useState(false);
     const { URLServer } = useParfum();
     const [actualPrice, setActualPrice] = useState(element?.types[0]?.price);
+    console.log(actualPrice)
     const [typeOfSales, setTypeOfSales] = useState(typeOfSale=='Normal' ? false : true)
 
     useEffect(() => {
@@ -18,8 +19,11 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
         }
         if (typeOfSales){
           setActualPrice(element?.types[0]?.price_flash)
-        } 
+        }
       }, [element, typeOfSales, actualPrice]);
+
+    console.log(actualPrice)
+
 
     const gradientStyle = {
         background: "linear-gradient(to bottom, #720c33, var(--color-rojo))",
@@ -29,7 +33,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
       };
 
     return (
-        <Link to={`/parfum?id=${element._id}&type=${element?.types[0]?.ml}`} className={`card si ${typeOfSale=='Flash' ? 'demo animated' : ''}`} key={index} style={{'width': `${width100}`, border: typeOfSale=='Flash' ? '10px solid transparent' : 'none'}}>
+        <Link to={`/parfum?id=${element._id}&type=${element?.types[0]?.ml}`} className={`card si ${typeOfSale=='Flash' ? 'demo animated' : ''}`} key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`, border: typeOfSale=='Flash' ? '10px solid transparent' : 'none'}}>
             <div className='discountPrice infoCardsFlash'>
               <FontAwesomeIcon icon={faBookmark} style={gradientStyle}/>
               {
@@ -52,6 +56,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
                 <div style={{'display': 'flex', 'gap': '5px'}}>
                   <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${element?.types[0]?.old_price}</p>
                   <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${actualPrice}</p>
+                  {console.log(actualPrice)}
                 </div>
               </div>
             </div>
