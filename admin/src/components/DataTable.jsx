@@ -1,9 +1,9 @@
-import { columnMappings, excludedColumns } from "../js/mappings";
+import { columnMappings, excludedColumns, excludedColumnsSeller } from "../js/mappings";
 import { useAuth } from "../context/AuthProvider.jsx";
 import { useEffect } from "react";
 
 export const DataTable = ({ data, idCategory }) => {
-  const { setModalData, setIdNumber, closeModal, URLServer, URLFrontend } = useAuth();
+  const { user, setModalData, setIdNumber, closeModal, URLServer, URLFrontend } = useAuth();
 
   useEffect(() => {
     closeModal()
@@ -16,8 +16,14 @@ export const DataTable = ({ data, idCategory }) => {
 
   // Filtramos las columnas excluidas y mapeamos las cabeceras
   const headers = Object.keys(data[0] || {}).filter((header) => {
-    if (excludedColumns.includes(header)) {
+    if (user.rol == 1){
+      if (excludedColumns.includes(header)) {
         return false;
+      }
+    } else {
+      if (excludedColumnsSeller.includes(header)) {
+        return false;
+      }
     }
 
     if (header === "status" && idCategory == 7) {
@@ -31,12 +37,14 @@ export const DataTable = ({ data, idCategory }) => {
   });
 
   const handleRowClick = (row) => {
-    setIdNumber(parseInt(idCategory, 10))
-    setModalData(row)
+    if (user.rol == 1){
+      setIdNumber(parseInt(idCategory, 10))
+      setModalData(row)
+    }
   };
 
   return (
-    <table border="1" style={{ width: "100%", borderCollapse: "collapse" }}>
+    <table border="1" className="responsiveTable">
       <thead>
         <tr>
           {headers.map((header) => (
@@ -86,13 +94,13 @@ export const DataTable = ({ data, idCategory }) => {
                       <p key={id}>{item}</p>
                     ))
                     : <p>{row[header]}</p>
-                    : (["img", "back_img", "parfum_img"].includes(header)) && row[header]
-                    ? <img src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100px", height: "100px", margin: 'auto !important' }} />
-                    : (["media"].includes(header)) && row[header]
-                      ? row[header]?.includes('.mp4') || row[header]?.includes(".webm") || row[header]?.includes(".ogg") 
-                        ? <video src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100%", height: "200px", margin: 'auto !important' }} autoPlay={true} />
-                        : <img src={`${URLServer}${row[header]}`} alt={row[header]} style={{ width: "100%", height: "200px", margin: 'auto !important', objectFit: 'contain'}} />
-                    : row[header]
+                  : (["img", "back_img", "parfum_img"].includes(header)) && row[header]
+                  ? <img src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100px", height: "100px", margin: 'auto !important' }} />
+                  : (["media"].includes(header)) && row[header]
+                  ? row[header]?.includes('.mp4') || row[header]?.includes(".webm") || row[header]?.includes(".ogg") 
+                    ? <video src={`${URLServer}${row[header]}`} alt="Imagen" style={{ width: "100%", height: "200px", margin: 'auto !important' }} autoPlay={true} />
+                    : <img src={`${URLServer}${row[header]}`} alt={row[header]} style={{ width: "100%", height: "200px", margin: 'auto !important', objectFit: 'contain'}} />
+                  : row[header]
                 }
               </td>
             ))}

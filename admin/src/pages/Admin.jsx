@@ -23,16 +23,22 @@ export const Admin = () => {
             <Link to="/data?id=2">Tipos de Perfumes</Link>
             <Link to="/data?id=3">Marcas</Link>
             <Link to="/data?id=4">Versiones</Link>
-            <Link to="/data?id=5">Fondos de Inicio</Link>
+            {
+              user.rol == 1 && (
+                <>
+                  <Link to="/data?id=5">Fondos de Inicio</Link>
+                </>
+              )
+            }
             <Link to="/data?id=8">Promociones</Link>
+            <Link to="/data?id=9">Cupones</Link>
             {
-              (user.rol == 1 ? <Link to="/data?id=9">Cupones</Link> : '')
-            }
-            {
-              (user.rol == 1 ? <Link to="/data?id=6">Usuarios</Link> : '')
-            }
-            {
-              (user.rol == 1 ? <Link to="/data?id=7">Transacciones</Link> : '')
+              user.rol == 1 && (
+                <>
+                  <Link to="/data?id=6">Usuarios</Link>
+                  <Link to="/data?id=7">Transacciones</Link>
+                </>
+              )
             }
         </div>
     </div>

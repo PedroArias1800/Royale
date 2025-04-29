@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
-import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getTransactionsRequest, getPromotionsRequest, getCouponsRequest } from '../api/Admin.api.js'
+import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getPromotionsRequest, getCouponsRequest } from '../api/Admin.api.js'
 import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest, postFilteredCouponsRequest } from '../api/Filter.api.js'
 import { getAllTransactionsRequest } from "../api/Transaction.api.js";
 
@@ -15,14 +15,14 @@ import { Alert } from "../components/Alert.jsx";
 import { useNavigate } from "react-router-dom";
 
 
-import { io } from 'socket.io-client';
+// import { io } from 'socket.io-client';
 import { ModalFormCoupon } from "../components/ModalFormCoupon.jsx";
 const URLServer = 'https://api.royalepanama.com'
 const URLFrontend = 'https://royalepanama.com'
 const URLAdmin = 'https://admin.royalepanama.com'
-const socket = io(URLServer, {
-  transports: ['websocket'],  // Forzar WebSocket
-});
+// const socket = io(URLServer, {
+//   transports: ['websocket'],  // Forzar WebSocket
+// });
 
 
 
@@ -51,38 +51,38 @@ export const AuthProvider = ({ children }) => {
     const [c2, setC2] = useState();
     const navigate = useNavigate();
     const [pagination, setPagination] = useState({});
-    const [notifications, setNotifications] = useState([]);
+    // const [notifications, setNotifications] = useState([]);
     const [transaction, setTransaction] = useState([])
 
-    useEffect(() => {
-        // Escuchar nuevas transacciones
-        socket.on('newTransaction', (transaction) => {
-            setNotifications((prev) => [...prev, transaction]);
-            // Opcional: mostrar notificación en el navegador
-            if (Notification.permission === 'granted') {
-                new Notification(`Nueva Transacción por $${transaction.total}`, {
-                body: `Descripción: ${transaction.userName}, ${transaction.quantities.reduce((acc, num) => acc + num, 0)} artículos en total.`,
-                });
-            }
-            async function loadTransaction() {
-                const response = await getTransactionsRequest()
-                setTransaction(response.data)
-            }
-            loadTransaction()
+    // useEffect(() => {
+    //     // Escuchar nuevas transacciones
+    //     socket.on('newTransaction', (transaction) => {
+    //         setNotifications((prev) => [...prev, transaction]);
+    //         // Opcional: mostrar notificación en el navegador
+    //         if (Notification.permission === 'granted') {
+    //             new Notification(`Nueva Transacción por $${transaction.total}`, {
+    //             body: `Descripción: ${transaction.userName}, ${transaction.quantities.reduce((acc, num) => acc + num, 0)} artículos en total.`,
+    //             });
+    //         }
+    //         async function loadTransaction() {
+    //             const response = await getTransactionsRequest()
+    //             setTransaction(response.data)
+    //         }
+    //         loadTransaction()
           
-        });
+    //     });
 
-        return () => {
-        socket.off('newTransaction');
-        };
-    }, []);
+    //     return () => {
+    //     socket.off('newTransaction');
+    //     };
+    // }, []);
 
-    useEffect(() => {
-        // Pedir permiso para notificaciones del navegador
-        if (Notification.permission !== 'granted') {
-        Notification.requestPermission();
-        }
-    }, []);
+    // useEffect(() => {
+    //     // Pedir permiso para notificaciones del navegador
+    //     if (Notification.permission !== 'granted') {
+    //     Notification.requestPermission();
+    //     }
+    // }, []);
 
     const signIn = async (user) => {
         try {
@@ -124,6 +124,7 @@ export const AuthProvider = ({ children }) => {
                 setIsAuthenticated(true)
                 setUser(res.data)
             } catch(err) {
+                console.log(err)
                 setIsAuthenticated(false)
                 setUser(null)
                 navigate('/login')

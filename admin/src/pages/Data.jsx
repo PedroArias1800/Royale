@@ -43,14 +43,17 @@ export const Data = () => {
             else if (id == 5){
                 setConsulta('Fondos de Inicio')
             }
-            else if (user?.rol == 1 && id == 6){
+            else if (id == 6){
                 setConsulta('Usuarios')
             }
-            else if (user?.rol == 1 && id == 7){
+            else if (id == 7){
                 setConsulta('Transacciones')
             }
             else if (id == 8){
                 setConsulta('Promociones')
+            }
+            else if (id == 9){
+                setConsulta('Cupones')
             }
 
     
@@ -106,7 +109,7 @@ export const Data = () => {
     }
 
   return (
-    <div>
+    <div className='dataContent'>
         <div className='pageHeader'>
             <div className='pageHeader1'>
                 <h1>Consulta de {consulta}</h1>
@@ -115,7 +118,11 @@ export const Data = () => {
             <div className='pageHeader1'>
                 <div className='volverAnadir'>
                     <button onClick={volver}>Volver</button>
-                    <button onClick={openModal} style={{display: id!=7 ? 'block': 'none'}}>Añadir</button>
+                    {
+                        user?.rol == 1 && (
+                            <button onClick={openModal} style={{display: id!=7 ? 'block': 'none'}}>Añadir</button>
+                        )
+                    }
                 </div>
                 <form onSubmit={filtrar} className='formFilter'>
                     <button type='submit' className='btnFilter'>

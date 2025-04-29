@@ -20,9 +20,11 @@ export const columnMappings = {
     img: "Imagen",
     cost: 'Precio Costo',
     price: "Precio de Nosotros",
+    seller_profit: "Ganancia del Vendedor",
     old_price: "Precio al Público",
     type_of_sale: "Tipo de Venta",
     price_flash: "Precio Flash",
+    flash_seller_profit: "Ganancia del Vendedor en Venta Flash",
     quantity_flash: 'Cantidad Flash',
     firstname: 'Nombre',
     lastname: 'Apellido',
@@ -41,4 +43,5 @@ export const columnMappings = {
     // Agrega más columnas si es necesario
   };
 
-export const excludedColumns = ["_id", "__v", "updatedAt", "url"];
+  export const excludedColumns = ["_id", "__v", "updatedAt", "url"];
+  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt"];

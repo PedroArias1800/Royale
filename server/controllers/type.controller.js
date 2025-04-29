@@ -64,13 +64,37 @@ export const getTypes = async (req, res) => {
                     parfum_data: 0, // Elimina el campo temporal `parfum_data`
                 },
             },
-        ]);        
+        ]);
+
+        // Agregar los campos en JavaScript
+        const typesWithProfit = types.map(type => {
+            const cost = type.cost || 0;
+        
+            const price = typeof type.price === 'number' && type.price > 0 ? type.price : null;
+            const priceFlash = typeof type.price_flash === 'number' && type.price_flash > 0 ? type.price_flash : null;
+        
+            const seller_profit = price !== null ? ((price - cost) * .5).toFixed(2) : null;
+            const flash_seller_profit = priceFlash !== null ? ((priceFlash - cost) * .5).toFixed(2) : null;
+        
+            if (seller_profit !== null && flash_seller_profit !== null && seller_profit == flash_seller_profit){
+                return {
+                    ...type,
+                    seller_profit,
+                };
+            }
+
+            return {
+                ...type,
+                seller_profit,
+                flash_seller_profit,
+            };
+        });
 
         const total = await Type.countDocuments();
         const totalPages = Math.ceil(total / limit);
 
         res.json({
-            data: types,
+            data: typesWithProfit,
             pagination: {
                 currentPage: page,
                 totalPages: totalPages,

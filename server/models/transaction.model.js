@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { notifyAdmins } from '../socket.js'
+// import { notifyAdmins } from '../socket.js'
 
 const transactionSchema = new mongoose.Schema({
     userName: {
@@ -51,9 +51,9 @@ const transactionSchema = new mongoose.Schema({
 })
 
 transactionSchema.post('save', function (doc) {
-    if (!doc.status) {
-      notifyAdmins(doc);
-    }
+    // if (!doc.status) {
+    //   notifyAdmins(doc);
+    // }
   });
 
 export default mongoose.model('Transaction', transactionSchema)

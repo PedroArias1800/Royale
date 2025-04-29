@@ -106,18 +106,22 @@ export const putUser = async(req, res) => {
     try {            
         const { firstname, lastname, email, password, rol, status } = req.body
     
-        console.log(password)
-        const passwordHash = await bcrypt.hash(password, 10)
-        console.log(passwordHash)
-        const putUser = new User({
-            id: req.params.id,
+        let passwordHash = ""
+        if (password) {
+            passwordHash = await bcrypt.hash(password, 10)
+        } else {
+            const userFound = await User.findOne({ email })
+            passwordHash = userFound.password
+        }
+
+        const putUser = {
             firstname,
             lastname,
             email,
             password: passwordHash,
             rol,
             status
-        });
+        };
         
         const userUpdated = await User.findByIdAndUpdate(req.params.id, putUser, {
             new: true

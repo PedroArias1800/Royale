@@ -11,40 +11,43 @@
 
 .pageAdmin{
     padding: 2vh 2vw;
+    min-height: 75vh;
+    display: flex;
+    align-items: start;
+    flex-flow: column;
+}
+.pageAdmin section{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 15%;
 }
 .pageAdmin h1{
     margin: 2% 0;
 }
 .pageAdmin div{
     display: flex;
-    justify-content: center;
     align-items: center;
     flex-direction: column;
     gap: 10px;
+    margin: auto;
+    font-size: .8em;
 }
 .pageAdmin div a{
-    min-width: 400px;
-    max-width: 600px;
+    width: 400px;
+    min-width: 200px;
+    max-width: 400px;
     background-color: var(--color-rojo);
     text-decoration: none;
     color: white;
     font-size: 1.7em;
     text-align: center;
     border-radius: 5px;
-    padding: .5% 0;
+    padding: 5px 0;
     transition: all .35s ease;
 }
 .pageAdmin div a:hover{
     background-color: var(--color-rojo-2);
-}
-.adminLinks{
-    font-size: .8em;
-    padding: 0 0 2% 0;
-}
-.pageAdmin section{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 .inbox{
     min-width: 60px;
@@ -132,6 +135,7 @@
 }
 .pageHeader{
     padding: 1% 1% .5% 1%;
+    width: 100%;
 }
 .pageHeader1{
     display: flex;
@@ -185,6 +189,7 @@
     width: 100%;
     padding: 1%;
     min-height: 62.5vh;
+    overflow-x: auto;
 }
 .dataTable th{
     border: 1px solid black;
@@ -192,6 +197,11 @@
     background-color: #8d093f;
     text-transform: uppercase;
 }
+.responsiveTable{
+    width: 100%;
+    border-collapse: collapse;
+}
+
 
 .width100{
     display: flex;
