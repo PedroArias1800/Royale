@@ -1,4 +1,4 @@
-ssh tu_usuario@tu_ip_vps
+ssh root@93.188.162.15
 
 sudo apt update && sudo apt upgrade -y
 
