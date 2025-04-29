@@ -75,12 +75,9 @@ export const getTypes = async (req, res) => {
         
             const seller_profit = price !== null ? ((price - cost) * .5).toFixed(2) : null;
             const flash_seller_profit = priceFlash !== null ? ((priceFlash - cost) * .5).toFixed(2) : null;
-        
+
             if (flash_seller_profit == null || seller_profit == flash_seller_profit){
-                return {
-                    ...type,
-                    seller_profit,
-                };
+                flash_seller_profit = seller_profit
             }
 
             return {
