@@ -73,7 +73,7 @@ export const Search = () => {
   };
 
   return (
-    <div className="app">
+    <div className="app searchDisplayStyle">
       <Filter onFilter={handleFilter} brands={brands} id={id} type={type} />
       {
         filteredProducts.length == 0 && (

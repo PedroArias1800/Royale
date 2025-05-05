@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import { upload } from '../middlewares/upload.middleware.js';
 import { authRequired } from '../middlewares/validateToken.js'
-import { getType, getTypes, getAllTypes, createType, getFilteredTypes, updateType, deleteType } from '../controllers/type.controller.js';
+import { getType, postGetTypes, getAllTypes, createType, getFilteredTypes, updateType, deleteType } from '../controllers/type.controller.js';
 
 const router = Router();
 
 router.get('/api/type', authRequired, getType);
-router.get('/api/types', authRequired, getTypes);
 router.get('/api/types/all', authRequired, getAllTypes);
+router.post('/api/types', authRequired, postGetTypes);
 router.post('/api/types/filtered', authRequired, getFilteredTypes);
 router.post('/api/type', authRequired, upload('parfumIcon').fields([{ name: 'img' }]), createType);
 router.put('/api/type/:id', authRequired, upload('parfumIcon').fields([{ name: 'img' }]), updateType);

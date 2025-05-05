@@ -4,7 +4,7 @@ export const postFilteredParfumsRequest = async (page = 1, filter) =>
     await axios.post(`/api/parfums/filtered?page=${page}`, filter)
 
 export const postFilteredTypesRequest = async (page = 1, filter) =>
-    await axios.post(`/api/typess/filtered?page=${page}`, filter)
+    await axios.post(`/api/types/filtered?page=${page}`, filter)
 
 export const postFilteredBrandsRequest = async (page = 1, filter) =>
     await axios.post(`/api/brands/filtered?page=${page}`, filter)

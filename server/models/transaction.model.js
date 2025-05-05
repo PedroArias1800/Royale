@@ -30,6 +30,13 @@ const transactionSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    seller_id_fk: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: false,
+    },
+    user_id_fk: {
+    },
     status: {
         type: Boolean,
         default: false

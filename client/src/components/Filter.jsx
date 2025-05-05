@@ -78,77 +78,78 @@ export const Filter = ({ onFilter, brands, type }) => {
   
   return (
     <div className="filters">
-      <div className="headerFilter">
-        <h5>Filtros</h5>
-        <FontAwesomeIcon icon={faChevronDown} onClick={handleDesplegar} className={`${desplegarFlecha ? 'desplegar' : ''}`}/>
-      </div>
+      <div className="filtersStatic">
+        <div className="headerFilter">
+          <h5>Filtros</h5>
+          <FontAwesomeIcon icon={faChevronDown} onClick={handleDesplegar} className={`${desplegarFlecha ? 'desplegar' : ''}`}/>
+        </div>
 
-      <div className="filters__group">
-        <label htmlFor="search">Búsqueda:</label>
-        <input
-          type="text"
-          id="search"
-          value={search}
-          onChange={handleSearchChange}
-          placeholder="Buscar productos..."
-        />
-      </div>
-
-      <div className="filters__group">
-        <label htmlFor="brand">Marca:</label>
-        <select
-          id="brand"
-          value={brand}
-          onChange={handleBrandChange}
-          >
-          <option value="">Todas</option>
-          {brands.map((b, index) => (
-            <option key={index} value={b}>
-              {b}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="filters__group">
-        <label htmlFor="gender">Género:</label>
-        <select
-          id="gender"
-          value={gender}
-          onChange={handleGenderChange}
-          >
-          <option value="">Todos</option>
-          <option value="Caballeros">Caballeros</option>
-          <option value="Damas">Damas</option>
-        </select>
-      </div>
-
-      <div className="filters__group">
-        <label htmlFor="minPrice">Precio Mínimo:</label>
-        <input
-          type="number"
-          id="minPrice"
-          value={minPrice}
-          onChange={handleMinPriceChange}
-          placeholder="Ej. 50.00"
+        <div className="filters__group">
+          <label htmlFor="search">Búsqueda:</label>
+          <input
+            type="text"
+            id="search"
+            value={search}
+            onChange={handleSearchChange}
+            placeholder="Buscar productos..."
           />
-      </div>
+        </div>
 
-      <div className="filters__group">
-        <label htmlFor="maxPrice">Precio Máximo:</label>
-        <input
-          type="number"
-          id="maxPrice"
-          value={maxPrice}
-          onChange={handleMaxPriceChange}
-          placeholder="Ej. 200.00"
-          />
-      </div>
+        <div className="filters__group">
+          <label htmlFor="brand">Marca:</label>
+          <select
+            id="brand"
+            value={brand}
+            onChange={handleBrandChange}
+            >
+            <option value="">Todas</option>
+            {brands.map((b, index) => (
+              <option key={index} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
+        </div>
 
-      <div className="filters__actions">
-        <button className={'resetFilters'} onClick={resetFilters}>Restablecer</button>
-      </div>
+        <div className="filters__group">
+          <label htmlFor="gender">Género:</label>
+          <select
+            id="gender"
+            value={gender}
+            onChange={handleGenderChange}
+            >
+            <option value="">Todos</option>
+            <option value="Caballeros">Caballeros</option>
+            <option value="Damas">Damas</option>
+          </select>
+        </div>
 
+        <div className="filters__group">
+          <label htmlFor="minPrice">Precio Mínimo:</label>
+          <input
+            type="number"
+            id="minPrice"
+            value={minPrice}
+            onChange={handleMinPriceChange}
+            placeholder="Ej. 50.00"
+            />
+        </div>
+
+        <div className="filters__group">
+          <label htmlFor="maxPrice">Precio Máximo:</label>
+          <input
+            type="number"
+            id="maxPrice"
+            value={maxPrice}
+            onChange={handleMaxPriceChange}
+            placeholder="Ej. 200.00"
+            />
+        </div>
+
+        <div className="filters__actions">
+          <button className={'resetFilters'} onClick={resetFilters}>Restablecer</button>
+        </div>
+      </div>
       <HashLink to={'/search/#Top'} className="subirTop">
         <FontAwesomeIcon icon={faChevronDown}/>
       </HashLink>

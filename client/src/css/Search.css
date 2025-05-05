@@ -112,15 +112,25 @@ body {
   justify-content: space-between;
   align-items: top;
 }
+.searchDisplayStyle{
+  height: 85vh;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+}
 .filters {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
   padding: 16px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   max-width: 400px;
   width: 30vw;
   min-height: 85vh;
+  position: sticky;
+  top: 0;
+  background: linear-gradient(to bottom, var(--color-rojo), var(--color-rojo-2));
+}
+.filtersStatic{
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 .subirTop{
   position: fixed;
@@ -223,11 +233,6 @@ input[type="text"]:focus {
 .desplegar{
   transform: rotate(-180deg);
   transition: transform 0.3s ease-in-out;
-}
-.filters{
-  color: white;
-  box-shadow: 0px 5px 20px rgba(0, 0, 0, 0.527);
-  background: linear-gradient(to bottom, var(--color-rojo), var(--color-rojo-2));
 }
 .priceMinMax{
   width: 100%;

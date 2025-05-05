@@ -19,9 +19,9 @@ export const columnMappings = {
     ml: "Mililitros",
     img: "Imagen",
     cost: 'Precio Costo',
-    price: "Precio de Nosotros",
+    price: "Precio al Público",
     seller_profit: "Ganancia del Vendedor",
-    old_price: "Precio al Público",
+    old_price: "Precio en Tiendas",
     type_of_sale: "Tipo de Venta",
     price_flash: "Precio Flash",
     flash_seller_profit: "Ganancia del Vendedor en Venta Flash",
@@ -39,9 +39,10 @@ export const columnMappings = {
     productsTypes: 'Tipos',
     quantities: 'Cantidades',
     code: 'Código',
-    percentage: 'Porcentaje'
+    percentage: 'Porcentaje',
+    seller: 'Vendedor'
     // Agrega más columnas si es necesario
   };
 
-  export const excludedColumns = ["_id", "__v", "updatedAt", "url"];
-  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt"];
+  export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk"];
+  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt", "seller_id_fk"];

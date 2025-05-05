@@ -120,7 +120,7 @@ export const Data = () => {
                     <button onClick={volver}>Volver</button>
                     {
                         user?.rol == 1 && (
-                            <button onClick={openModal} style={{display: id!=7 ? 'block': 'none'}}>Añadir</button>
+                            <button onClick={openModal}>Añadir</button>
                         )
                     }
                 </div>

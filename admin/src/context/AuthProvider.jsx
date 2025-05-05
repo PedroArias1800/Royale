@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
-import { getParfumsRequest, getTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getPromotionsRequest, getCouponsRequest } from '../api/Admin.api.js'
+import { getParfumsRequest, postGetTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getPromotionsRequest, getCouponsRequest, getCountTransactionsByUserThisMonth } from '../api/Admin.api.js'
 import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest, postFilteredCouponsRequest } from '../api/Filter.api.js'
 import { getAllTransactionsRequest } from "../api/Transaction.api.js";
 
@@ -11,6 +11,7 @@ import { ModalFormPromotion } from "../components/ModalFormPromotion";
 import { ModalFormBrand } from "../components/ModalFormBrand";
 import { ModalFormBody } from "../components/ModalFormBody";
 import { ModalFormUser } from "../components/ModalFormUser";
+import { ModalFormTransaction } from "../components/ModalFormTransaction";
 import { Alert } from "../components/Alert.jsx";
 import { useNavigate } from "react-router-dom";
 
@@ -39,6 +40,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
     
     const [user, setUser] = useState(null)
+    const [countSell, setCountSell] = useState(0);
     const [isAuthenticated, setIsAuthenticated] = useState(false)
     const [errors, setErrors] = useState([])
     const [modalVisible, setModalVisible] = useState(false);  // Estado para controlar la visibilidad del modal
@@ -134,6 +136,17 @@ export const AuthProvider = ({ children }) => {
     }, [])
 
     useEffect(() => {
+        async function loadTransactions() {
+            if (!user || !user.id) {
+              return;
+            }
+            const response = await getCountTransactionsByUserThisMonth(user.id);
+            setCountSell(response.data.totalQuantitiesThisMonth)
+        }
+        loadTransactions();
+    }, [user])
+
+    useEffect(() => {
         if (modalData && idNumber === 1) {
             setModalContent(<ModalFormParfum modalData={modalData} />);
             setModalVisible(true);
@@ -158,6 +171,10 @@ export const AuthProvider = ({ children }) => {
             setModalContent(<ModalFormUser modalData={modalData} />);
             setModalVisible(true);
         }
+        else if (modalData && idNumber === 7) {
+            setModalContent(<ModalFormTransaction modalData={modalData} />);
+            setModalVisible(true);
+        }
         else if (modalData && idNumber === 8) {
             setModalContent(<ModalFormPromotion modalData={modalData} />);
             setModalVisible(true);
@@ -180,7 +197,7 @@ export const AuthProvider = ({ children }) => {
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 2){
-            response = await getTypesRequest(page);
+            response = await postGetTypesRequest(countSell, page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         else if (id == 3){
@@ -267,7 +284,7 @@ export const AuthProvider = ({ children }) => {
     }
 
 
-    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction, filtrarData, URLServer, URLFrontend, URLAdmin }}>
+    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction, filtrarData, URLServer, URLFrontend, URLAdmin, setCountSell, countSell }}>
         {children}
         <div className='mostrarAlerta'>
             <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>

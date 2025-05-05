@@ -1,22 +1,43 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider.jsx'
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export const Admin = () => {
-    const { user, closeModal } = useAuth();
+    const { user, closeModal, countSell } = useAuth();
+    const [profit, setProfit] = useState(.50)
 
     useEffect(() => {
-      closeModal()
-    }, [])
+      closeModal();
+    }, [user, closeModal]);
+
+    useEffect(() => {
+      // Determinar el profit
+      if (countSell >= 0 && countSell <= 5) {
+          setProfit(0.50);
+      } else if (countSell >= 6 && countSell <= 8) {
+          setProfit(0.55);
+      } else if (countSell >= 9) {
+          setProfit(0.60);
+      }
+  }, [countSell]);
+
 
     if (!user) {
       return <p>Cargando...</p>;
     }
 
+    // if (!countSell) {
+    //   return <p>Cargando...</p>;
+    // }
+
   return (
     <div className='pageAdmin'>
-        <section>
-          <h1>Bienvenido {user.firstname} {user.lastname}</h1>
+        <section className='infoAdmin'>
+          <h1>Bienvenido: {user.firstname} {user.lastname}</h1>
+          <h3>
+            <p>Venta Mensual: {countSell}</p>
+            <p>Ganacia: {Number(profit * 100).toFixed(0)}%</p>
+          </h3>
         </section>
         <div className='adminLinks'>
             <Link to="/data?id=1">Perfumes</Link>

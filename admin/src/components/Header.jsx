@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthProvider.jsx'
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faInbox } from '@fortawesome/free-solid-svg-icons';
+import { faInbox, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { getTransactionsRequest, putTransactionsRequest } from '../api/Admin.api.js';
 
 export const Header = () => {
@@ -35,10 +35,11 @@ return (
         <a href={URLAdmin}><img src="/icons/RoyaleDorado.webp" alt="Logo de Royale Panamá" /></a>
         <div className='DivCerrarSesion'>
           <div className='DivCerrarSesion2'>
-            <p>Administración</p>
             {
               mostrarSesion && (
-                <button onClick={handleSession} className='CerrarSesion'>Cerrar Sesión</button>
+                <button onClick={handleSession} className='CerrarSesion' title="Cerrar Sesión">
+                  <FontAwesomeIcon icon={faRightFromBracket}/>
+                </button>
               )
             }
           </div>

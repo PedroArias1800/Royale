@@ -6,8 +6,8 @@ export const getParfumsRequest = async (page = 1) =>
 export const getAllParfumsRequest = async () =>
     await axios.get(`/api/parfums/all`)
 
-export const getTypesRequest = async (page = 1) =>
-    await axios.get(`/api/types?page=${page}`)
+export const postGetTypesRequest = async (countSell, page = 1) =>
+    await axios.post(`/api/types?page=${page}`, {'countSell': countSell})
 
 export const getAllTypesRequest = async () =>
     await axios.get(`/api/types/all`)
@@ -56,3 +56,13 @@ export const getCouponsRequest = async (page = 1) =>
 
 export const getAllCouponsRequest = async () =>
     await axios.get(`/api/coupons/all`)
+
+
+export const getTransactionsByUser = async (id) =>
+    await axios.get(`/api/transactions/all/${id}`)
+
+export const getCountTransactionsByUserThisMonth = async (id) =>
+    await axios.get(`/api/transactions/monthly/${id}`)
+
+export const getUsersByRoleSeller = async () =>
+    await axios.get(`/api/users/sellers`)

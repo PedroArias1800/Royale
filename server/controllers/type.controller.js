@@ -7,6 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import Type from '../models/types.model.js'
+import { getCountTransactionsByUserThisMonth } from "./transaction.controller.js";
 
 export const getAllTypes = async(req, res) => {
     try{
@@ -26,58 +27,52 @@ export const getAllTypes = async(req, res) => {
     }
 }
 
-export const getTypes = async (req, res) => {
+export const postGetTypes = async (req, res) => {
     try {
+        const { countSell }  = req.body;
         const page = parseInt(req.query.page) || 1;
         const limit = 15;
-        
         const skip = (page - 1) * limit;
 
         const types = await Type.aggregate([
             {
                 $lookup: {
-                    from: 'parfums', // Nombre de la colección relacionada
-                    localField: 'parfum_id_fk', // Campo en `Type` que se relaciona con `_id` en `Parfum`
-                    foreignField: '_id', // Campo en `Parfum` que coincide con `localField`
-                    as: 'parfum_data', // Nombre temporal del campo que contendrá los datos relacionados
+                    from: 'parfums',
+                    localField: 'parfum_id_fk',
+                    foreignField: '_id',
+                    as: 'parfum_data',
                 },
             },
-            {
-                $unwind: '$parfum_data', // Desempaqueta el array `parfum_data`
-            },
-            {
-                $sort: { 'parfum_data.title': 1 }, // Ordena por el campo `title` de la colección `Parfum`
-            },
-            {
-                $skip: skip, // Paginación: número de documentos a omitir
-            },
-            {
-                $limit: limit, // Paginación: número máximo de documentos a devolver
-            },
-            {
-                $addFields: {
-                    parfum_id_fk: '$parfum_data', // Mueve el contenido de `parfum_data` a `parfum_id_fk`
-                },
-            },
-            {
-                $project: {
-                    parfum_data: 0, // Elimina el campo temporal `parfum_data`
-                },
-            },
+            { $unwind: '$parfum_data' },
+            { $sort: { 'parfum_data.title': 1 } },
+            { $skip: skip },
+            { $limit: limit },
+            { $addFields: { parfum_id_fk: '$parfum_data' } },
+            { $project: { parfum_data: 0 } },
         ]);
 
-        // Agregar los campos en JavaScript
+        // Determinar el profit
+        let profit = 0.50;
+        if (countSell >= 0 && countSell <= 5) {
+            profit = 0.50;
+        } else if (countSell >= 6 && countSell <= 8) {
+            profit = 0.55;
+        } else if (countSell >= 9) {
+            profit = 0.60;
+        }
+
+        // Mapear los tipos con el profit calculado
         const typesWithProfit = types.map(type => {
             const cost = type.cost || 0;
-        
+
             const price = typeof type.price === 'number' && type.price > 0 ? type.price : null;
             const priceFlash = typeof type.price_flash === 'number' && type.price_flash > 0 ? type.price_flash : null;
-        
-            const seller_profit = price !== null ? ((price - cost) * .5).toFixed(2) : null;
-            let flash_seller_profit = priceFlash !== null ? ((priceFlash - cost) * .5).toFixed(2) : null;
 
-            if (flash_seller_profit == null || seller_profit == flash_seller_profit){
-                flash_seller_profit = seller_profit
+            const seller_profit = price !== null ? ((price - cost) * profit).toFixed(2) : null;
+            let flash_seller_profit = priceFlash !== null ? ((priceFlash - cost) * profit).toFixed(2) : null;
+
+            if (flash_seller_profit == null || seller_profit == flash_seller_profit) {
+                flash_seller_profit = seller_profit;
             }
 
             return {
@@ -100,7 +95,7 @@ export const getTypes = async (req, res) => {
             },
         });
     } catch (error) {
-        console.log(error.message)
+        console.log(error.message);
         res.status(500).json({ message: 'Error al obtener los tipos' });
     }
 };
@@ -270,8 +265,8 @@ export const getExportTypesData = async (req, res) => {
             Mililitros: type.ml,
             Imagen: type.img,
             'Precio Costo': type.cost,
-            'Precio de Nosotros': type.price,
-            'Precio al Público': type.old_price,
+            'Precio al Público': type.price,
+            'Precio en Tiendas': type.old_price,
             'Tipo de Venta': type_of_sale,
             'Precio Flash': price_flash,
             'Cantidad Flash': quantity_flash,

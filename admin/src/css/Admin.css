@@ -125,7 +125,7 @@
   align-items: center;
   margin-top: 20px;
 }
-.btnBorrarCrear input{
+.btnBorrarCrear input, .btnBorrarCrear section{
   padding: 1% 2%;
   width: 150px;
   color: white;

@@ -29,7 +29,7 @@ flex-direction: column !important;
     gap: 20px
 }
 .CerrarSesion{
-    padding: 1% 10%;
+    padding: 8px;
     font-size: .6em;
     margin: 1vh 0;
     border-radius: 5px;
@@ -38,6 +38,10 @@ flex-direction: column !important;
     cursor: pointer;
     background-color: #ffe6a6;
     transition: all .35s ease;
+}
+.CerrarSesion svg{
+    font-size: 1.5em !important;
+    color: #313131 !important;
 }
 .CerrarSesion:hover{
     background-color: #fed879;

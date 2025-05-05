@@ -207,14 +207,20 @@
     .app{
         display: block;
     }
+    .searchDisplayStyle{
+        height: auto;
+    }
     .filters{
-        max-width: 100% !important ;
+        max-width: 100% !important;
         width: 100vw;
+        font-size: small;
+        min-height: 20px !important;
+        position: relative;
+    }
+    .filtersStatic{
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(100px, 2fr)) !important;
         align-items: end;
-        font-size: small;
-        min-height: 20px !important;
     }
     .headerFilter{
         display: none;

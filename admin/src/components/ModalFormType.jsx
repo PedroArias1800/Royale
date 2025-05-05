@@ -33,7 +33,7 @@ export const ModalFormType = ({ modalData }) => {
         }
         loadParfum();
         loadParfumGallery();
-        loadParfumGallery2();
+        // loadParfumGallery2();
     }, []);
 
     useEffect(() => {
@@ -61,10 +61,10 @@ export const ModalFormType = ({ modalData }) => {
             [name]: value,
         }));
 
-        if (name == 'type_of_sale' && value == 'Normal') {
+        if (name == 'type_of_sale' && value == 'Normal' && modalData?.price != undefined) {
             setModalData((prevData) => ({
                 ...prevData,
-                ['price_flash']: modalData?.price,
+                ['price_flash']: Number(modalData?.price).toFixed(2),
                 ['quantity_flash']: 0,
             }));
         }
@@ -82,6 +82,14 @@ export const ModalFormType = ({ modalData }) => {
                 ...modalData,
                 [name]: value
             });
+        }
+
+        if (name == 'price') {
+            setModalData((prevData) => ({
+                ...prevData,
+                ['price_flash']: Number(value).toFixed(2),
+                ['quantity_flash']: 0,
+            }));
         }
     };
 
@@ -154,14 +162,8 @@ export const ModalFormType = ({ modalData }) => {
                     formData.append('img', modalData[key]);
                 } else if (key == 'parfum_id_fk' && typeof modalData[key] === 'object'){
                     formData.append('parfum_id_fk', modalData[key]._id);
-                } else if (key == 'cost'){
-                    formData.append('cost', Number(modalData[key]).toFixed(2));
-                } else if (key == 'price'){
-                    formData.append('price', Number(modalData[key]).toFixed(2));
-                } else if (key == 'old_price'){
-                    formData.append('old_price', Number(modalData[key]).toFixed(2));
-                } else if (key == 'price_flash'){
-                    formData.append('price_flash', Number(modalData[key]).toFixed(2));
+                } else if (key == 'cost' || key == 'price' || key == 'old_price' || key == 'price_flash'){
+                    formData.append(key, Number(modalData[key]).toFixed(2));
                 } else if (key == 'quantity_flash'){
                     formData.append('quantity_flash', Number(modalData[key]));
                 } else {
@@ -263,11 +265,11 @@ export const ModalFormType = ({ modalData }) => {
             </div>
             <div className="form-group3">
                 <label htmlFor="price">
-                    <p>Precio de Nosotros</p>
+                    <p>Precio al Público</p>
                     <input type="text" name="price" id="price" value={modalData?.price || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
                 </label>
                 <label htmlFor="old_price">
-                    <p>Precio al Público</p>
+                    <p>Precio en Tiendas</p>
                     <input type="text" name="old_price" id="old_price" value={modalData?.old_price || ''} onChange={handleInputNumberChange} required={true} step="0.01" min="0.00" />
                 </label>
             </div>

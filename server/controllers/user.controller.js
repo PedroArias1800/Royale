@@ -142,3 +142,35 @@ export const putUser = async(req, res) => {
         res.status(500).json([error.message])
     }
 }
+
+
+export const getUsersByRoleSeller = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+        
+        const skip = (page - 1) * limit;
+
+        // Buscar solo usuarios con rol === 2
+        const users = await User.find({ rol: 2 })
+            .select('_id firstname lastname')
+            .skip(skip)
+            .limit(limit);
+
+        const total = await User.countDocuments({ rol: 2 });
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: users,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ message: 'Error al obtener los usuarios con rol 2' });
+    }
+};

@@ -16,26 +16,27 @@
     align-items: start;
     flex-flow: column;
 }
-.pageAdmin section{
+.infoAdmin{
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 15%;
+    height: 80px;
 }
 .pageAdmin h1{
     margin: 2% 0;
 }
-.pageAdmin div{
+.adminLinks{
     display: flex;
     align-items: center;
     flex-direction: column;
     gap: 10px;
     margin: auto;
     font-size: .8em;
+    width: 100%;
 }
-.pageAdmin div a{
-    width: 400px;
-    min-width: 200px;
+.adminLinks a{
+    width: 90%;
     max-width: 400px;
     background-color: var(--color-rojo);
     text-decoration: none;
@@ -46,7 +47,7 @@
     padding: 5px 0;
     transition: all .35s ease;
 }
-.pageAdmin div a:hover{
+.adminLinks a:hover{
     background-color: var(--color-rojo-2);
 }
 .inbox{
@@ -190,6 +191,7 @@
     padding: 1%;
     min-height: 62.5vh;
     overflow-x: auto;
+    margin-bottom: 10px;
 }
 .dataTable th{
     border: 1px solid black;
@@ -217,4 +219,42 @@
     width: 100%;
     margin: auto;
     text-align: center;
+}
+
+
+.formTransaction h3{
+    text-align: left;
+    margin: 25px 0 10px 0;
+}
+
+
+@media only screen and (max-width: 600px) {
+    .infoAdmin{
+        padding: 0 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: center;
+    }
+    .infoAdmin h1{
+        margin: 0;
+    }
+    .adminLinks, .dataTable{
+        margin: auto 0;
+    }
+}
+
+@media only screen and (max-width: 550px) {
+    .pageHeader1{
+        padding: 0 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        justify-content: space-around;
+        gap: 10px;
+        margin: 10px 0;
+    }
+    .pages button{
+        margin: 0px !important;
+    }
 }

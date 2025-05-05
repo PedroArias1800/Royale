@@ -8,6 +8,7 @@ const __dirname = path.dirname(__filename);
 
 import Transaction from '../models/transaction.model.js'
 import Parfum from '../models/parfum.model.js'
+import User from '../models/user.model.js'
 
 
 export const getAllTransactions = async (req, res) => {
@@ -23,12 +24,19 @@ export const getAllTransactions = async (req, res) => {
                 model: 'Types',
                 select: 'ml -_id',
             })
+            .populate({
+                path: 'seller_id_fk',
+                model: 'User',
+                select: 'firstname lastname _id',
+            })
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
         const transformedTransactions = transactions.map(transaction => ({
             ...transaction.toObject(),
+            seller: transaction.seller_id_fk?.lastname ? transaction.seller_id_fk?.firstname + ' ' + transaction.seller_id_fk?.lastname : 'Sitio Web',
+            seller_id_fk: transaction.seller_id_fk?._id,
             productsTypes: transaction.productsTypes.map(productType => (`${productType.ml}`)),
         }));
 
@@ -96,18 +104,23 @@ export const getFilteredTransactions = async (req, res) => {
                 model: 'Types',
                 select: 'ml -_id',
             })
+            .populate({
+                path: 'seller',
+                model: 'User',
+                select: 'firstname lastname -_id',
+            })
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        // Extraer los datos de las transacciones
-        console.log('Buscados:', transactions);
-
         const transformedTransactions = transactions.map(transaction => ({
             ...transaction.toObject(),
+            seller_id_fk: transaction.seller?.firstname + ' ' + transaction.seller?.lastname ?? 'Sitio Web',
             products: transaction.products.map(product => (`${product._id}=${product.brand_id_fk?.brand_name} ${product.title}`)),
             productsTypes: transaction.productsTypes.map(productType => (`${productType.ml}`)),
         }));
+
+        console.log(transformedTransactions)
 
         // Contar el total de transacciones
         const total = await Transaction.countDocuments(query);
@@ -126,6 +139,95 @@ export const getFilteredTransactions = async (req, res) => {
     } catch (error) {
         console.log(error.message)
         res.status(500).json({ message: 'Error al obtener los tipos' });
+    }
+};
+
+
+export const getTransactionsByUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // Verificar si el usuario existe (opcional pero recomendado)
+        const user = await User.findById(userId).select('firstname lastname');
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = 15;
+        const skip = (page - 1) * limit;
+
+        // Buscar transacciones donde seller_id_fk sea igual al id recibido
+        const transactions = await Transaction.find({ seller_id_fk: userId })
+            .populate({
+                path: 'productsTypes',
+                model: 'Types',
+                select: 'ml -_id',
+            })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
+
+        // Transformar las transacciones para mostrar el nombre completo del usuario
+        const transformedTransactions = transactions.map(transaction => ({
+            ...transaction.toObject(),
+            seller: `${user.firstname} ${user.lastname}`,
+            productsTypes: transaction.productsTypes.map(productType => `${productType.ml}`),
+        }));
+
+        const total = await Transaction.countDocuments({ seller_id_fk: userId });
+        const totalPages = Math.ceil(total / limit);
+
+        res.json({
+            data: transformedTransactions,
+            pagination: {
+                currentPage: page,
+                totalPages: totalPages,
+                totalItems: total,
+                itemsPerPage: limit,
+            },
+        });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Error al obtener las transacciones del usuario' });
+    }
+};
+
+
+export const getCountTransactionsByUserThisMonth = async (req, res) => {
+    try {
+        const userId = req.params.id;
+
+        // Verificar si el usuario existe
+        const user = await User.findById(userId).select('firstname lastname');
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        // Obtener el primer y último día del mes actual
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDayOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+
+        // Obtener las transacciones del usuario para este mes
+        const transactions = await Transaction.find({
+            seller_id_fk: userId,
+            createdAt: { $gte: firstDayOfMonth, $lte: lastDayOfMonth }
+        }).select('quantities');
+
+        // Sumar todos los números dentro de todos los arrays de quantities
+        const totalQuantities = transactions.reduce((sum, transaction) => {
+            const quantitiesSum = transaction.quantities.reduce((a, b) => a + b, 0);
+            return sum + quantitiesSum;
+        }, 0);
+
+        res.json({
+            seller: `${user.firstname} ${user.lastname}`,
+            totalQuantitiesThisMonth: totalQuantities
+        });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ message: 'Error al calcular la suma de quantities del usuario este mes' });
     }
 };
 
@@ -159,8 +261,6 @@ export const getExportTransactionsData = async (req, res) => {
         if (!transactions.length) {
             return res.status(404).json({ message: "No hay transacciones disponibles" });
         }
-
-        console.log(transactions[0].productsTypes.map(item => item.ml).join(', '))
 
         // 2️⃣ Convertir los datos en un formato compatible con Excel
         const data = transactions.map((transaction) => ({
