@@ -36,7 +36,7 @@ export const Admin = () => {
           <h1>Bienvenido: {user.firstname} {user.lastname}</h1>
           <h3>
             <p>Venta Mensual: {countSell}</p>
-            <p>Ganacia: {Number(profit * 100).toFixed(0)}%</p>
+            <p>Ganancia: {Number(profit * 100).toFixed(0)}%</p>
           </h3>
         </section>
         <div className='adminLinks'>
