@@ -113,7 +113,7 @@ export const getFilteredBodies = async (req, res) => {
 
 export const getBody = async(req, res) => {
     try{
-        const body = await Body.findById(req.params.id).sort({ updatedAt: -1 })
+        const body = await Body.findById(req.params.id)
         if (!body) return res.status(404).json({ message: "Body not Found" })
     } catch (error) {
         console.log(error.message)

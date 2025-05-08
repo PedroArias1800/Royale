@@ -154,7 +154,8 @@ export const parfumsBody = async (req, res) => {
             .populate({
                 path: 'parfum_id_fk',
                 select: 'title',
-            });
+            })
+            .sort({ updatedAt: -1 });
 
         res.json(bodies);
     } catch (error) {
