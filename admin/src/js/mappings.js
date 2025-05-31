@@ -40,7 +40,8 @@ export const columnMappings = {
     quantities: 'Cantidades',
     code: 'Código',
     percentage: 'Porcentaje',
-    seller: 'Vendedor'
+    seller: 'Vendedor',
+    productsThatApply: 'Productos que Aplican'
     // Agrega más columnas si es necesario
   };
 

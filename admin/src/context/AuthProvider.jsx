@@ -188,6 +188,7 @@ export const AuthProvider = ({ children }) => {
     const closeModal = () => {
         setModalVisible(false);  // Cerrar el modal
         setModalContent(null);  // Limpiar el contenido del modal
+        setIdNumber(0)
     };
 
     const cargarDataTables = async (id, page) => {

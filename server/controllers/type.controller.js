@@ -7,7 +7,6 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 import Type from '../models/types.model.js'
-import { getCountTransactionsByUserThisMonth } from "./transaction.controller.js";
 
 export const getAllTypes = async(req, res) => {
     try{
@@ -170,6 +169,22 @@ export const getType = async(req, res) => {
     try{
         const type = await Type.findById(req.params.id)
         if (!type) return res.status(404).json({ message: "Type not Found" })
+        res.json(type)
+    } catch (error) {
+        console.log(error.message)
+        res.status(500).json({ message: "Type not Found" })
+    }
+}
+
+export const getTypeByParfumId = async(req, res) => {
+    try{
+        console.log(req.params.parfumId)
+        const types = await Type.find({
+            parfum_id_fk: { $in: [req.params.parfumId] },
+        }).select('ml _id price price_flash')
+
+        if (!types) return res.status(404).json({ message: "Type not Found" })
+        res.json(types);
     } catch (error) {
         console.log(error.message)
         res.status(500).json({ message: "Type not Found" })

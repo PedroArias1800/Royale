@@ -13,12 +13,10 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
     let actualPrice = typeOfSales ? element?.types[0]?.price_flash : element?.types[0]?.price;
 
     useEffect(() => {
-        if (element?.types[0]?.align == 'auto'){
-            setWidth(true)
-        }
-      }, [element]);
-
-    console.log(actualPrice)
+      if (element?.types[0]?.align == 'auto'){
+          setWidth(true)
+      }
+    }, [element]);
 
 
     const gradientStyle = {
@@ -52,7 +50,6 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
                 <div style={{'display': 'flex', 'gap': '5px'}}>
                   <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${element?.types[0]?.old_price}</p>
                   <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${actualPrice}</p>
-                  {console.log(actualPrice)}
                 </div>
               </div>
             </div>

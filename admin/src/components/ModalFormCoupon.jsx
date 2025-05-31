@@ -15,7 +15,7 @@ export const ModalFormCoupon = ({ modalData }) => {
     };
 
     const convertType = (name, value) => {
-        const integerFields = ['status'];
+        const integerFields = ['status', 'productsThatApply'];
         return integerFields.includes(name) ? parseInt(value, 10) : value;
     };
 
@@ -94,6 +94,17 @@ export const ModalFormCoupon = ({ modalData }) => {
                         <option value="" disabled>Selecciona una opción</option>
                         <option value="1">Activado</option>
                         <option value="0">Desactivado</option>
+                    </select>
+                </label>
+            </div>
+            <div className='form-group3'>
+                <label htmlFor="productsThatApply">
+                    <p>Productos que Aplican</p>
+                    <select name="productsThatApply" id="productsThatApply" value={modalData?.productsThatApply !== undefined ? modalData?.productsThatApply : ''} onChange={handleInputChange} required>
+                        <option value="" disabled>Selecciona una opción</option>
+                        <option value="0">Todos</option>
+                        <option value="1">Damas</option>
+                        <option value="2">Caballeros</option>
                     </select>
                 </label>
             </div>

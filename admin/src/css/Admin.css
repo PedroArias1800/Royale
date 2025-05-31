@@ -168,3 +168,32 @@
   border: 1px solid rgba(0, 0, 0, 0.3);
   filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
 }
+
+.tablaResumen{
+  width: 100%; /* Ocupa todo el ancho disponible */
+  table-layout: fixed; /* Fija el layout para respetar los widths */
+  border-collapse: collapse; /* Une los bordes de las celdas */
+}
+        
+/* La primera columna ocupa el 70% del espacio */
+.tablaResumen td:first-child,
+.tablaResumen th:first-child {
+  width: 70%;
+}
+
+/* Las otras dos columnas se reparten el 30% restante (15% cada una) */
+.tablaResumen td:not(:first-child),
+.tablaResumen th:not(:first-child) {
+  width: 15%;
+}
+
+/* Estilos opcionales para mejor visualización */
+.tablaResumen th, .tablaResumen td {
+  padding: 8px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.tablaResumen th {
+  background-color: var(--color-rojo);
+}

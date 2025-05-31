@@ -16,11 +16,12 @@ export const CartResume = ({ products }) => {
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const { totalItems, subTotal, totalPrice, totalSavings, flashSavings, productDetails, productsId, typesId, quantities } = useMemo(() => {
+  const { totalItems, subTotal, totalPrice, totalSavings, totalSavingsCoupon, flashSavings, productDetails, productsId, typesId, quantities } = useMemo(() => {
     let subTotal = 0; 
     let totalPrice = 0; 
     let totalItems = 0;
     let totalSavings = 0;
+    let totalSavingsCoupon = 0;
     let flashSavings = 0;
     let productDetails = [];
     let productsId = [];
@@ -46,6 +47,9 @@ export const CartResume = ({ products }) => {
         totalItems += quantity; // Contamos las unidades
         flashSavings += validFlash ? (product.type.price - product.type.price_flash) * item.quantity : 0
         totalSavings += (oldPrice - price) * quantity; // Calculamos el ahorro
+        if (dataCupon?.productsThatApply == 0 || dataCupon?.productsThatApply == product.parfum.gender){
+          totalSavingsCoupon += (price * quantity)*(percentage/100)
+        }
 
         // Agregamos el detalle del producto al array de detalles, manteniendo el orden de 'products'
         productDetails.push({
@@ -59,7 +63,8 @@ export const CartResume = ({ products }) => {
           price: product.type.price,
           price_flash: product.type.price_flash,
           old_price: product.type.old_price,
-          subTotal: price * quantity
+          subTotal: price * quantity,
+          type_of_sale: product.type.type_of_sale
         });
         productsId.push(`${product.parfum?._id}=${product.parfum?.title}`)
         typesId.push(product.type?._id)
@@ -71,8 +76,8 @@ export const CartResume = ({ products }) => {
     totalPrice = totalPrice - flashSavings;
 
 
-    return { totalItems, subTotal, totalPrice, totalSavings, productDetails, productsId, typesId, quantities, flashSavings };
-  }, [cart, products]); // Dependemos de 'cart' y 'products'
+    return { totalItems, subTotal, totalPrice, totalSavings, totalSavingsCoupon, productDetails, productsId, typesId, quantities, flashSavings };
+  }, [cart, products, dataCupon]); // Dependemos de 'cart' y 'products'
 
 
   const handleResponse = (response) => {
@@ -102,7 +107,7 @@ export const CartResume = ({ products }) => {
       direction: data.address,
       email: data.email,
       subTotal: subTotal.toFixed(2),
-      total: (totalPrice.toFixed(2)-(totalPrice.toFixed(2)*percentage/100).toFixed(2)).toFixed(2),
+      total: (totalPrice.toFixed(2)-totalSavingsCoupon.toFixed(2)).toFixed(2),
       code: dataCupon._id,
       products: productsId,
       productsTypes: typesId,
@@ -127,8 +132,8 @@ export const CartResume = ({ products }) => {
       message += `Producto: ${item.brand_name} ${item.title}\n`;
       message += `Versión: ${item.version_name} - ${item.ml}ml\n`;
       message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
-      if (item?.price_flash){
-        message += `Descuento Flash: $${(Number(item.price_flash).toFixed(2)-Number(item.price).toFixed(2)).toFixed(2)}\n`;
+      if (item?.price_flash && item?.type_of_sale == 'Flash'){
+        message += `Descuento Flash: -$${((Number(item.price_flash).toFixed(2)-Number(item.price).toFixed(2))*-1).toFixed(2)}\n`;
       }
       message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
       message += `Cantidad: ${item.quantity}\n`;
@@ -137,8 +142,8 @@ export const CartResume = ({ products }) => {
   
     let total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
     if (dataCupon.valido){
-      message += `Cupón: ${dataCupon.code}, -${(total*percentage/100).toFixed(2)} (-${dataCupon.texto})\n\n`;
-      total = (total-(total*percentage/100).toFixed(2)).toFixed(2)
+      message += `Cupón: ${dataCupon.code}, -$${totalSavingsCoupon.toFixed(2)} (-${dataCupon.texto})\n\n`;
+      total = (total-totalSavingsCoupon.toFixed(2)).toFixed(2)
     }
     message += `Total: $${total}\n\n`;
     message += `Me puedes contactar de la siguiente manera:\n`;
@@ -150,7 +155,6 @@ export const CartResume = ({ products }) => {
       if (response) {
         handleResponse(response);
       } else {
-        console.log(response)
         handleResponse({ res: false });
       }
     } catch (error) {
@@ -183,7 +187,6 @@ export const CartResume = ({ products }) => {
       setDataCupon(response.data)
       setPercentage(response.data.percentage)
     } catch (error) {
-      console.log(error)
       setDataCupon({
         _id: '',
         valido: false,
@@ -222,7 +225,7 @@ export const CartResume = ({ products }) => {
         }
         <div className='liResumen' style={{display: dataCupon.valido ? 'flex' : 'none'}}>
           <p>Cupón</p>
-          <p style={{ 'color': 'red' }}>-${(totalPrice.toFixed(2)*percentage/100).toFixed(2)} (-{dataCupon.percentage}%)</p>
+          <p style={{ 'color': 'red' }}>-${totalSavingsCoupon.toFixed(2)} (-{dataCupon.percentage}%)</p>
         </div>
         <input type="hidden" name="codeId" id="codeId" value={dataCupon._id}/>
         <p style={{fontSize: '14px', color: dataCupon.valido ? 'var(--color-rojo)' : 'black', margin: '0px'}}>{dataCupon.texto}</p>
@@ -234,7 +237,7 @@ export const CartResume = ({ products }) => {
         <hr />
         <div className='liResumen'>
           <p>Total</p>
-          <p>${(totalPrice.toFixed(2)-(totalPrice.toFixed(2)*percentage/100).toFixed(2)).toFixed(2)}</p>
+          <p>${(totalPrice.toFixed(2)-totalSavingsCoupon.toFixed(2)).toFixed(2)}</p>
         </div>
       </div>
       <div className='div2'>

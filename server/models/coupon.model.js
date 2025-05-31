@@ -13,6 +13,10 @@ const couponSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    productsThatApply: {
+        type: Number,
+        required: true
+    },
     status: {
         type: Number,
         required: true,

@@ -9,8 +9,6 @@ export const ProductList = ({ products }) => {
     setCardsRef(cardRef)
   }, [products])
   
-  console.log('Actualizado')
-  console.log(products)
   return (
     <div className="product-list">
       {

@@ -251,10 +251,12 @@ export const getCupon = async(req, res) => {
                 texto: `Este cupón no está disponible`,
                 percentage: 0,
             })
+            let aplican = cupon.productsThatApply == 0 ? 'Todos' : cupon.productsThatApply == 1 ? 'Damas' : 'Caballeros'
             return res.status(200).json({
                 _id: cupon._id,
                 valido: true,
-                texto: `${cupon.percentage}% de descuento por ${cupon.title}`,
+                texto: `${cupon.percentage}% de descuento por ${cupon.title} a los siguientes productos: ${aplican}`,
+                productsThatApply: cupon.productsThatApply,
                 percentage: cupon.percentage,
                 code: cupon.code
             })

@@ -67,8 +67,6 @@ export const Search = () => {
       return matchesSearch && matchesGender && matchesBrand && matchesPrice;
     });
 
-    console.log(filtered)
-
     setFilteredProducts(filtered);
   };
 

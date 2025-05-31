@@ -1,9 +1,11 @@
 import { columnMappings, excludedColumns, excludedColumnsSeller } from "../js/mappings";
 import { useAuth } from "../context/AuthProvider.jsx";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const DataTable = ({ data, idCategory }) => {
   const { user, setModalData, setIdNumber, closeModal, URLServer, URLFrontend } = useAuth();
+  const [productsThatApply, setProductsThatApply] = useState(['Todos', 'Damas', 'Caballeros'])
+
 
   useEffect(() => {
     closeModal()
@@ -62,6 +64,8 @@ export const DataTable = ({ data, idCategory }) => {
                 {
                   header === "version_id_fk"
                   ? row[header]?.version_name || "N/A"
+                  : header === "productsThatApply"
+                  ? productsThatApply[row[header]] || "N/A"
                   : header === "brand_id_fk"
                   ? row[header]?.brand_name || "N/A"
                   : header === "createdAt"

@@ -95,12 +95,13 @@ export const getCoupon = async(req, res) => {
 
 export const createCoupon = async(req, res) => {
     try{
-        const { title, code, percentage, status } = req.body
+        const { title, code, percentage, productsThatApply, status } = req.body
 
         const newCoupon = new Coupon({
             title,
             code,
             percentage,
+            productsThatApply,
             status
         })
 
