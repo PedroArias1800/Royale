@@ -3,14 +3,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons/faTrash';
 import { Link } from 'react-router-dom';
 import { useParfum } from '../context/ParfumContext'
-import { faBolt } from '@fortawesome/free-solid-svg-icons'
+import { faBolt, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 
 
 export const CartSummary = ({ product }) => {
-  // Estado para mostrar el modal de confirmación
   const [showModal, setShowModal] = useState(false);
   const [nodeDrop, setNodeDrop] = useState({});
-  const { cart, addToCart, decreaseQuantity, removeFromCart, URLServer, URLFrontend } = useParfum();
+  const { cart, addToCart, decreaseQuantity, removeFromCart, imgSrc, URLFrontend } = useParfum();
   const [actualPrice, setActualPrice] = useState(product?.type?.price);
   const [validFlash, setValidFlash] = useState(product?.type?.type_of_sale == 'Flash' && product?.type?.quantity_flash > 0)
 
@@ -19,130 +18,124 @@ export const CartSummary = ({ product }) => {
     setActualPrice(product?.type?.price_flash)
   }, [product, validFlash]);
 
-  // Encuentra la cantidad del producto en el carrito
   const currentItem = cart.find(
     (item) => item.id === product.parfum._id && item.types_id === product.type._id
   );
   const cantidad = currentItem ? currentItem.quantity : 1;
 
-  // Incrementar la cantidad
   const incrementQuantity = () => {
-    if (validFlash){
-      addToCart(product.parfum._id, product.type._id, 1, product.type.quantity_flash); // Incrementa en 1 y máximo hasta la cantidad establecida de productos flash 
+    if (validFlash) {
+      addToCart(product.parfum._id, product.type._id, 1, product.type.quantity_flash);
     } else {
-      addToCart(product.parfum._id, product.type._id, 1, 10); // Incrementa en 1 y máximo hasta 10
+      addToCart(product.parfum._id, product.type._id, 1, 10);
     }
   };
 
-  // Disminuir la cantidad
   const decrementQuantity = () => {
-    decreaseQuantity(product.parfum._id, product.type._id); // Disminuye la cantidad
+    decreaseQuantity(product.parfum._id, product.type._id);
   };
 
-  // Eliminar el producto del carrito
   const handleRemove = (event) => {
-    // Mostrar el modal de confirmación
-    setNodeDrop(event)
+    setNodeDrop(event);
     setShowModal(true);
   };
 
-  // Confirmar la eliminación del producto
   const confirmRemove = () => {
-    // Eliminar el producto del carrito en el contexto
     removeFromCart(product.parfum._id, product.type._id);
-
-    // Eliminar el contenedor HTML del producto
-    const productContainer = nodeDrop.target.closest('.productCart');
-    if (productContainer) {
-      productContainer.remove();
-    }
-
-    // Cerrar el modal después de la eliminación
+    const productContainer = nodeDrop.target.closest('.originalProductCart');
+    if (productContainer) productContainer.remove();
     setShowModal(false);
   };
 
-  // Cancelar la eliminación y cerrar el modal
-  const cancelRemove = () => {
-    setShowModal(false);
-  };
+  const cancelRemove = () => setShowModal(false);
 
-  const gradientStyle = {
-    background: "linear-gradient(to bottom, #720c33, var(--color-rojo))",
-    WebkitBackgroundClip: "text", // Clipa el fondo al texto
-    WebkitTextFillColor: "transparent", // Hace el texto transparente
-    fontWeight: "bold", // Opcional: destaca el texto
-  };
+  const discount = Math.ceil(-100 + (100 / Number(product.type.old_price)) * Number(actualPrice));
 
   return (
     <div className='originalProductCart'>
-      <div className="productCart">
-        <div className="divImgProductCart">
+      <div className="pc-card">
+        {/* Imagen */}
+        <div className="pc-card__img-wrap">
           <Link to={`${URLFrontend}/parfum?id=${product.parfum._id}`}>
-            <img
-              src={`${URLServer}${product.type.img}`}
-              alt={`Imagen de ${product.parfum.brand_id_fk.brand_name} ${product.parfum.title}`}
-              className={`${validFlash ? 'demo animated' : ''}`}
-              style={{'border': validFlash ? '6px solid transparent' : 'none'}} 
-            />
+            <div
+              className={validFlash ? 'demo animated pc-card__img-animated' : 'pc-card__img-animated'}
+              style={validFlash ? { border: '5px solid transparent', borderRadius: '6px', display: 'inline-block' } : {}}
+            >
+              <img
+                src={imgSrc(product.type.img)}
+                alt={`${product.parfum.brand_id_fk.brand_name} ${product.parfum.title}`}
+                className="pc-card__img"
+              />
+            </div>
           </Link>
+          {validFlash && (
+            <span className="pc-card__flash-badge">
+              <FontAwesomeIcon icon={faBolt} /> Flash
+            </span>
+          )}
         </div>
-        <div className="divInfoProductCart">
-          <div className='titleProduct'>
-            <h3>
-              {product.parfum.brand_id_fk.brand_name} {product.parfum.title}
-              {
-                (validFlash) && (
-                  <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash cartBoltFlash' />
-                )
-              }
 
-            </h3>
-            <Link to={`/search?type=${product.parfum.gender}`}>
+        {/* Info */}
+        <div className="pc-card__body">
+          {/* Cabecera: nombre + género */}
+          <div className="pc-card__head">
+            <div>
+              <p className="pc-card__brand">{product.parfum.brand_id_fk.brand_name}</p>
+              <h3 className="pc-card__title">{product.parfum.title}</h3>
+            </div>
+            <Link to={`/search?type=${product.parfum.gender}`} className="pc-card__gender">
               {product.parfum.gender === 1 ? 'Damas' : 'Caballeros'}
             </Link>
           </div>
-          <h5>
-            {product.parfum.version_id_fk.version_name} - {product.type.ml}ml
-          </h5>
-          <div className="productCardInfo2">
-            <div className="cardInfo1">
-              <div>
-                <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${Number(product.type.old_price).toFixed(2)}</p>
-                <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${Number(actualPrice).toFixed(2)}</p>
-              </div>
-              <p className='cardDiscount'>
-                {Math.ceil(-100 + (100 / Number(product.type.old_price).toFixed(2)) * Number(actualPrice).toFixed(2))}%
-              </p>
+
+          {/* Versión */}
+          <p className="pc-card__version">
+            {product.parfum.version_id_fk.version_name} · {product.type.ml}ml
+          </p>
+
+          {/* Precio + descuento */}
+          <div className="pc-card__price-row">
+            <span className="pc-card__price-old">${Number(product.type.old_price).toFixed(2)}</span>
+            <span className="pc-card__price-now">${Number(actualPrice).toFixed(2)}</span>
+            <span className="pc-card__discount">{discount}%</span>
+          </div>
+
+          {validFlash && (
+            <p className="pc-card__flash-stock">Solo {product.type.quantity_flash} disponibles</p>
+          )}
+
+          {/* Controles */}
+          <div className="pc-card__controls">
+            <div className="pc-card__qty">
+              <button className="pc-card__qty-btn" onClick={decrementQuantity} aria-label="Disminuir">
+                <FontAwesomeIcon icon={faMinus} />
+              </button>
+              <span className="pc-card__qty-count">{cantidad}</span>
+              <button className="pc-card__qty-btn" onClick={incrementQuantity} aria-label="Aumentar">
+                <FontAwesomeIcon icon={faPlus} />
+              </button>
             </div>
-            <div className='editQuantity'>
-              <div style={{textAlign: 'right'}}>
-                <p>Cantidad:{cantidad}</p>
-                {
-                  (validFlash) && (
-                    <p style={{color: 'red', fontSize: '.8rem'}}>Solo {product.type.quantity_flash} disponibles</p>
-                  )
-                }
-              </div>
-              <div className="cardInfo2">
-                <button onClick={incrementQuantity}>+</button>
-                <button onClick={decrementQuantity}>-</button>
-                <button onClick={handleRemove}>
-                  <FontAwesomeIcon icon={faTrash} />
-                </button>
-              </div>
-            </div>
+            <button className="pc-card__remove" onClick={handleRemove} aria-label="Eliminar producto">
+              <FontAwesomeIcon icon={faTrash} />
+              <span>Eliminar</span>
+            </button>
           </div>
         </div>
       </div>
 
       {/* Modal de confirmación */}
       {showModal && (
-        <div className="modal">
+        <div className="modal" onClick={(e) => e.target === e.currentTarget && cancelRemove()}>
           <div className="modalContent">
-            <h3>¿Estás seguro de que deseas eliminar este producto?</h3>
+            <div className="modal-icon">🗑</div>
+            <h3 className="modal-title">¿Eliminar producto?</h3>
+            <p className="modal-desc">
+              <strong>{product.parfum.brand_id_fk.brand_name} {product.parfum.title}</strong>
+              <br />será eliminado de tu cesta.
+            </p>
             <div className="modalActions">
-              <button onClick={confirmRemove}>Sí</button>
-              <button onClick={cancelRemove}>No</button>
+              <button className="modalActions__confirm" onClick={confirmRemove}>Sí, eliminar</button>
+              <button className="modalActions__cancel" onClick={cancelRemove}>Cancelar</button>
             </div>
           </div>
         </div>

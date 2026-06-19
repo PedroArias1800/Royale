@@ -20,8 +20,13 @@ export const ParfumContextProvider = ({ children }) => {
     const [alertMessage, setAlertMessage] = useState();
     const [color, setColor] = useState();
     const [color2, setColor2] = useState();
-    const URLServer = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com';
-    const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'https://royalepanama.com'
+    const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001';
+    const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:4173'
+    const imgSrc = (path) => {
+        if (!path) return path;
+        const url = path.startsWith('http') ? path : `${URLServer}${path}`;
+        return url.replace(/ /g, '%20');
+    };
 
     useEffect(() => {
         localStorage.setItem("cart", JSON.stringify(cart));
@@ -161,7 +166,7 @@ export const ParfumContextProvider = ({ children }) => {
       };
         
 
-    return <ParfumContext.Provider value={{ cart, setCart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend }}>
+    return <ParfumContext.Provider value={{ cart, setCart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend, imgSrc }}>
         {children}
     </ParfumContext.Provider>
 

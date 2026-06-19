@@ -8,7 +8,7 @@ import react from '@vitejs/plugin-react'
 //     port: 5173, // Puerto para admin
 //     proxy: {
 //       "/socket.io": {
-//         target: 'https://api.royalepanama.com', // Servidor
+//         target: 'http://localhost:4001', // Servidor
 //         ws: true, // Activa WebSocket
 //         changeOrigin: true, // Cambia el origen para evitar problemas de CORS
 //       },

@@ -1,5 +1,5 @@
 import axios from 'axios'
-const URL = import.meta.env.VITE_SERVER_URL || 'https://api.royalepanama.com'
+const URL = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 
 export const getParfumVersionRequest = async (id) => 
     await axios.get(`${URL}/parfum?id=${id}`);

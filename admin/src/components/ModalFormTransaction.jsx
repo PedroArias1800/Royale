@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { postUsersRequest, putUsersRequest } from '../api/User.api.js';
 import { useAuth } from '../context/AuthProvider.jsx';
-import { getAllParfumsRequest, getUsersByRoleSeller } from '../api/Admin.api';
+import { getAllParfumsRequest, getTypeByParfumId, getUsersByRoleSeller } from '../api/Admin.api';
 import { getAllCouponsRequest } from '../api/Admin.api';
 import { columnMappings, excludedColumns, excludedColumnsSeller } from "../js/mappings";
 
@@ -11,13 +11,21 @@ export const ModalFormTransaction = ({ modalData }) => {
     const isUpdate = Boolean(modalData?._id); // Identificar si es una actualización
 
     const [parfums, setParfum] = useState([]);
+    const [types, setTypes] = useState([]);
     const [coupons, setCoupon] = useState([]);
     const [datosResumen, setDatosResumen] = useState([]);
     const [datosTabla, setDatosTabla] = useState([]);
     const [sellers, setSellers] = useState([]);
+    const [sellType, setSellType] = useState([]);
+    const [datosTransaccion, setDatosTransaccion] = useState({
+        "totalQuantity": 0,
+        "subTotal": 0.00,
+        "total": 0.00
+    });
+
 
     // Filtramos las columnas excluidas y mapeamos las cabeceras
-    const headers = ['Perfume', 'Tipo de Perfume', 'Cantidad']
+    const headers = ['Perfume', 'Tipo de Perfume', 'Cantidad', 'Precio']
     
     useEffect(() => {
         async function loadParfum() {
@@ -37,15 +45,35 @@ export const ModalFormTransaction = ({ modalData }) => {
         loadSellers();
     }, []);
 
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
+    useEffect(() => {
+        async function loadTypes(parfumId) {
+            const response = await getTypeByParfumId(parfumId);
+            setTypes(Array.isArray(response.data) ? response.data : []);
+        }
+        if(modalData?.parfum_id_fk?._id != undefined || modalData?.parfum_id_fk != undefined){
+            loadTypes(modalData?.parfum_id_fk?._id ?? modalData?.parfum_id_fk)
+        } else {
+            setTypes([])
+            setSellType([])
+        }
+    },[modalData?.parfum_id_fk?._id, modalData?.parfum_id_fk])
 
+    const handleInputChange = async (e) => {
+        const { name, value } = e.target;
+        
         setModalData((prevData) => ({
             ...prevData,
             [name]: convertType(name, value), // Convertimos según el tipo esperado
         }));
-    };
 
+        if (name == 'coupon_id_fk'){
+            setDatosTransaccion({
+                ...datosTransaccion,
+                total: (datosTransaccion?.subTotal-(datosTransaccion?.subTotal*parseInt(value.split('-')[1])/100).toFixed(2)).toFixed(2)
+            })
+        }
+    };
+    
     const handleInputChangeSelect = (e) => {
         const { name, value, options, selectedIndex } = e.target;
         const selectedText = options[selectedIndex].text;
@@ -55,7 +83,24 @@ export const ModalFormTransaction = ({ modalData }) => {
             [name]: convertType(name, value), // Convertimos según el tipo esperado
             [`${name}Text`]: selectedText, // Almacenamos el texto seleccionado
         }));
-    };    
+
+        if (name == "parfum_type_id_fk"){
+            types.map(type => {
+                if (parseInt(type?.ml) == parseInt(selectedText)){
+                    setSellType([
+                        {
+                            'type': 'Normal',
+                            'price': type?.price
+                        },
+                        {
+                            'type': 'Venta Flash',
+                            'price': type?.price_flash
+                        },
+                    ])
+                }
+            })
+        }
+    };
     
     const actualizarModelDataExt = (name, value) => {
         setModalData((prevData) => ({
@@ -65,8 +110,15 @@ export const ModalFormTransaction = ({ modalData }) => {
     }
 
     const convertType = (name, value) => {
-        const integerFields = ['gender', 'status'];
-        return integerFields.includes(name) ? parseInt(value, 10) : value;
+        const integerFields = ['gender', 'status', 'quantityTemp'];
+        const floatFields = ['sellType'];
+        if(integerFields.includes(name)){
+            return parseInt(value, 10)
+        } else if (floatFields.includes(name)){
+            return parseFloat(value).toFixed(2)
+        }
+
+        return value;
     };
 
     const enviarDatos = async (e) => {
@@ -138,13 +190,28 @@ export const ModalFormTransaction = ({ modalData }) => {
             productsTitle: modalData?.parfum_id_fkText,
             productsTypesTitle: modalData?.parfum_type_id_fkText,
             quantities: modalData?.quantityTemp,
+            price: modalData?.sellType
         }])
 
         setDatosResumen([...datosResumen, {
             products: modalData?.parfum_id_fk,
             productsTypes: modalData?.parfum_type_id_fk,
             quantities: modalData?.quantityTemp,
+            price: modalData?.sellType
         }])
+
+        setTypes([])
+        console.log(datosTransaccion?.subTotal, modalData?.sellType, modalData?.quantityTemp)
+        const subTotal = parseFloat(datosTransaccion?.subTotal + parseFloat(modalData?.sellType) * modalData?.quantityTemp).toFixed(2)
+        console.log(subTotal)
+        setDatosTransaccion({
+            ...datosTransaccion,
+            totalQuantity: datosTransaccion?.totalQuantity + modalData?.quantityTemp,
+            subTotal: parseFloat(subTotal),
+            total: modalData?.coupon_id_fk ? (subTotal-(subTotal*parseInt(modalData?.coupon_id_fk.split('-')[1])/100).toFixed(2)).toFixed(2) : subTotal
+        })
+        // console.log(datosTabla)
+        // console.log(datosResumen)
     }
 
     const actualizarDataNoRequerida = () => {
@@ -209,9 +276,9 @@ export const ModalFormTransaction = ({ modalData }) => {
                         required={true}
                     >
                         <option value="" disabled>Selecciona una opción</option>
-                        {parfums.map((parfum) => (
-                            <option key={parfum._id} value={parfum._id}>
-                                {parfum.title} - {parfum.version_id_fk.version_name}
+                        {types.map((type) => (
+                            <option key={type._id} value={type._id}>
+                                {type.ml}
                             </option>
                         ))}
                     </select>
@@ -222,6 +289,19 @@ export const ModalFormTransaction = ({ modalData }) => {
                     <p>Cantidad de Perfumes</p>
                     <input type="number" name="quantityTemp" id="quantityTemp" value={modalData?.quantityTemp || ''} onChange={handleInputChange} required={true} />
                 </label>
+                <label htmlFor="sellType">
+                    <p>Tipo de Venta</p>
+                    <select name="sellType" id="sellType" value={modalData?.sellType || ''} onChange={handleInputChange} required={true}>
+                        <option value="" disabled>Selecciona una opción</option>
+                        {sellType.map((sell, id) => (
+                            <option key={id} value={sell.price}>
+                                {sell.type} - ${sell.price}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+            <div className="form-group3">
                 <label htmlFor="">
                     <div className='btnBorrarCrear'>
                         <section 
@@ -230,8 +310,8 @@ export const ModalFormTransaction = ({ modalData }) => {
                     </div>
                 </label>
             </div>
-            <div className="form-group3">
-                <table style={{'width': '100%', 'display': datosTabla.length > 0 ? 'block' : 'none'}}>
+            <div className="form-group3" style={{margin: '10px 0'}}>
+                <table style={{'display': datosTabla.length > 0 ? 'block' : 'none'}} className='tablaResumen'>
                     <thead>
                         <tr>
                             {headers.map((header, id) => (
@@ -275,11 +355,20 @@ export const ModalFormTransaction = ({ modalData }) => {
                         ))}
                     </select>
                 </label>
+                <label htmlFor="status">
+                    <p>Estado</p>
+                    <select name="status" id="status" value={modalData?.status !== undefined ? modalData.status : ''} onChange={handleInputChange} required={true}>
+                        <option value="" disabled>Selecciona una opción</option>
+                        <option value="1">Pendiente</option>
+                        <option value="2">Completado</option>
+                        <option value="0">Cancelado</option>
+                    </select>
+                </label>
             </div>
             <div className="form-group3">
                 <label htmlFor="quantity">
                     <p>Cantidad de Perfumes</p>
-                    <input type="text" name="quantity" id="quantity" value={modalData?.quantity || ''} required={true} readOnly={true} />
+                    <input type="text" name="quantity" id="quantity" value={datosTransaccion?.totalQuantity ?? 0} required={true} readOnly={true} />
                 </label>
                 <label htmlFor="coupon_id_fk">
                     <p>Cupón Utilizado</p>
@@ -291,8 +380,9 @@ export const ModalFormTransaction = ({ modalData }) => {
                         required={true}
                     >
                         <option value="" disabled>Selecciona una opción</option>
+                        <option value="NoAplica-0">No Aplica</option>
                         {coupons.map((coupon) => (
-                            <option key={coupon._id} value={coupon._id}>
+                            <option key={coupon._id} value={coupon._id+'-'+coupon.percentage}>
                                 {coupon.code}: -{coupon.percentage}%
                             </option>
                         ))}
@@ -302,11 +392,11 @@ export const ModalFormTransaction = ({ modalData }) => {
             <div className="form-group3">
                 <label htmlFor="subTotal">
                     <p>Sub Total</p>
-                    <input type="text" name="subTotal" id="subTotal" value={modalData?.subTotal || ''} required={true} readOnly={true}/>
+                    <input type="text" name="subTotal" id="subTotal" value={datosTransaccion?.subTotal || ''} required={true} readOnly={true}/>
                 </label>
                 <label htmlFor="total">
                     <p>Total</p>
-                    <input type="text" name="total" id="total" value={modalData?.total || ''} required={true} readOnly={true}/>
+                    <input type="text" name="total" id="total" value={datosTransaccion?.total || ''} required={true} readOnly={true}/>
                 </label>
             </div>
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>

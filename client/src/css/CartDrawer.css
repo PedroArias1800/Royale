@@ -1,0 +1,453 @@
+/* ══════════════════════════════════════════════
+   CART DRAWER — slide-in panel from right
+   BEM prefix: cdr
+═══════════════════════════════════════════════ */
+
+/* ── Backdrop ── */
+.cdr-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 4, 9, 0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1099;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+.cdr-backdrop--open {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Drawer panel ── */
+.cdr {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(460px, 96vw);
+  background: linear-gradient(160deg, #13090f 0%, #0d060b 55%, #1a0a12 100%);
+  border-left: 1px solid rgba(253, 208, 94, 0.13);
+  box-shadow: -12px 0 50px rgba(0, 0, 0, 0.8), -2px 0 12px rgba(214, 10, 95, 0.07);
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.42s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  overflow: hidden;
+}
+.cdr--open {
+  transform: translateX(0);
+}
+
+/* ── Header ── */
+.cdr__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid rgba(253, 208, 94, 0.08);
+  flex-shrink: 0;
+}
+.cdr__head-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 1rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(237, 232, 235, 0.9);
+}
+.cdr__bag-icon {
+  color: var(--color-dorado, #fdd05e);
+  font-size: 1.1rem;
+}
+.cdr__count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 11px;
+  background: var(--color-rojo, #d60a5f);
+  color: #fff;
+  font-size: 0.80rem;
+  font-weight: 700;
+  font-family: 'Raleway', sans-serif;
+  letter-spacing: 0;
+}
+.cdr__close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(253, 208, 94, 0.18);
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(237, 232, 235, 0.65);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: background 0.25s, color 0.25s, border-color 0.25s;
+}
+.cdr__close:hover {
+  background: rgba(253, 208, 94, 0.08);
+  border-color: rgba(253, 208, 94, 0.38);
+  color: var(--color-dorado, #fdd05e);
+}
+
+/* ── Gold ornament divider ── */
+.cdr__ornament {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 24px;
+  margin: 10px 0 4px;
+  flex-shrink: 0;
+}
+.cdr__ornament-line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(253, 208, 94, 0.3), transparent);
+}
+.cdr__ornament-gem {
+  color: rgba(253, 208, 94, 0.45);
+  font-size: 0.80rem;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+
+/* ── Scrollable body ── */
+.cdr__body {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(253, 208, 94, 0.2) transparent;
+}
+.cdr__body::-webkit-scrollbar { width: 4px; }
+.cdr__body::-webkit-scrollbar-thumb {
+  background: rgba(253, 208, 94, 0.2);
+  border-radius: 2px;
+}
+
+/* ── Empty state ── */
+.cdr__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  min-height: 280px;
+  padding: 40px 32px;
+  text-align: center;
+}
+.cdr__empty-icon {
+  font-size: 3rem;
+  color: rgba(253, 208, 94, 0.18);
+  margin-bottom: 8px;
+}
+.cdr__empty-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.2rem;
+  font-style: italic;
+  color: rgba(237, 232, 235, 0.75);
+  margin: 0;
+}
+.cdr__empty-sub {
+  font-size: 0.84rem;
+  color: rgba(237, 232, 235, 0.4);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+.cdr__explore-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 11px 24px;
+  border: 1px solid rgba(253, 208, 94, 0.3);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--color-dorado, #fdd05e);
+  text-decoration: none;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.80rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background 0.3s, border-color 0.3s;
+}
+.cdr__explore-btn:hover {
+  background: rgba(253, 208, 94, 0.06);
+  border-color: rgba(253, 208, 94, 0.55);
+}
+
+/* ── Loading ── */
+.cdr__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+.cdr__spinner {
+  width: 32px;
+  height: 32px;
+  border: 2px solid rgba(253, 208, 94, 0.14);
+  border-top-color: var(--color-dorado, #fdd05e);
+  border-radius: 50%;
+  animation: cdr-spin 0.9s linear infinite;
+}
+@keyframes cdr-spin { to { transform: rotate(360deg); } }
+
+/* ── Product list ── */
+.cdr__list {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cdr__item {
+  display: flex;
+  gap: 14px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.024);
+  border: 1px solid rgba(253, 208, 94, 0.07);
+  border-radius: 4px;
+  transition: border-color 0.25s;
+}
+.cdr__item:hover {
+  border-color: rgba(253, 208, 94, 0.15);
+}
+
+/* Flash animated border wrapper (applied to div, NOT to img) */
+.cdr__flash-border {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+}
+
+/* Product image */
+.cdr__item-img-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 80px;
+  height: 90px;
+  border-radius: 3px;
+  overflow: visible;
+  text-decoration: none;
+}
+.cdr__item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 3px;
+  display: block;
+}
+.cdr__flash-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-rojo, #d60a5f);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.80rem;
+  color: #fff;
+}
+
+/* Product body */
+.cdr__item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.cdr__item-brand {
+  margin: 0;
+  font-size: 0.80rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(253, 208, 94, 0.55);
+  font-family: 'Cinzel', Georgia, serif;
+}
+.cdr__item-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 0.92rem;
+  font-style: italic;
+  color: rgba(237, 232, 235, 0.9);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.2s;
+}
+.cdr__item-name:hover { color: var(--color-dorado, #fdd05e); }
+.cdr__item-meta {
+  margin: 0;
+  font-size: 0.80rem;
+  color: rgba(237, 232, 235, 0.4);
+}
+.cdr__item-stock {
+  margin: 0;
+  font-size: 0.80rem;
+  color: var(--color-rojo, #d60a5f);
+  font-weight: 600;
+}
+
+/* Foot row: prices + controls */
+.cdr__item-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  gap: 8px;
+}
+.cdr__item-prices {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.cdr__price-old {
+  font-size: 0.80rem;
+  color: rgba(237, 232, 235, 0.28);
+  text-decoration: line-through;
+}
+.cdr__price-current {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-dorado-light, #ffe88a);
+  font-family: 'Raleway', sans-serif;
+}
+
+/* Quantity controls */
+.cdr__controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cdr__qty-btn {
+  width: 26px;
+  height: 26px;
+  border: 1px solid rgba(253, 208, 94, 0.25);
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(237, 232, 235, 0.7);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.cdr__qty-btn:hover {
+  background: rgba(253, 208, 94, 0.1);
+  border-color: rgba(253, 208, 94, 0.5);
+  color: var(--color-dorado, #fdd05e);
+}
+.cdr__qty {
+  min-width: 20px;
+  text-align: center;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: rgba(237, 232, 235, 0.88);
+}
+.cdr__remove {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: rgba(214, 10, 95, 0.45);
+  font-size: 0.80rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, color 0.2s;
+}
+.cdr__remove:hover {
+  background: rgba(214, 10, 95, 0.12);
+  color: var(--color-rojo, #d60a5f);
+}
+
+/* ── Footer ── */
+.cdr__footer {
+  padding: 16px 20px 24px;
+  border-top: 1px solid rgba(253, 208, 94, 0.08);
+  background: linear-gradient(to top, rgba(13, 6, 11, 0.9) 0%, transparent 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.cdr__subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+}
+.cdr__subtotal-label {
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.80rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(237, 232, 235, 0.55);
+}
+.cdr__subtotal-amount {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.3rem;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--color-dorado-light, #ffe88a);
+}
+.cdr__checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: linear-gradient(135deg, #8d093f, #d60a5f 60%, #ee0d6b);
+  border-radius: 2px;
+  border: none;
+  color: #fff;
+  text-decoration: none;
+  font-family: 'Cinzel', Georgia, serif;
+  font-size: 0.80rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  cursor: pointer;
+  transition: box-shadow 0.3s, transform 0.3s;
+  box-shadow: 0 4px 20px rgba(214, 10, 95, 0.35);
+}
+.cdr__checkout:hover {
+  box-shadow: 0 6px 30px rgba(214, 10, 95, 0.55);
+  transform: translateY(-1px);
+}
+.cdr__keep-shopping {
+  background: transparent;
+  border: none;
+  color: rgba(237, 232, 235, 0.4);
+  font-size: 0.80rem;
+  cursor: pointer;
+  text-align: center;
+  letter-spacing: 0.06em;
+  transition: color 0.25s;
+  padding: 4px 0;
+}
+.cdr__keep-shopping:hover { color: rgba(237, 232, 235, 0.7); }
+

@@ -50,7 +50,7 @@ export const MasBuscados = ({ title, typeOfSale, parfum }) => {
       <>
         {
           parfum.length > 0 && (
-            <div className={`MasBuscados ${typeOfSale == 'Flash' ? 'MasBuscadosVentasFlash' : ''}`} id="MasBuscados">
+            <div className={`MasBuscados ${typeOfSale == 'Flash' ? 'MasBuscadosVentasFlash' : ''}`} id={typeOfSale === 'Flash' ? 'VentasFlash' : 'MasBuscados'}>
               <p className='MasBuscadosTitle'>
               {title}
               </p>

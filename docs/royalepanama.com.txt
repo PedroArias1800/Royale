@@ -1,0 +1,17 @@
+; Zone file for royalepanama.com
+; Generated on 2026-06-19 02:39:30 UTC
+
+$ORIGIN royalepanama.com
+$TTL 3600
+
+@                              3600 IN SOA   ns1.dns-parking.com. dns.hostinger.com. 2026061908 10000 2400 604800 600
+@                              14400 IN ALIAS d3vkyhy9lbjy1u.cloudfront.net.
+@                              86400 IN NS    ns1.dns-parking.com.
+                               86400 IN NS    ns2.dns-parking.com.
+_035c8871eb97d41fcc2789976044ec69 14400 IN CNAME _fb5c6b02d85580740db9a40aa380a6ac.jkddzztszm.acm-validations.aws.
+_23fdac04899f1be01ea85dc5758602c6.api 14400 IN CNAME _3501b795da4d93a849c6c800a48fa17a.jkddzztszm.acm-validations.aws.
+_3fc2135fd3e20512a9030ab1da8d72e6.admin 14400 IN CNAME _4eacabf633da5e741da3ae0020b3068e.jkddzztszm.acm-validations.aws.
+_790908c8b03f2643d8bbccde6de022fd.www 14400 IN CNAME _7314f71b76fd74535e9b0cb0a6f05e2d.jkddzztszm.acm-validations.aws.
+admin                          14400 IN CNAME dheud93k4a750.cloudfront.net.
+api                            14400 IN CNAME d-ky3h41j8e9.execute-api.us-east-1.amazonaws.com.
+www                            14400 IN CNAME d3vkyhy9lbjy1u.cloudfront.net.

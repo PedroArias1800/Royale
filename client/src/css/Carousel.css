@@ -2,57 +2,163 @@
 .carousel-container {
   width: 94%;
   overflow-x: auto;
-  scroll-behavior: smooth; /* Hacer que el scroll sea suave */
-  scrollbar-width: none; /* Ocultar scroll en navegadores compatibles */
+  scroll-behavior: smooth;
+  scrollbar-width: none;
   margin: auto;
-  height: 70vh;
+  height: clamp(340px, 54vh, 460px);
 }
-
-.carousel-container::-webkit-scrollbar {
-  display: none; /* Ocultar scrollbar en navegadores basados en WebKit */
-}
+.carousel-container::-webkit-scrollbar { display: none; }
 
 .carousel {
   display: flex;
-  gap: 20px;
+  gap: 18px;
   height: 100%;
+  align-items: stretch;
 }
 
+/* ══════════════════════════
+   TARJETA DE PRODUCTO
+══════════════════════════ */
 .card {
   flex: 0 0 auto;
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 10px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #1e1219 0%, #140910 100%);
+  border-radius: 4px;
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.5);
+  padding: 0;
   text-align: left;
   height: 100%;
   text-decoration: none;
+  color: #ede8eb;
+  transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(253, 208, 94, 0.1);
 }
 
+/* Shimmer dorado al hover — sello de lujo */
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -110%;
+  width: 80%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 20%,
+    rgba(253, 208, 94, 0.09) 50%,
+    transparent 80%
+  );
+  pointer-events: none;
+  transition: none;
+  z-index: 2;
+}
+.card:hover::before {
+  animation: shimmerSweep 0.65s ease forwards;
+}
 
+/* Capa de profundidad inferior */
+.card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 58%, rgba(214, 10, 95, 0.06) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.card:hover {
+  transform: translateY(-7px);
+  box-shadow:
+    0 18px 50px rgba(214, 10, 95, 0.2),
+    0 0 0 1px rgba(253, 208, 94, 0.3);
+  border-color: rgba(253, 208, 94, 0.3);
+}
+
+/* Contenedor imagen: ocupa el espacio sobrante */
+.card .discountPrice {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Imagen — llena el contenedor */
 .card img {
   width: 100%;
-  min-height: 320px;
-  max-height: 320px;
+  height: 100%;
+  min-height: unset;
+  max-height: unset;
   object-fit: cover;
-  border-radius: 5px;
+  border-radius: 3px 3px 0 0;
+  display: block;
+  transition: transform 0.5s ease;
+  position: relative;
+  z-index: 0;
 }
-.card h2 {
-  font-size: 1.2em;
-  margin: 10px 0;
-  white-space: nowrap !important; /* Evitar que el texto se divida en varias líneas */
-  overflow: hidden !important;    /* Ocultar el texto que exceda el ancho del contenedor */
-  text-overflow: ellipsis !important; /* Mostrar los puntos suspensivos si el texto es muy largo */
+.card:hover img { transform: scale(1.04); }
+
+/* Área de texto — altura fija al fondo */
+.card > div:not(.discountPrice) {
+  flex: 0 0 auto;
+  padding: 8px 12px 2px;
+  position: relative;
+  z-index: 3;
+}
+.card > .infoCards {
+  flex: 0 0 auto;
+  padding: 2px 12px 0;
+  position: relative;
+  z-index: 3;
+}
+.card > .infoCards p {
+  font-size: 0.80rem;
+  color: rgba(237, 232, 235, 0.4);
+  font-style: italic;
+  letter-spacing: 0.02em;
+}
+.card > p.cardsMarca {
+  flex: 0 0 auto;
+  padding: 3px 12px 10px;
+  position: static;
+  bottom: auto;
+  font-family: var(--font-cinzel, 'Cinzel', Georgia, serif);
+  font-size: 0.80rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(253, 208, 94, 0.7);
 }
 
+/* Nombre del producto */
+.card h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 4px;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  color: #ede8eb;
+  position: relative;
+  z-index: 3;
+}
 
 .card .price {
-  font-size: .8em;
+  font-size: 0.85em;
+  color: rgba(237, 232, 235, 0.82);
+  font-family: 'Raleway', Verdana, sans-serif;
+  position: relative;
+  z-index: 3;
 }
-
 .card .description {
-  font-size: 0.6em;
-  color: #555;
+  font-size: 0.80rem;
+  color: rgba(237, 232, 235, 0.4);
   overflow: hidden;
   text-overflow: ellipsis;
+  font-family: 'Raleway', Verdana, sans-serif;
+  position: relative;
+  z-index: 3;
 }

@@ -4,7 +4,7 @@ import { postBodiesRequest, putBodiesRequest, deleteBodiesRequest } from '../api
 import { useAuth } from '../context/AuthProvider';
 
 export const ModalFormBody = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal, showAlert, URLServer } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert, imgSrc } = useAuth();
     const [parfums, setParfums] = useState([]);
     const isUpdate = Boolean(modalData?._id);
 
@@ -197,7 +197,7 @@ export const ModalFormBody = ({ modalData }) => {
                 {(modalData?.img1Preview || modalData?.parfum_img) && (
                     <div style={{ marginTop: '10px' }}>
                         <img
-                            src={modalData?.img1Preview ? modalData.img1Preview : `${URLServer}${modalData?.parfum_img}`}
+                            src={modalData?.img1Preview ? modalData.img1Preview : imgSrc(modalData?.parfum_img)}
                             alt="Vista previa"
                             style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
                         />
@@ -218,7 +218,7 @@ export const ModalFormBody = ({ modalData }) => {
                 {(modalData?.img2Preview || modalData?.back_img) && (
                     <div style={{ marginTop: '10px' }}>
                         <img
-                            src={modalData?.img2Preview ? modalData.img2Preview : `${URLServer}${modalData?.back_img}`}
+                            src={modalData?.img2Preview ? modalData.img2Preview : imgSrc(modalData?.back_img)}
                             alt="Vista previa"
                             style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
                         />

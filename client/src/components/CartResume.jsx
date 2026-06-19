@@ -196,58 +196,100 @@ export const CartResume = ({ products }) => {
   }
 
 
+  const finalTotal = (totalPrice - totalSavingsCoupon).toFixed(2);
+
   return (
     <div className='cardResume'>
-      <h2>Resumen del Pedido</h2>
-      <div>
+      {/* ── Header ── */}
+      <div className="cr-header">
+        <div className="cr-header__ornament">
+          <span className="cr-header__line" />
+          <span className="cr-header__gem">◆</span>
+          <span className="cr-header__line" />
+        </div>
+        <h2>Resumen del Pedido</h2>
+      </div>
+
+      {/* ── Items ── */}
+      <div className="cr-items">
         {productDetails.map((item, index) => (
-          <div className='liResumen' key={index}>
-            <p>{item.brand_name} {item.title} X {item.quantity}</p>
-            <p>${item.old_price.toFixed(2)}</p>
+          <div className='liResumen cr-item' key={index}>
+            <p className="cr-item__name">
+              <span className="cr-item__qty">×{item.quantity}</span>
+              {item.brand_name} {item.title}
+            </p>
+            <p className="cr-item__price">${item.old_price.toFixed(2)}</p>
           </div>
         ))}
-        <hr />
+      </div>
+
+      {/* ── Totales ── */}
+      <div className="cr-totals">
         <div className='liResumen'>
           <p>Sub Total</p>
           <p>${subTotal.toFixed(2)}</p>
         </div>
-        <div className='liResumen'>
-          <p>Promociones</p>
-          <p style={{ 'color': 'red' }}>-${totalSavings.toFixed(2)}</p>
-        </div>
-        {
-          (flashSavings > 0) && (
-            <div className='liResumen'>
-              <p>Descuentos Flash</p>
-              <p style={{ 'color': 'red' }}>-${flashSavings.toFixed(2)}</p>
-            </div>
-          )
-        }
-        <div className='liResumen' style={{display: dataCupon.valido ? 'flex' : 'none'}}>
-          <p>Cupón</p>
-          <p style={{ 'color': 'red' }}>-${totalSavingsCoupon.toFixed(2)} (-{dataCupon.percentage}%)</p>
-        </div>
+        {totalSavings > 0 && (
+          <div className='liResumen'>
+            <p>Promociones</p>
+            <p className="cr-saving">-${totalSavings.toFixed(2)}</p>
+          </div>
+        )}
+        {flashSavings > 0 && (
+          <div className='liResumen'>
+            <p>⚡ Descuentos Flash</p>
+            <p className="cr-saving">-${flashSavings.toFixed(2)}</p>
+          </div>
+        )}
+        {dataCupon.valido && (
+          <div className='liResumen'>
+            <p>Cupón ({dataCupon.percentage}%)</p>
+            <p className="cr-saving">-${totalSavingsCoupon.toFixed(2)}</p>
+          </div>
+        )}
+      </div>
+
+      {/* ── Cupón ── */}
+      <div className="cr-coupon">
         <input type="hidden" name="codeId" id="codeId" value={dataCupon._id}/>
-        <p style={{fontSize: '14px', color: dataCupon.valido ? 'var(--color-rojo)' : 'black', margin: '0px'}}>{dataCupon.texto}</p>
-        <div className='liResumen' style={{marginTop: '4px'}}>
-          <input type="text" className='cuponRoyale' name='cupon' id='cupon' placeholder='CUPONROYALE' readOnly={dataCupon.valido}
-            style={{color: dataCupon.valido ? 'grey' : 'black'}} />
-          <button onClick={(e) => {e.preventDefault(); searchCupon()}} className='anadirCupon' disabled={dataCupon.valido}>Añadir</button>
-        </div>
-        <hr />
-        <div className='liResumen'>
-          <p>Total</p>
-          <p>${(totalPrice.toFixed(2)-totalSavingsCoupon.toFixed(2)).toFixed(2)}</p>
+        <p className={`cr-coupon__status ${dataCupon.valido ? 'cr-coupon__status--ok' : 'cr-coupon__status--neutral'}`}>
+          {dataCupon.texto}
+        </p>
+        <div className="cr-coupon__row">
+          <input
+            type="text"
+            className='cuponRoyale'
+            name='cupon'
+            id='cupon'
+            placeholder='CUPONROYALE'
+            readOnly={dataCupon.valido}
+          />
+          <button
+            onClick={(e) => { e.preventDefault(); searchCupon(); }}
+            className='anadirCupon'
+            disabled={dataCupon.valido}
+          >
+            Añadir
+          </button>
         </div>
       </div>
-      <div className='div2'>
-        <button className='comprar' onClick={handleOpenModal}>{`Comprar Ahora (${totalItems})`}</button>
-        <PaymentModal 
-          isOpen={isModalOpen} 
-          onClose={handleCloseModal} 
-          onSubmit={handleFormSubmit}
-        />
+
+      {/* ── Total final ── */}
+      <div className="cr-total-row">
+        <span className="cr-total-label">Total</span>
+        <span className="cr-total-amount">${finalTotal}</span>
       </div>
+
+      {/* ── CTA ── */}
+      <button className='comprar cr-buy-btn' onClick={handleOpenModal}>
+        Comprar Ahora · {totalItems} {totalItems === 1 ? 'artículo' : 'artículos'}
+      </button>
+
+      <PaymentModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSubmit={handleFormSubmit}
+      />
     </div>
   );
 };

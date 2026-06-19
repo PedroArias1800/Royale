@@ -4,7 +4,7 @@ import { useParfum } from '../context/ParfumContext'
 export const BannerPromos = ({ data }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [intervalId, setIntervalId] = useState(null);
-    const { URLServer } = useParfum();
+    const { imgSrc } = useParfum();
 
     // Iniciar el contador cada 5 segundos
     useEffect(() => {
@@ -58,7 +58,7 @@ export const BannerPromos = ({ data }) => {
                     <div key={index} className="banner-carousel-item">
                         {item.media.endsWith('.mp4') ? (
                             <video
-                                src={`${URLServer}${item.media}`}
+                                src={imgSrc(item.media)}
                                 autoPlay={true}
                                 loop={true}
                                 muted={true}
@@ -69,7 +69,7 @@ export const BannerPromos = ({ data }) => {
                             />
                         ) : (
                             <img
-                                src={`${URLServer}${item.media}`}
+                                src={imgSrc(item.media)}
                                 alt={`Imagen de la promoción ${item.title}`}
                                 className="banner-carousel-media banner-carousel-img"
                                 style={{width: '100% !important'}}

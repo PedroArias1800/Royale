@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Description: Royale API — FastAPI serverless on AWS Lambda + API Gateway HTTP API
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        MONGODB_URI: !Ref MongodbUri
+        JWT_SECRET: !Ref JwtSecret
+        S3_MEDIA_BUCKET: !Ref MediaBucket
+        FRONTEND_URL: !Ref FrontendUrl
+        ADMIN_URL: !Ref AdminUrl
+
+
+Parameters:
+  MongodbUri:
+    Type: String
+    Description: MongoDB Atlas connection string
+    NoEcho: true
+  JwtSecret:
+    Type: String
+    Description: JWT signing secret (use a strong random string)
+    NoEcho: true
+  MediaBucket:
+    Type: String
+    Default: royale-media
+    Description: S3 bucket name for uploaded images and videos
+  FrontendUrl:
+    Type: String
+    Default: https://royalepanama.com
+  AdminUrl:
+    Type: String
+    Default: https://admin.royalepanama.com
+
+Resources:
+  # ── Lambda Function ──────────────────────────────────────────────────────────
+  RoyaleApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: royale-api
+      Handler: main.handler
+      CodeUri: .
+      Description: Royale e-commerce API (FastAPI + Mangum)
+      Policies:
+        - S3FullAccessPolicy:
+            BucketName: !Ref MediaBucket
+      Events:
+        ApiRoot:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref RoyaleHttpApi
+            Path: /
+            Method: ANY
+        ApiProxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref RoyaleHttpApi
+            Path: /{proxy+}
+            Method: ANY
+
+  # ── API Gateway HTTP API (v2 — cheaper than REST API) ───────────────────────
+  RoyaleHttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+
+  # ── Keep-warm EventBridge rule (evita cold starts en horario de uso) ─────────
+  WarmUpRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: royale-api-warmup
+      Description: Invoke Lambda every 5 minutes to prevent cold starts
+      ScheduleExpression: rate(5 minutes)
+      State: ENABLED
+      Targets:
+        - Arn: !GetAtt RoyaleApiFunction.Arn
+          Id: RoyaleApiWarmUp
+          Input: '{"source": "warmup"}'
+
+  WarmUpPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref RoyaleApiFunction
+      Action: lambda:InvokeFunction
+      Principal: events.amazonaws.com
+      SourceArn: !GetAtt WarmUpRule.Arn
+
+Outputs:
+  ApiUrl:
+    Description: API Gateway endpoint URL
+    Value: !Sub https://${RoyaleHttpApi}.execute-api.${AWS::Region}.amazonaws.com
+  FunctionArn:
+    Description: Lambda function ARN
+    Value: !GetAtt RoyaleApiFunction.Arn

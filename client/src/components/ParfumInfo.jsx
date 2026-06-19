@@ -10,7 +10,7 @@ import { useParfum } from '../context/ParfumContext'
 export const ParfumInfo = ({ product, typeParfum }) => {
   const [selectedType, setSelectedType] = useState();
   const [alertMessage, setAlertMessage] = useState("");
-  const { URLServer, URLFrontend } = useParfum();
+  const { imgSrc, URLFrontend, URLServer } = useParfum();
   const [actualPrice, setActualPrice] = useState(product?.types[0]?.price);
   const [validFlash, setValidFlash] = useState(false)
 
@@ -18,9 +18,9 @@ export const ParfumInfo = ({ product, typeParfum }) => {
 
   const handleAddToCart = (productId, typesId, maxQuantity) => {
     if (validFlash){
-      addToCart(productId, typesId, 1, maxQuantity); // Incrementa en 1 y máximo hasta la cantidad establecida de productos flash 
+      addToCart(productId, typesId, 1, maxQuantity);
     } else {
-      addToCart(productId, typesId, 1, 10); // Incrementa en 1 y máximo hasta 10
+      addToCart(productId, typesId, 1, 10);
     }
     setAlertMessage("¡Producto añadido al carrito!");
   };
@@ -30,7 +30,6 @@ export const ParfumInfo = ({ product, typeParfum }) => {
       setSelectedType(
         product?.types.find((type) => type?.ml === typeParfum) || product?.types[0]
       );
-
       setActualPrice(product?.types[0]?.price_flash)
     }
   }, [product]);
@@ -48,121 +47,124 @@ export const ParfumInfo = ({ product, typeParfum }) => {
     cursor: "pointer",
   };
 
-  const handleTypeSelection = (type) => {
-    setSelectedType(type);
-  };
+  const handleTypeSelection = (type) => setSelectedType(type);
 
   if (!product || !selectedType) {
     return <p>Cargando...</p>;
   }
 
+  const discount = Math.ceil(-100 + (100 / selectedType?.old_price) * actualPrice);
+
   const handleShare = async () => {
+    const shareUrl = `${URLServer}/share/parfum?id=${product._id}`;
     const shareData = {
       title: `${product?.brand?.brand_name} ${product.title} ${product?.version?.version_name} ${selectedType.ml}ml`,
-      text: `Mira este impresionante ${product?.brand?.brand_name} ${product.title} perfume!`,
-      url: `${URLFrontend}/parfum?id=${product._id}`,
+      text: `Mira este impresionante ${product?.brand?.brand_name} ${product.title} en Royale Panama`,
+      url: shareUrl,
     };
-  
     if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        console.log('Shared successfully');
-      } catch (error) {
-        console.error('Error sharing:', error);
-      }
+      try { await navigator.share(shareData); } catch {}
     } else {
-      alert(
-        `Copia y comparte: ${shareData.title}\n\n${shareData.text}\n\n${shareData.url}`
-      );
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('¡Enlace copiado al portapapeles!');
+      } catch {
+        alert(`Copia y comparte:\n${shareUrl}`);
+      }
     }
   };
-  
-  
 
   return (
     <div className="parfumInfo">
-      <div className='mostrarAlerta'>
-        <Alert message={alertMessage} color={'--color-dorado'} color2={'--color-dorado-hover'} onClose={() => setAlertMessage("")}/>
-      </div>
+      <Alert message={alertMessage} color={'--color-dorado'} color2={'--color-dorado-hover'} onClose={() => setAlertMessage("")}/>
+
       <div className="parfumContainer">
+
+        {/* ── Imagen ── */}
         <div className="parfumImgGrande">
           <div className={`discountPrice ${validFlash ? 'demo animated' : ''}`} style={{border: validFlash ? '10px solid transparent' : 'none', borderRadius: validFlash ? '10px' : ''}}>
             <FontAwesomeIcon icon={faBookmark} style={gradientStyle} className='iconDiscountPrice' />
-            {
-              (validFlash) && (
-                <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash' />
-              )
-            }
-            <p>
-                {Math.ceil(
-                -100 + (100 / selectedType?.old_price) * actualPrice
-              )}
-              %
-            </p>
+            {validFlash && (
+              <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash' />
+            )}
+            <p>{discount}%</p>
             <img
-              src={`${URLServer}${selectedType?.img}`}
-              alt={`Imágen de ${product?.brand?.brand_name} ${product?.title} versión ${product?.version?.version_name} - ${selectedType.ml} mililitros.`}
+              src={imgSrc(selectedType?.img)}
+              alt={`${product?.brand?.brand_name} ${product?.title} ${product?.version?.version_name} - ${selectedType.ml}ml`}
             />
-            {
-              (validFlash) && (
-                <p className='quantityFlash'>{selectedType?.quantity_flash} Disponibles</p>
-              )
-            }
+            {validFlash && (
+              <p className='quantityFlash'>{selectedType?.quantity_flash} Disponibles</p>
+            )}
           </div>
           <p className="parfumDescription esconder">{product.description}</p>
         </div>
+
+        {/* ── Info ── */}
         <div className="parfumInfoGrande">
+
+          {/* Ornamental line above brand */}
+          <div className="pi-brand-row">
+            <span className="pi-brand-line" />
+            <span className="pi-brand-name">{product?.brand?.brand_name}</span>
+            <span className="pi-brand-line" />
+          </div>
+
           <h3>
-            {product?.brand?.brand_name} {product.title} {product?.version?.version_name}
+            {product.title}{' '}
+            <span className="pi-version">{product?.version?.version_name}</span>
           </h3>
-          <div className='precioGenero'>
-            <div style={{ display: "flex", gap: "5px" }}>
-              <p
-                className="price"
-                style={{ textDecoration: "line-through", margin: "auto 0" }}
+
+          {/* Price block */}
+          <div className="pi-price-block">
+            <span className="pi-price-old">${selectedType.old_price}</span>
+            <span className="pi-price-current">${actualPrice}</span>
+            <span className="pi-discount-badge">{discount}%</span>
+            <Link to={`/search?type=${product.gender}`} className="parfumGenero pi-gender">
+              {product.gender === 1 ? 'Damas' : 'Caballeros'}
+            </Link>
+          </div>
+
+          <div className="pi-separator">
+            <span className="pi-sep-line" />
+            <span className="pi-sep-gem">◆</span>
+            <span className="pi-sep-line" />
+          </div>
+
+          {/* Size + share */}
+          <div className='mlShareParfum'>
+            <h5>
+              {selectedType.ml}ml
+              {validFlash && ` · Solo ${selectedType?.quantity_flash} disponibles`}
+            </h5>
+            <FontAwesomeIcon icon={faShare} style={gradientStyle} onClick={handleShare} title="Compartir" />
+          </div>
+
+          {/* Size thumbnails */}
+          <div className="vistaPrevia">
+            {product?.types.map((type, index) => (
+              <div
+                key={index}
+                className={`vistaPreviaVersion ${selectedType === type ? 'selected' : ''}`}
+                onClick={() => handleTypeSelection(type)}
               >
-                ${selectedType.old_price}
-              </p>
-              <p className="price" style={{ color: "red", margin: "auto 0" }}>
-                ${actualPrice}
-              </p>
-            </div>
-            <p>
-              <Link to={`/search?type=${product.gender}`} className="parfumGenero">
-                {product.gender === 1 ? "Damas" : "Caballeros"}
-              </Link>
-            </p>
+                <img
+                  src={imgSrc(type.img)}
+                  alt={`${type.ml} ml`}
+                  className={`${selectedType === type && validFlash ? 'demo animated' : ''}`}
+                  style={{border: selectedType === type && validFlash ? '4px solid transparent' : ''}}
+                />
+                <p>{type.ml} ml</p>
+              </div>
+            ))}
           </div>
-          <hr />
-          <div>
-            <div className='mlShareParfum'>
-              <h5>{selectedType.ml}ml {validFlash ? `- Solo ${selectedType?.quantity_flash} disponibles` : ''}</h5>
-              <FontAwesomeIcon icon={faShare} style={gradientStyle} onClick={handleShare}/>
-            </div>
-            <div className="vistaPrevia">
-              {product?.types.map((type, index) => (
-                <div
-                  key={index}
-                  className={`vistaPreviaVersion ${
-                    selectedType === type ? "selected" : ""
-                  }`}
-                  onClick={() => handleTypeSelection(type)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <img
-                    src={`${URLServer}${type.img}`}
-                    alt={`Imágen de ${type.ml} ml`}
-                    className={`${selectedType === type && validFlash ? "demo animated" : ""}`}
-                    style={{border: selectedType === type && validFlash ? "4px solid transparent" : ""}}
-                  />
-                  <p>{type.ml} ml</p>
-                </div>
-              ))}
-            </div>
-          </div>
+
           <p className="parfumDescription esconder2">{product?.description}</p>
+
+          {/* Add to cart */}
           <div className="enviarCesta">
-            <button onClick={() => handleAddToCart(product?._id, selectedType?._id, selectedType?.quantity_flash)}>Añadir a la Cesta</button>
+            <button onClick={() => handleAddToCart(product?._id, selectedType?._id, selectedType?.quantity_flash)}>
+              {validFlash ? '⚡ Añadir — Oferta Flash' : 'Añadir a la Cesta'}
+            </button>
           </div>
         </div>
       </div>

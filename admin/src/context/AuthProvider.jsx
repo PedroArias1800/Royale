@@ -18,9 +18,9 @@ import { useNavigate } from "react-router-dom";
 
 // import { io } from 'socket.io-client';
 import { ModalFormCoupon } from "../components/ModalFormCoupon.jsx";
-const URLServer = 'https://api.royalepanama.com'
-const URLFrontend = 'https://royalepanama.com'
-const URLAdmin = 'https://admin.royalepanama.com'
+const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
+const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:4173'
+const URLAdmin = import.meta.env.VITE_ADMIN_URL || 'http://localhost:4174'
 // const socket = io(URLServer, {
 //   transports: ['websocket'],  // Forzar WebSocket
 // });
@@ -285,7 +285,8 @@ export const AuthProvider = ({ children }) => {
     }
 
 
-    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction, filtrarData, URLServer, URLFrontend, URLAdmin, setCountSell, countSell }}>
+    const imgSrc = (path) => (!path || path.startsWith('http')) ? path : `${URLServer}${path}`;
+    return <AuthContext.Provider value={{ signIn, signUp, closeSession, user, isAuthenticated, errors, setModalData, setIdNumber, cargarDataTables, response, closeModal, showAlert, pagination, transaction, setTransaction, filtrarData, URLServer, URLFrontend, URLAdmin, setCountSell, countSell, imgSrc }}>
         {children}
         <div className='mostrarAlerta'>
             <Alert message={alertMessage} color={c1} color2={c2} onClose={() => setAlertMessage("")}/>

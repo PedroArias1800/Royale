@@ -7,6 +7,7 @@ import './css/Carousel.css'
 import './css/ParfumDetails.css'
 import './css/Cart.css'
 import './css/Alert.css'
+import './css/CartDrawer.css'
 import './css/Responsive.css'
 import './js/Carousel.js'
 

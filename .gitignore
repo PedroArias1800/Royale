@@ -7,12 +7,20 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencias
 node_modules
+
+# Builds
 dist
 dist-ssr
-*.local
 
-# Editor directories and files
+# Entornos locales
+*.local
+.env
+.env.*
+!.env.example
+
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -22,5 +30,37 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.env
+
+# Auth de bots/automatización
 .wwebjs_auth
+
+# ── Archivos sensibles ──────────────────────────
+# Certificados SSL — no subir al repositorio
+"SSL royalepanama.txt"
+SSL royalepanama.txt
+
+# ── Medios subidos por el servidor ─────────────
+# Las imágenes viven en S3, no en git
+server/uploads/
+
+# ── Backups de base de datos ────────────────────
+# Datos reales de MongoDB — no al repositorio
+bd/backup/
+
+# ── Archivos de Claude Code ─────────────────────
+# Sesiones, memoria y planes personales del agente
+.claude/
+# Lock de skills (generado automáticamente)
+skills-lock.json
+
+# ── Archivos generados / temporales ─────────────
+structure.md
+
+# ── Python ──────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.aws-sam/
+samconfig.toml

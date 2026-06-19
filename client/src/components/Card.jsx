@@ -8,7 +8,7 @@ import { useParfum } from '../context/ParfumContext'
 export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
 
     const [width, setWidth] = useState(false);
-    const { URLServer } = useParfum();
+    const { imgSrc } = useParfum();
     const [typeOfSales, setTypeOfSales] = useState(typeOfSale=='Normal' ? false : true)
     let actualPrice = typeOfSales ? element?.types[0]?.price_flash : element?.types[0]?.price;
 
@@ -27,7 +27,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
       };
 
     return (
-        <Link to={`/parfum?id=${element._id}&type=${element?.types[0]?.ml}`} className={`card si ${typeOfSale=='Flash' ? 'demo animated' : ''}`} key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`, border: typeOfSale=='Flash' ? '10px solid transparent' : 'none'}}>
+        <Link to={`/parfum?id=${element._id}&type=${element?.types[0]?.ml}`} className={`card si ${typeOfSale=='Flash' ? 'demo animated' : ''}`} key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`, ...(typeOfSale=='Flash' ? { border: '10px solid transparent' } : {})}}>
             <div className='discountPrice infoCardsFlash'>
               <FontAwesomeIcon icon={faBookmark} style={gradientStyle}/>
               {
@@ -36,7 +36,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
                 )
               }
               <p>{(Math.ceil(-100+(100/element?.types[0]?.old_price*actualPrice)))}%</p>
-              <img src={`${URLServer}${element?.types[0]?.img}`} alt={`Imagen de ${element?.brand.brand_name} ${element?.title}`} />
+              <img src={imgSrc(element?.types[0]?.img)} alt={`Imagen de ${element?.brand.brand_name} ${element?.title}`} />
               {
                 (typeOfSales) && (
                   <p className='quantityFlash'>{element?.types[0]?.quantity_flash} Disponibles</p>

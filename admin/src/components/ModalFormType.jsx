@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthProvider';
 import { getParfumsIconGallery, getParfumsIconGallery2 } from '../api/Img.api.js'
 
 export const ModalFormType = ({ modalData }) => {
-    const { setModalData, cargarDataTables, closeModal, showAlert, URLServer } = useAuth();
+    const { setModalData, cargarDataTables, closeModal, showAlert, URLServer, imgSrc } = useAuth();
     const [parfums, setParfum] = useState([]);
     const [parfumsGallery, setParfumsGallery] = useState([]);
     const [required, setRequired] = useState(Boolean(modalData?._id))
@@ -359,7 +359,7 @@ export const ModalFormType = ({ modalData }) => {
             <div>
                 {(modalData?.imgPreview || modalData?.img) && (
                     <img
-                        src={modalData?.imgPreview ? modalData?.imgPreview : `${URLServer}${modalData?.img}`}
+                        src={modalData?.imgPreview ? modalData?.imgPreview : imgSrc(modalData?.img)}
                         alt="Vista previa"
                         style={{ maxWidth: '100%', maxHeight: '200px', border: '1px solid #ccc' }}
                     />

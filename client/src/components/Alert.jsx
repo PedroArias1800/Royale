@@ -1,48 +1,56 @@
 import { useState, useEffect } from 'react';
 
 export const Alert = ({ message, color, color2, onClose, duration = 6000 }) => {
-  const [showAlert, setShowAlert] = useState(false); // Controla la visibilidad completa
-  const [isVisible, setIsVisible] = useState(false); // Controla la transición de aparición
+  const [showAlert, setShowAlert] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+  const [progress, setProgress] = useState(100);
 
   useEffect(() => {
     if (message) {
       setShowAlert(true);
+      setProgress(100);
 
-      // Retrasar la aplicación de la clase visible
-      const appearanceTimer = setTimeout(() => {
-        setIsVisible(true); // Agrega la clase visible para la transición
-      }, 10);
+      const appearTimer = setTimeout(() => setIsVisible(true), 10);
 
-      // Ocultar después de la duración especificada
-      const disappearanceTimer = setTimeout(() => {
-        setIsVisible(false); // Comienza la transición de desaparición
+      const progressInterval = setInterval(() => {
+        setProgress(prev => Math.max(0, prev - (100 / (duration / 100))));
+      }, 100);
+
+      const hideTimer = setTimeout(() => {
+        setIsVisible(false);
+        clearInterval(progressInterval);
         setTimeout(() => {
-          setShowAlert(false); // Elimina completamente el componente
+          setShowAlert(false);
           if (onClose) onClose();
-        }, 500); // Coincide con la duración de la transición
+        }, 450);
       }, duration);
 
       return () => {
-        clearTimeout(appearanceTimer);
-        clearTimeout(disappearanceTimer);
+        clearTimeout(appearTimer);
+        clearTimeout(hideTimer);
+        clearInterval(progressInterval);
       };
     }
   }, [message, duration, onClose]);
 
   const closeAlert = () => {
-    setIsVisible(false); // Inicia la transición de desaparición
+    setIsVisible(false);
     setTimeout(() => {
-      setShowAlert(false); // Elimina el componente
+      setShowAlert(false);
       if (onClose) onClose();
-    }, 500);
+    }, 450);
   };
 
   if (!showAlert) return null;
 
   return (
-    <div className={`alert ${isVisible ? 'visible' : 'hidden'}`} style={{'backgroundColor': `var(${color})`, 'border': `2px solid var(${color2})`}}>
+    <div
+      className={`alert ${isVisible ? 'visible' : 'hidden'}`}
+      style={{ '--accent': `var(${color})` }}
+    >
+      <div className="alert__progress" style={{ width: `${progress}%` }} />
       <span className="alert-text">{message}</span>
-      <button className="close-btn" onClick={closeAlert}>X</button>
+      <button className="close-btn" onClick={closeAlert} aria-label="Cerrar">✕</button>
     </div>
   );
 };
