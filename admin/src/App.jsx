@@ -12,6 +12,7 @@ import { Register } from './pages/Register.jsx';
 import { Data } from './pages/Data.jsx';
 import { Finanzas } from './Pages/Finanzas.jsx';
 import { Delivery } from './pages/Delivery.jsx';
+import { Descuentos } from './pages/Descuentos.jsx';
 
 const App = () => {
 
@@ -30,6 +31,7 @@ const App = () => {
         <Route path="/data" element={<Data />} />
         <Route path="/finanzas" element={<Finanzas />} />
         <Route path="/delivery" element={<Delivery />} />
+        <Route path="/descuentos" element={<Descuentos />} />
         <Route path="*" element={<Login />} />
       </Routes>
       <Footer />

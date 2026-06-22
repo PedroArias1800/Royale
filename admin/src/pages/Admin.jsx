@@ -60,6 +60,7 @@ export const Admin = () => {
                   <Link to="/data?id=7">Transacciones</Link>
                   <Link to="/finanzas">Finanzas</Link>
                   <Link to="/delivery">Delivery</Link>
+                  <Link to="/descuentos">Descuentos</Link>
                 </>
               )
             }

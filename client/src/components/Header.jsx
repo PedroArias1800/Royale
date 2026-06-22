@@ -41,6 +41,9 @@ export const Header = () => {
           <Link to="/search?type=2" onClick={() => window.scrollTo(0, 0)}>
             <FontAwesomeIcon icon={faHeart} /> Caballeros
           </Link>
+          <Link to="/descuentos" onClick={() => window.scrollTo(0, 0)}>
+            % Descuentos
+          </Link>
           <button
             className="cart-icon nav-cart-btn"
             onClick={() => setCartOpen(true)}
@@ -130,12 +133,21 @@ export const Header = () => {
             <span className="hm-overlay__link-num">03</span>
             <span className="hm-overlay__link-text">Buscar</span>
           </Link>
-          <button
-            className="hm-overlay__link hm-overlay__link--cart"
+          <Link
+            to="/descuentos"
+            className="hm-overlay__link"
             style={{ '--i': 3 }}
-            onClick={() => { closeMenu(); setCartOpen(true); }}
+            onClick={() => { closeMenu(); window.scrollTo(0, 0); }}
           >
             <span className="hm-overlay__link-num">04</span>
+            <span className="hm-overlay__link-text">Descuentos</span>
+          </Link>
+          <button
+            className="hm-overlay__link hm-overlay__link--cart"
+            style={{ '--i': 4 }}
+            onClick={() => { closeMenu(); setCartOpen(true); }}
+          >
+            <span className="hm-overlay__link-num">05</span>
             <span className="hm-overlay__link-text">
               Mi Cesta
               {getTotalQuantity() > 0 && (
