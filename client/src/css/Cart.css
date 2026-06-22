@@ -383,7 +383,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 1600;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0s 0.3s;
@@ -1106,29 +1106,44 @@
   justify-content: center;
   gap: 0;
   padding: 11px 16px;
-  background: linear-gradient(135deg, #007a3a, #00c853);
+  background: linear-gradient(135deg, #e8b400, #FFD100);
   border: none;
   border-radius: 3px;
-  color: white;
+  color: #1a0a00;
   font-size: 0.82rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 800;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(0, 200, 83, 0.3);
+  box-shadow: 0 4px 14px rgba(255, 209, 0, 0.35);
   font-family: var(--font-body);
 }
 .pm-yappy-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #009447, #00e65c);
-  box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5);
+  background: linear-gradient(135deg, #FFD100, #ffe84d);
+  box-shadow: 0 6px 20px rgba(255, 209, 0, 0.55);
   transform: translateY(-1px);
 }
-.pm-yappy-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.pm-yappy-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .pm-yappy-logo {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+}
+.pm-yappy-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  background: #1a0a00;
+  color: #FFD100;
+  font-weight: 900;
+  font-size: 13px;
+  font-family: sans-serif;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
 }
 .pagar {
   flex: 1;

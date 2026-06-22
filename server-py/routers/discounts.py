@@ -159,11 +159,68 @@ def get_discounts(_: dict = Depends(verify_token), page: int = Query(default=1))
 
 @router.post("/api/discounts/preview")
 def preview_discount(body: PreviewBody, _: dict = Depends(verify_token)):
+    """
+    Python-level filtering avoids aggregation pipeline ObjectId/type issues.
+    """
     db = get_db()
-    parfums = _get_matching_parfums(db, body.dict(), limit=20, require_types=False)
+    f = body.dict()
+
+    # ── Step 1: basic parfum query (brand filter handled in Python) ──
+    parfum_q: dict = {}
+    gender = f.get("filter_gender")
+    if gender is not None:
+        parfum_q["gender"] = int(gender)
+
+    after  = _parse_dt(f.get("filter_created_after"))
+    before = _parse_dt(f.get("filter_created_before"))
+    if after or before:
+        dq: dict = {}
+        if after:  dq["$gte"] = after
+        if before: dq["$lte"] = before
+        parfum_q["createdAt"] = dq
+
+    all_parfums = list(db.parfums.find(parfum_q).sort("createdAt", -1).limit(500))
+
+    # ── Step 2: brand filter in Python — str() comparison handles ObjectId/string mismatch ──
+    brand_ids = f.get("filter_brand_ids") or []
+    if brand_ids:
+        brand_set = set(brand_ids)
+        all_parfums = [p for p in all_parfums if str(p.get("brand_id_fk", "")) in brand_set]
+
+    # ── Step 3: type + price filter in Python ──
+    price_min = f.get("filter_price_min")
+    price_max = f.get("filter_price_max")
+
+    def _price_ok(t: dict) -> bool:
+        try:
+            pr = float(t.get("price", 0))
+            if price_min is not None and pr < float(price_min): return False
+            if price_max is not None and pr > float(price_max): return False
+            return True
+        except Exception:
+            return False
+
+    results = []
+    for p in all_parfums:
+        pid = p["_id"]
+        types = list(db.types.find({
+            "$or": [{"parfum_id_fk": pid}, {"parfum_id_fk": str(pid)}]
+        }).sort("price", 1))
+
+        if price_min is not None or price_max is not None:
+            types = [t for t in types if _price_ok(t)]
+
+        if not types:
+            continue
+
+        brand = db.brands.find_one({"_id": p.get("brand_id_fk")})
+        p["brand"] = brand
+        p["types"] = types[:3]
+        results.append(p)
+
     return {
-        "count": len(parfums),
-        "parfums": [serialize_doc(p) for p in parfums],
+        "count": len(results),
+        "parfums": [serialize_doc(p) for p in results[:20]],
     }
 
 

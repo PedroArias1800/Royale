@@ -233,12 +233,12 @@ def share_parfum(id: str = Query(...)):
 def get_delivery_options_public():
     db = get_db()
     gratis = db.delivery_prices.find_one({"delivery_type": "gratis", "active": True})
-    metro  = list(db.delivery_prices.find({"delivery_type": "metro", "active": True})
-                  .sort([("metro_line", 1), ("metro_station", 1)]))
+    # One global metro record — price applies to all stations
+    metro  = db.delivery_prices.find_one({"delivery_type": "metro", "active": True})
     zona_available = db.delivery_prices.count_documents({"delivery_type": "zona", "active": True}) > 0
     return {
         "gratis":         serialize_doc(gratis) if gratis else None,
-        "metro":          [serialize_doc(m) for m in metro],
+        "metro":          serialize_doc(metro) if metro else None,
         "zona_available": zona_available,
     }
 

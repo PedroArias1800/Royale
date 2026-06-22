@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export const Alert = ({ message, color, color2, onClose, duration = 6000 }) => {
+export const Alert = ({ message, color, color2, onClose, onClick, duration = 6000 }) => {
   const [showAlert, setShowAlert] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [progress, setProgress] = useState(100);
@@ -43,10 +43,15 @@ export const Alert = ({ message, color, color2, onClose, duration = 6000 }) => {
 
   if (!showAlert) return null;
 
+  const handleClick = onClick
+    ? () => { closeAlert(); onClick(); }
+    : undefined;
+
   return (
     <div
-      className={`alert ${isVisible ? 'visible' : 'hidden'}`}
+      className={`alert ${isVisible ? 'visible' : 'hidden'}${onClick ? ' alert--clickable' : ''}`}
       style={{ '--accent': `var(${color})` }}
+      onClick={handleClick}
     >
       <div className="alert__progress" style={{ width: `${progress}%` }} />
       <span className="alert-text">{message}</span>

@@ -104,10 +104,9 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
       return Number(resolvedZona.price);
     }
     if (method === 'metro') {
-      const opt = (deliveryConfig?.metro || []).find(
-        m => m.metro_line === metroLine && m.metro_station === metroStation
-      );
-      return opt ? Number(opt.price) : null;
+      if (!metroStation) return null;
+      const mp = deliveryConfig?.metro?.price;
+      return mp != null ? Number(mp) : null;
     }
     return null;
   };
@@ -169,7 +168,7 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
   const districts      = province ? (DISTRICTS[province] || []) : [];
   const corregimientoOpts = (province && district) ? ((CORREGIMIENTOS[province] || {})[district] || []) : [];
   const metroStations  = METRO_LINES[metroLine] || [];
-  const metroAvailable = (deliveryConfig?.metro || []).length > 0;
+  const metroAvailable = deliveryConfig?.metro != null;
   const zonaAvailable  = deliveryConfig?.zona_available !== false;
 
   return (
@@ -301,20 +300,28 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
                     <div className="form-group2">
                       <label>Estación</label>
                       <select value={metroStation} onChange={e => setMetroStation(e.target.value)}>
-                        <option value="">Selecciona</option>
-                        {metroStations.map(s => {
-                          const opt = (deliveryConfig?.metro || []).find(
-                            m => m.metro_line === metroLine && m.metro_station === s
-                          );
-                          return (
-                            <option key={s} value={s} disabled={!opt}>
-                              {s}{opt ? ` — $${Number(opt.price).toFixed(2)}` : ' (sin precio)'}
-                            </option>
-                          );
-                        })}
+                        <option value="">Selecciona tu estación</option>
+                        {metroStations.map(s => (
+                          <option key={s} value={s}>{s}</option>
+                        ))}
                       </select>
                     </div>
                   </div>
+                  {!isFreeOrder && (
+                    <div className="pm-zona-price">
+                      {metroStation
+                        ? <span className="pm-zona-price--found">
+                            Delivery Metro — <strong>${Number(deliveryConfig.metro.price).toFixed(2)}</strong> (precio único para todas las estaciones)
+                          </span>
+                        : <span style={{fontSize:'0.80rem',color:'rgba(237,232,235,0.4)'}}>
+                            Precio: <strong style={{color:'rgba(253,208,94,0.7)'}}>
+                              ${Number(deliveryConfig.metro.price).toFixed(2)}
+                            </strong> para cualquier estación
+                          </span>
+                      }
+                    </div>
+                  )}
+                  {isFreeOrder && <span className="pm-zona-price--free">Entrega gratuita ✓</span>}
                 </div>
               )}
             </div>
@@ -365,10 +372,7 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
             <div className="pm-methods-row">
               <button type="button" className="pm-yappy-btn" onClick={handleYappy} disabled={yappyLoading}>
                 <span className="pm-yappy-logo">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{verticalAlign:'middle',marginRight:'6px'}}>
-                    <circle cx="12" cy="12" r="12" fill="#00C853"/>
-                    <text x="12" y="16" textAnchor="middle" fill="white" fontSize="9" fontWeight="bold" fontFamily="sans-serif">Y</text>
-                  </svg>
+                  <span className="pm-yappy-icon">Y</span>
                   {yappyLoading ? 'Conectando con Yappy…' : 'Pagar con Yappy'}
                 </span>
               </button>

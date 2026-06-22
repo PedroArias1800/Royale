@@ -4,10 +4,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useState, useEffect, useContext } from 'react';
 import { ParfumContext } from "../context/ParfumContext";
 import { Alert } from '../components/Alert'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useParfum } from '../context/ParfumContext'
 
 export const ParfumInfo = ({ product, typeParfum }) => {
+  const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState();
   const [alertMessage, setAlertMessage] = useState("");
   const { imgSrc, URLFrontend, URLServer } = useParfum();
@@ -74,7 +75,13 @@ export const ParfumInfo = ({ product, typeParfum }) => {
 
   return (
     <div className="parfumInfo">
-      <Alert message={alertMessage} color={'--color-dorado'} color2={'--color-dorado-hover'} onClose={() => setAlertMessage("")}/>
+      <Alert
+        message={alertMessage}
+        color={'--color-dorado'}
+        color2={'--color-dorado-hover'}
+        onClose={() => setAlertMessage("")}
+        onClick={() => navigate('/cart')}
+      />
 
       <div className="parfumContainer">
 

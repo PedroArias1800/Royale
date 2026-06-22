@@ -20,8 +20,8 @@ const EMPTY_FORM = {
 function autoLabel(form) {
     if (form.delivery_type === 'gratis') return 'Delivery Gratuito';
     if (form.delivery_type === 'metro') {
-        return (form.metro_line && form.metro_station)
-            ? `Metro ${form.metro_line} — ${form.metro_station}` : '';
+        if (form.metro_station) return `Metro ${form.metro_line} — ${form.metro_station}`;
+        return 'Metro Panamá (precio único)';
     }
     if (form.delivery_type === 'zona') {
         if (form.zona_level === 'corregimiento' && form.corregimiento && form.district && form.province)
@@ -128,7 +128,6 @@ export const ModalFormDelivery = ({ item, onClose, onSaved, onDeleted, showAlert
                 showAlert('Selecciona distrito y corregimiento', 0); return false;
             }
         }
-        if (form.delivery_type === 'metro' && !form.metro_station) { showAlert('Selecciona una estación', 0); return false; }
         return true;
     };
 
@@ -268,9 +267,9 @@ export const ModalFormDelivery = ({ item, onClose, onSaved, onDeleted, showAlert
                                 </select>
                             </label>
                             <label>
-                                <p>Estación</p>
-                                <select value={form.metro_station} onChange={e => { setLabelEdited(false); set('metro_station', e.target.value); }} required>
-                                    <option value="">Selecciona</option>
+                                <p>Estación (opcional)</p>
+                                <select value={form.metro_station} onChange={e => { setLabelEdited(false); set('metro_station', e.target.value); }}>
+                                    <option value="">Todas las estaciones</option>
                                     {stations.map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </label>
