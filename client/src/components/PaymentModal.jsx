@@ -28,8 +28,8 @@ const CORREGIMIENTOS = {
     'Chiriquí':{'David':['David','Guácimo','Las Lomas','Pedregal','San Carlos','San Cristóbal','San Pablo Nuevo','San Pablo Viejo'],'Boquete':['Bajo Boquete','Alto Boquete','Caldera','Cochea','Jaramillo','Palmira']},
 };
 const METRO_LINES = {
-    'Línea 1':['Albrook','5 de Mayo','Santa Ana','Lotería','Uruguay','Iglesia del Carmen','Vía Argentina','Corredor Norte','12 de Octubre','El Ingenio','Pueblo Nuevo','San Isidro','Los Andes No. 1','Las Cumbres','Condado del Rey','Victoriano Lorenzo'],
-    'Línea 2':['San Isidro','Don Bosco','Los Andes No. 2','Pedregal','Nuevo Tocumen','24 de Diciembre','Villa Zaíta','Villa Carmen','Cincuentenario','Felipillo'],
+    'Línea 1': ['Albrook','5 de Mayo','Santo Tomás','Lotería','Iglesia del Carmen','Vía Argentina','Fernández de Córdoba','El Ingenio','12 de Octubre','San Miguelito','Pan de Azúcar','Los Andes','San Isidro','Villa Zaíta'],
+    'Línea 2': ['San Miguelito','Paraíso','Cincuentenario','Villa Lucre','El Crisol','Brisas del Golf','Cerro Viento','San Antonio','Pedregal','Don Bosco','Corredor Sur','Las Mañanitas','Hospital del Este','Altos de Tocumen','24 de Diciembre','Nuevo Tocumen'],
 };
 
 export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
