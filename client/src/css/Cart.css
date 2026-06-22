@@ -1143,6 +1143,60 @@
   border-radius: 2px;
 }
 
+/* ── Gratis banner / hint ── */
+.pm-gratis-banner {
+  background: rgba(34, 197, 94, 0.08);
+  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: rgba(134, 239, 172, 0.9);
+  margin-bottom: 12px;
+  line-height: 1.45;
+}
+.pm-gratis-hint {
+  font-size: 0.78rem;
+  color: rgba(253, 208, 94, 0.5);
+  margin: 0 0 10px;
+}
+
+/* ── Method tabs (Zona / Metro) ── */
+.pm-method-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.pm-method-tab {
+  flex: 1;
+  padding: 9px 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(237, 232, 235, 0.55);
+  font-size: 0.83rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+}
+.pm-method-tab:hover { border-color: rgba(253, 208, 94, 0.25); color: #ede8eb; }
+.pm-method-tab--active {
+  border-color: rgba(253, 208, 94, 0.45);
+  background: rgba(253, 208, 94, 0.07);
+  color: var(--color-dorado);
+  font-weight: 600;
+}
+
+/* ── Zona selectors ── */
+.pm-zona-selectors { display: flex; flex-direction: column; gap: 10px; }
+.pm-zona-price { margin-top: 4px; font-size: 0.84rem; }
+.pm-zona-price--found { color: rgba(237, 232, 235, 0.75); }
+.pm-zona-price--found strong { color: var(--color-dorado-light); }
+.pm-zona-price--notfound { color: rgba(214, 10, 95, 0.85); font-style: italic; }
+.pm-zona-price--free { color: #4caf50; font-weight: 600; }
+
+/* ── Metro selectors ── */
+.pm-metro-selectors { display: flex; flex-direction: column; gap: 10px; }
+
 /* ══════════════════════════════════════════════
    YAPPY RESULT PAGES (/pago-exitoso, /pago-cancelado)
 ═══════════════════════════════════════════════ */

@@ -232,8 +232,52 @@ def share_parfum(id: str = Query(...)):
 @router.get("/delivery/public")
 def get_delivery_options_public():
     db = get_db()
-    docs = list(db.delivery_prices.find({"active": True}).sort("label", 1))
-    return [serialize_doc(d) for d in docs]
+    gratis = db.delivery_prices.find_one({"delivery_type": "gratis", "active": True})
+    metro  = list(db.delivery_prices.find({"delivery_type": "metro", "active": True})
+                  .sort([("metro_line", 1), ("metro_station", 1)]))
+    zona_available = db.delivery_prices.count_documents({"delivery_type": "zona", "active": True}) > 0
+    return {
+        "gratis":         serialize_doc(gratis) if gratis else None,
+        "metro":          [serialize_doc(m) for m in metro],
+        "zona_available": zona_available,
+    }
+
+
+class ResolveDeliveryBody(BaseModel):
+    province:      str
+    district:      Optional[str] = None
+    corregimiento: Optional[str] = None
+
+
+@router.post("/delivery/public/resolve")
+def resolve_delivery_price(body: ResolveDeliveryBody):
+    db = get_db()
+    base = {"delivery_type": "zona", "active": True, "province": body.province}
+
+    # Priority: corregimiento > district > province
+    if body.corregimiento and body.district:
+        doc = db.delivery_prices.find_one({
+            **base, "district": body.district, "corregimiento": body.corregimiento
+        })
+        if doc:
+            return {**serialize_doc(doc), "matched_level": "corregimiento"}
+
+    if body.district:
+        doc = db.delivery_prices.find_one({
+            **base, "district": body.district,
+            "$or": [{"corregimiento": None}, {"corregimiento": {"$exists": False}}]
+        })
+        if doc:
+            return {**serialize_doc(doc), "matched_level": "distrito"}
+
+    doc = db.delivery_prices.find_one({
+        **base,
+        "$or": [{"district": None}, {"district": {"$exists": False}}],
+    })
+    if doc:
+        return {**serialize_doc(doc), "matched_level": "provincia"}
+
+    return JSONResponse(status_code=404, content={"message": "No hay precio configurado para esta zona"})
 
 
 # ── GET /transaction (pending, protected) ─────────────────────────────────────

@@ -41,6 +41,9 @@ export const getCuponRequest = async (cupon) =>
 export const getDeliveryOptionsRequest = async () =>
     await axios.get(`${URL}/delivery/public`)
 
+export const postResolveDeliveryRequest = async (province, district, corregimiento) =>
+    await axios.post(`${URL}/delivery/public/resolve`, { province, district, corregimiento })
+
 export const postYappyCheckoutRequest = async (data) =>
     await axios.post(`${URL}/yappy/checkout`, data)
 

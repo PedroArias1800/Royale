@@ -192,6 +192,22 @@
     color: #fdd05e;
 }
 
+.ds-filter-note {
+    font-size: 0.79rem;
+    color: rgba(237,232,235,0.42);
+    margin: 0 0 12px;
+    line-height: 1.45;
+}
+.ds-filter-note strong { color: rgba(237,232,235,0.7); }
+
+.ds-preview-more {
+    text-align: center;
+    font-size: 0.78rem;
+    color: rgba(237,232,235,0.38);
+    margin-top: 8px;
+    font-style: italic;
+}
+
 /* ══════════════════════════════════════════════
    PREVIEW DE PARFUMS
 ═══════════════════════════════════════════════ */

@@ -12,16 +12,17 @@ router = APIRouter()
 
 
 class DeliveryBody(BaseModel):
-    zone_type: str              # "free" | "province" | "district" | "metro"
-    label: str
-    province: Optional[str] = None
-    district: Optional[str] = None
-    metro_line: Optional[str] = None
+    delivery_type: str              # "metro" | "zona" | "gratis"
+    zona_level: Optional[str] = None  # "provincia" | "distrito" | "corregimiento"
+    province:      Optional[str] = None
+    district:      Optional[str] = None
+    corregimiento: Optional[str] = None
+    metro_line:    Optional[str] = None
     metro_station: Optional[str] = None
-    price: float = 0.0
-    is_free: bool = False
-    active: bool = True
-    notes: Optional[str] = ""
+    label:  str
+    price:  float = 0.0  # costo de entrega (zona/metro) o umbral mínimo (gratis)
+    active: bool  = True
+    notes:  Optional[str] = ""
 
 
 class FilterBody(BaseModel):
@@ -31,7 +32,7 @@ class FilterBody(BaseModel):
 @router.get("/api/delivery/all")
 def get_all_delivery(_: dict = Depends(verify_token)):
     db = get_db()
-    docs = list(db.delivery_prices.find().sort([("zone_type", 1), ("label", 1)]))
+    docs = list(db.delivery_prices.find().sort([("delivery_type", 1), ("label", 1)]))
     return [serialize_doc(d) for d in docs]
 
 
@@ -39,7 +40,7 @@ def get_all_delivery(_: dict = Depends(verify_token)):
 def get_delivery(_: dict = Depends(verify_token), page: int = Query(default=1)):
     db = get_db()
     query = {}
-    cursor = db.delivery_prices.find(query).sort([("zone_type", 1), ("label", 1)])
+    cursor = db.delivery_prices.find(query).sort([("delivery_type", 1), ("province", 1), ("district", 1), ("label", 1)])
     return paginate_cursor(cursor, db.delivery_prices, query, page)
 
 
@@ -48,14 +49,15 @@ def get_filtered_delivery(body: FilterBody, _: dict = Depends(verify_token), pag
     db = get_db()
     f = body.filter
     query = {"$or": [
-        {"label": {"$regex": f, "$options": "i"}},
-        {"province": {"$regex": f, "$options": "i"}},
-        {"district": {"$regex": f, "$options": "i"}},
-        {"metro_line": {"$regex": f, "$options": "i"}},
+        {"label":         {"$regex": f, "$options": "i"}},
+        {"province":      {"$regex": f, "$options": "i"}},
+        {"district":      {"$regex": f, "$options": "i"}},
+        {"corregimiento": {"$regex": f, "$options": "i"}},
+        {"metro_line":    {"$regex": f, "$options": "i"}},
         {"metro_station": {"$regex": f, "$options": "i"}},
-        {"notes": {"$regex": f, "$options": "i"}},
+        {"notes":         {"$regex": f, "$options": "i"}},
     ]} if f else {}
-    cursor = db.delivery_prices.find(query).sort([("zone_type", 1), ("label", 1)])
+    cursor = db.delivery_prices.find(query).sort([("delivery_type", 1), ("province", 1), ("label", 1)])
     return paginate_cursor(cursor, db.delivery_prices, query, page)
 
 
@@ -64,18 +66,19 @@ def create_delivery(body: DeliveryBody, _: dict = Depends(verify_token)):
     db = get_db()
     now = datetime.now(timezone.utc)
     doc = {
-        "zone_type": body.zone_type,
-        "label": body.label,
-        "province": body.province or None,
-        "district": body.district or None,
-        "metro_line": body.metro_line or None,
+        "delivery_type": body.delivery_type,
+        "zona_level":    body.zona_level or None,
+        "province":      body.province or None,
+        "district":      body.district or None,
+        "corregimiento": body.corregimiento or None,
+        "metro_line":    body.metro_line or None,
         "metro_station": body.metro_station or None,
-        "price": 0.0 if body.is_free else body.price,
-        "is_free": body.is_free,
-        "active": body.active,
-        "notes": body.notes or "",
-        "createdAt": now,
-        "updatedAt": now,
+        "label":         body.label,
+        "price":         body.price,
+        "active":        body.active,
+        "notes":         body.notes or "",
+        "createdAt":     now,
+        "updatedAt":     now,
     }
     result = db.delivery_prices.insert_one(doc)
     doc["_id"] = result.inserted_id
@@ -86,17 +89,18 @@ def create_delivery(body: DeliveryBody, _: dict = Depends(verify_token)):
 def update_delivery(id: str, body: DeliveryBody, _: dict = Depends(verify_token)):
     db = get_db()
     update = {
-        "zone_type": body.zone_type,
-        "label": body.label,
-        "province": body.province or None,
-        "district": body.district or None,
-        "metro_line": body.metro_line or None,
+        "delivery_type": body.delivery_type,
+        "zona_level":    body.zona_level or None,
+        "province":      body.province or None,
+        "district":      body.district or None,
+        "corregimiento": body.corregimiento or None,
+        "metro_line":    body.metro_line or None,
         "metro_station": body.metro_station or None,
-        "price": 0.0 if body.is_free else body.price,
-        "is_free": body.is_free,
-        "active": body.active,
-        "notes": body.notes or "",
-        "updatedAt": datetime.now(timezone.utc),
+        "label":         body.label,
+        "price":         body.price,
+        "active":        body.active,
+        "notes":         body.notes or "",
+        "updatedAt":     datetime.now(timezone.utc),
     }
     doc = db.delivery_prices.find_one_and_update(
         {"_id": to_object_id(id)}, {"$set": update}, return_document=True

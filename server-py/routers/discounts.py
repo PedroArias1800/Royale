@@ -1,13 +1,5 @@
 """
 Módulo de Descuentos por Métricas — Royale Panama
-
-Reglas de descuento configurables por atributos de parfums (marca, género, precio,
-fecha de creación) con programación automática de activación/desactivación.
-
-Admin (auth):  GET/POST/PUT/DELETE /api/discounts
-               POST /api/discounts/preview
-               POST /api/discounts/filtered
-Público:       GET /discounts/public
 """
 from datetime import datetime, timezone
 from typing import Optional, List
@@ -81,23 +73,22 @@ def _is_rule_active(rule: dict) -> bool:
     return True
 
 
-def _get_matching_parfums(db, filters: dict, limit: int = 0) -> list:
+def _get_matching_parfums(db, filters: dict, limit: int = 0, require_types: bool = False) -> list:
     """
-    filters keys (all optional):
-      filter_brand_ids: list[str]
-      filter_gender: int|None
-      filter_price_min: float|None
-      filter_price_max: float|None
-      filter_created_after: str|None  (ISO)
-      filter_created_before: str|None (ISO)
+    Retorna parfums que aplican a los filtros dados.
+    require_types=True filtra parfums sin tipos (para el endpoint público).
     """
-    parfum_q: dict = {"status": 1}
+    parfum_q: dict = {}
 
     brand_ids = filters.get("filter_brand_ids") or []
     if brand_ids:
         oids = [ObjectId(b) for b in brand_ids if ObjectId.is_valid(b)]
+        brand_conds = []
         if oids:
-            parfum_q["brand_id_fk"] = {"$in": oids}
+            brand_conds.append({"brand_id_fk": {"$in": oids}})
+        # Fallback string comparison (backup data may store IDs as strings)
+        brand_conds.append({"brand_id_fk": {"$in": brand_ids}})
+        parfum_q["$or"] = brand_conds
 
     gender = filters.get("filter_gender")
     if gender is not None:
@@ -106,42 +97,49 @@ def _get_matching_parfums(db, filters: dict, limit: int = 0) -> list:
     date_q: dict = {}
     after  = _parse_dt(filters.get("filter_created_after"))
     before = _parse_dt(filters.get("filter_created_before"))
-    if after:
-        date_q["$gte"] = after
-    if before:
-        date_q["$lte"] = before
-    if date_q:
-        parfum_q["createdAt"] = date_q
+    if after:  date_q["$gte"] = after
+    if before: date_q["$lte"] = before
+    if date_q: parfum_q["createdAt"] = date_q
 
-    # Type-level price filter
-    type_price_q: dict = {"status": 1}
+    # Type-level price filter (only applied when price range is set)
+    type_price_stage: list = []
     price_min = filters.get("filter_price_min")
     price_max = filters.get("filter_price_max")
     if price_min is not None or price_max is not None:
         pq: dict = {}
-        if price_min is not None:
-            pq["$gte"] = float(price_min)
-        if price_max is not None:
-            pq["$lte"] = float(price_max)
-        type_price_q["price"] = pq
+        if price_min is not None: pq["$gte"] = float(price_min)
+        if price_max is not None: pq["$lte"] = float(price_max)
+        type_price_stage = [{"$match": {"price": pq}}]
 
-    pipeline = [
+    pipeline: list = [
         {"$match": parfum_q},
         {"$lookup": {
             "from": "types",
             "let": {"pid": "$_id"},
             "pipeline": [
-                {"$match": {"$expr": {"$eq": ["$parfum_id_fk", "$$pid"]}}},
-                {"$match": type_price_q},
+                # Handle both ObjectId and string parfum_id_fk (backup data compat)
+                {"$match": {"$expr": {
+                    "$or": [
+                        {"$eq": ["$parfum_id_fk", "$$pid"]},
+                        {"$eq": [{"$toString": "$parfum_id_fk"}, {"$toString": "$$pid"}]},
+                    ]
+                }}},
+                *type_price_stage,
                 {"$sort": {"price": 1}},
             ],
             "as": "types",
         }},
-        {"$match": {"types.0": {"$exists": True}}},
+    ]
+
+    if require_types:
+        pipeline.append({"$match": {"types.0": {"$exists": True}}})
+
+    pipeline += [
         {"$lookup": {"from": "brands",   "localField": "brand_id_fk",   "foreignField": "_id", "as": "brand"}},
         {"$lookup": {"from": "versions", "localField": "version_id_fk", "foreignField": "_id", "as": "version"}},
-        {"$unwind": "$brand"},
-        {"$unwind": "$version"},
+        # preserveNullAndEmptyArrays: parfums without brand/version match are still returned
+        {"$unwind": {"path": "$brand",   "preserveNullAndEmptyArrays": True}},
+        {"$unwind": {"path": "$version", "preserveNullAndEmptyArrays": True}},
         {"$sort": {"createdAt": -1}},
     ]
     if limit:
@@ -162,7 +160,7 @@ def get_discounts(_: dict = Depends(verify_token), page: int = Query(default=1))
 @router.post("/api/discounts/preview")
 def preview_discount(body: PreviewBody, _: dict = Depends(verify_token)):
     db = get_db()
-    parfums = _get_matching_parfums(db, body.dict(), limit=20)
+    parfums = _get_matching_parfums(db, body.dict(), limit=20, require_types=False)
     return {
         "count": len(parfums),
         "parfums": [serialize_doc(p) for p in parfums],
@@ -219,10 +217,6 @@ def delete_discount(id: str, _: dict = Depends(verify_token)):
 
 @router.get("/discounts/public")
 def get_discounts_public():
-    """
-    Reglas activas y vigentes con sus parfums que aplican.
-    Incluye price_discounted calculado en cada type.
-    """
     db = get_db()
     all_rules = list(db.discount_rules.find({"status": 1}).sort([("order_index", 1), ("createdAt", -1)]))
 
@@ -233,7 +227,7 @@ def get_discounts_public():
         rule_s = serialize_doc(rule)
         discount = float(rule_s.get("discount_pct", 0))
 
-        parfums_raw = _get_matching_parfums(db, rule_s, limit=50)
+        parfums_raw = _get_matching_parfums(db, rule_s, limit=50, require_types=True)
         parfums_out = []
         for p in parfums_raw:
             p_s = serialize_doc(p)

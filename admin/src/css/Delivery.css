@@ -142,6 +142,69 @@
     border-color: var(--color-dorado);
 }
 
+/* ── Tabs de tipo de delivery ── */
+.dz-type-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.dz-type-tab {
+    padding: 7px 14px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: rgba(237,232,235,0.65);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.dz-type-tab:hover { border-color: rgba(253,208,94,0.3); color: #ede8eb; }
+.dz-type-tab--active {
+    border-color: var(--color-dorado);
+    background: rgba(253,208,94,0.1);
+    color: var(--color-dorado);
+    font-weight: 600;
+}
+
+/* ── Nivel de zona ── */
+.dz-level-tabs { display: flex; flex-direction: column; gap: 6px; }
+.dz-level-opt {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.07);
+    background: rgba(255,255,255,0.02);
+    color: rgba(237,232,235,0.6);
+    font-size: 0.83rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.dz-level-opt input[type="radio"] { accent-color: var(--color-dorado); }
+.dz-level-opt--active {
+    border-color: rgba(253,208,94,0.35);
+    background: rgba(253,208,94,0.06);
+    color: #ede8eb;
+}
+
+/* ── Info box ── */
+.dz-info-box {
+    background: rgba(34,197,94,0.06);
+    border: 1px solid rgba(34,197,94,0.2);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 0.83rem;
+    color: rgba(134,239,172,0.85);
+    margin-bottom: 16px;
+    line-height: 1.45;
+}
+.dz-badge-corregimiento {
+    background: rgba(251,191,36,0.12);
+    color: #fbbf24;
+    border: 1px solid rgba(251,191,36,0.3);
+}
+
 /* ═══════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════ */
