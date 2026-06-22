@@ -1,5 +1,6 @@
 import { postUsersRequest, putUsersRequest } from '../api/User.api.js';
 import { useAuth } from '../context/AuthProvider';
+import { ConfirmDeleteButton } from './ConfirmDeleteButton';
 
 export const ModalFormUser = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, user } = useAuth();
@@ -129,7 +130,7 @@ export const ModalFormUser = ({ modalData }) => {
                 </label>
             </div>
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
-                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
             </div>
         </form>

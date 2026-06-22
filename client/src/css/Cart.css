@@ -858,6 +858,18 @@
   letter-spacing: 0.02em;
 }
 
+/* Versión + Precio en fila */
+.pc-card__meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+.pc-card__meta-row .pc-card__version {
+  margin: 0;
+}
+
 /* Precio */
 .pc-card__price-row {
   display: flex;
@@ -964,4 +976,319 @@
   background: linear-gradient(135deg, #7d0532, #d60a5f);
   border-color: rgba(214, 10, 95, 0.9);
   box-shadow: 0 4px 16px rgba(214, 10, 95, 0.45);
+}
+
+/* ══════════════════════════════════════════════
+   PAYMENT MODAL — delivery + Yappy
+═══════════════════════════════════════════════ */
+
+.pm-scrollable {
+  max-height: 90dvh;
+  overflow-y: auto;
+}
+
+/* Section label */
+.pm-section-label {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(237, 232, 235, 0.45);
+  font-family: var(--font-cinzel);
+  margin: 0 0 10px;
+}
+
+/* Delivery section */
+.pm-delivery-section {
+  margin: 18px 0 12px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(253, 208, 94, 0.1);
+  border-radius: 4px;
+}
+.pm-delivery-loading {
+  font-size: 0.85rem;
+  color: rgba(237, 232, 235, 0.38);
+  margin: 4px 0 0;
+}
+.pm-delivery-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pm-delivery-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid rgba(253, 208, 94, 0.1);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  font-size: 0.88rem;
+  color: rgba(240, 234, 237, 0.8);
+  background: rgba(255, 255, 255, 0.02);
+}
+.pm-delivery-opt:hover { border-color: rgba(253, 208, 94, 0.25); }
+.pm-delivery-opt--selected {
+  border-color: rgba(253, 208, 94, 0.45);
+  background: rgba(253, 208, 94, 0.05);
+}
+.pm-delivery-radio { display: none; }
+.pm-delivery-opt__label { flex: 1; font-size: 0.88rem; }
+.pm-delivery-opt__price {
+  font-weight: 700;
+  font-family: var(--font-cinzel);
+  font-size: 0.82rem;
+  color: rgba(253, 208, 94, 0.8);
+  flex-shrink: 0;
+}
+.pm-delivery-opt__price--free { color: #4caf50; }
+.pm-delivery-opt__note {
+  width: 100%;
+  font-size: 0.76rem;
+  color: rgba(237, 232, 235, 0.38);
+  margin-top: 2px;
+}
+
+/* Total preview */
+.pm-total-preview {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 14px;
+  margin: 12px 0 16px;
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(253, 208, 94, 0.08);
+  border-radius: 4px;
+  font-size: 0.85rem;
+  color: rgba(237, 232, 235, 0.55);
+}
+.pm-saving { color: var(--color-rojo-hover) !important; font-weight: 600; }
+.pm-free { font-style: normal; color: #4caf50; font-weight: 600; }
+.pm-total-label {
+  font-family: var(--font-cinzel);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(237, 232, 235, 0.45);
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(253, 208, 94, 0.1);
+}
+.pm-total-amount {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--color-dorado-light);
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(253, 208, 94, 0.1);
+}
+
+/* Payment method buttons */
+.pm-payment-methods {
+  margin-top: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(253, 208, 94, 0.1);
+  border-radius: 4px;
+}
+.pm-methods-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.pm-yappy-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 11px 16px;
+  background: linear-gradient(135deg, #007a3a, #00c853);
+  border: none;
+  border-radius: 3px;
+  color: white;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 14px rgba(0, 200, 83, 0.3);
+  font-family: var(--font-body);
+}
+.pm-yappy-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #009447, #00e65c);
+  box-shadow: 0 6px 20px rgba(0, 200, 83, 0.5);
+  transform: translateY(-1px);
+}
+.pm-yappy-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.pm-yappy-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pagar {
+  flex: 1;
+}
+.pm-yappy-error {
+  font-size: 0.82rem;
+  color: var(--color-rojo-hover);
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  background: rgba(214, 10, 95, 0.08);
+  border-left: 2px solid var(--color-rojo);
+  border-radius: 2px;
+}
+
+/* ══════════════════════════════════════════════
+   YAPPY RESULT PAGES (/pago-exitoso, /pago-cancelado)
+═══════════════════════════════════════════════ */
+.yappy-page {
+  min-height: calc(100dvh - 15vh);
+  background: var(--bg-deep);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 4vw;
+}
+.yappy-page__box {
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+  background: linear-gradient(180deg, #221320 0%, #180d16 100%);
+  border: 1px solid rgba(253, 208, 94, 0.15);
+  border-radius: 8px;
+  padding: 48px 32px 36px;
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.65);
+}
+.yappy-page__icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin: 0 auto 20px;
+}
+.yappy-page__icon--ok     { background: rgba(0, 200, 83, 0.18); color: #4caf50; border: 2px solid #4caf50; }
+.yappy-page__icon--fail   { background: rgba(214, 10, 95, 0.18); color: var(--color-rojo); border: 2px solid var(--color-rojo); }
+.yappy-page__icon--cancel { background: rgba(253, 208, 94, 0.12); color: var(--color-dorado); border: 2px solid rgba(253, 208, 94, 0.4); }
+.yappy-page__title {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 700;
+  color: var(--color-dorado-light);
+  margin: 0 0 14px;
+}
+.yappy-page__msg {
+  font-size: 0.9rem;
+  color: rgba(240, 234, 237, 0.6);
+  line-height: 1.6;
+  margin: 0 0 28px;
+}
+.yappy-page__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.yappy-page__btn {
+  display: inline-block;
+  padding: 11px 22px;
+  background: linear-gradient(135deg, var(--color-rojo-2), var(--color-rojo));
+  color: white;
+  text-decoration: none;
+  border-radius: 3px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-family: var(--font-body);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px rgba(214, 10, 95, 0.3);
+  cursor: pointer;
+  border: none;
+}
+.yappy-page__btn:hover {
+  background: linear-gradient(135deg, var(--color-rojo), var(--color-rojo-hover));
+  box-shadow: 0 6px 22px rgba(214, 10, 95, 0.5);
+  transform: translateY(-1px);
+}
+.yappy-page__btn--secondary {
+  background: transparent;
+  color: rgba(237, 232, 235, 0.6);
+  border: 1px solid rgba(253, 208, 94, 0.2);
+  box-shadow: none;
+}
+.yappy-page__btn--secondary:hover {
+  background: rgba(253, 208, 94, 0.06);
+  border-color: rgba(253, 208, 94, 0.4);
+  color: var(--color-dorado);
+  transform: none;
+  box-shadow: none;
+}
+.yappy-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(253, 208, 94, 0.15);
+  border-top-color: var(--color-dorado);
+  border-radius: 50%;
+  animation: yappy-spin 0.9s linear infinite;
+  margin: 0 auto 20px;
+}
+@keyframes yappy-spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 500px) {
+  /* Imagen cuadrada, anclada al tope */
+  .pc-card__img-wrap {
+    width: 120px;
+    height: 120px;
+    flex-shrink: 0;
+    align-self: flex-start;
+  }
+
+  /* Cuerpo: padding compacto */
+  .pc-card__body {
+    padding: 8px 10px;
+    gap: 2px;
+  }
+
+  /* Cabecera: sin hueco entre título y género */
+  .pc-card__head {
+    justify-content: flex-start;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  /* Controles: [−][qty][+] a la izquierda, [🗑] a la derecha — mismo spread que ml/precio */
+  .pc-card__controls {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding-top: 6px;
+  }
+  .pc-card__qty {
+    justify-content: flex-start;
+  }
+
+  /* Ícono basura sin texto, compacto */
+  .pc-card__remove span {
+    display: none;
+  }
+  .pc-card__remove {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
 }

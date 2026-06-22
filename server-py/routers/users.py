@@ -30,6 +30,10 @@ class UserBody(BaseModel):
     status: int
 
 
+class FilterBody(BaseModel):
+    filter: str = ""
+
+
 def _get_rol(id: int) -> str:
     return "Admin" if id == 1 else "Vendedor"
 
@@ -68,6 +72,32 @@ def get_users(page: int = Query(default=1)):
     db = get_db()
     query = {}
     cursor = db.users.find(query, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "status": 1})
+    return paginate_cursor(cursor, db.users, query, page)
+
+
+@router.post("/api/users/filtered")
+def get_filtered_users(body: FilterBody, _: dict = Depends(verify_token), page: int = Query(default=1)):
+    db = get_db()
+    f = body.filter
+
+    rol_filter = None
+    if f and "admin".startswith(f.lower()):
+        rol_filter = 1
+    elif f and "vendedor".startswith(f.lower()):
+        rol_filter = 2
+
+    query = {}
+    if f:
+        or_clauses = [
+            {"firstname": {"$regex": f, "$options": "i"}},
+            {"lastname": {"$regex": f, "$options": "i"}},
+            {"email": {"$regex": f, "$options": "i"}},
+        ]
+        if rol_filter is not None:
+            or_clauses.append({"rol": rol_filter})
+        query = {"$or": or_clauses}
+
+    cursor = db.users.find(query, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "status": 1}).sort("firstname", 1)
     return paginate_cursor(cursor, db.users, query, page)
 
 

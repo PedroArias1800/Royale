@@ -228,11 +228,19 @@ def share_parfum(id: str = Query(...)):
     return HTMLResponse(content=page)
 
 
+# ── GET /delivery/public ──────────────────────────────────────────────────────
+@router.get("/delivery/public")
+def get_delivery_options_public():
+    db = get_db()
+    docs = list(db.delivery_prices.find({"active": True}).sort("label", 1))
+    return [serialize_doc(d) for d in docs]
+
+
 # ── GET /transaction (pending, protected) ─────────────────────────────────────
 @router.get("/transaction")
 def get_pending_transactions(_: dict = Depends(verify_token)):
     db = get_db()
-    docs = list(db.transactions.find({"status": False}))
+    docs = list(db.transactions.find({"status": {"$in": [False, 1]}}))
     return [serialize_doc(d) for d in docs]
 
 
@@ -248,6 +256,9 @@ class TransactionBody(BaseModel):
     productsTypes: List[str]
     quantities: List[int]
     seller_id_fk: Optional[str] = None
+    delivery_fee: float = 0.0
+    delivery_label: str = ""
+    payment_method: str = "WhatsApp"
 
 
 @router.post("/transaction")
@@ -262,10 +273,13 @@ def create_transaction(body: TransactionBody):
         "email": body.email,
         "subTotal": body.subTotal,
         "total": body.total,
+        "delivery_fee": body.delivery_fee,
+        "delivery_label": body.delivery_label,
+        "payment_method": body.payment_method,
         "products": body.products,
         "productsTypes": body.productsTypes,
         "quantities": body.quantities,
-        "status": False,
+        "status": 1,
         "createdAt": now,
         "updatedAt": now,
     }

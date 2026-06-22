@@ -56,6 +56,10 @@ skills-lock.json
 # ── Archivos generados / temporales ─────────────
 structure.md
 
+# ── Documentos de planificación ─────────────────
+# Planes de implementación generados por el agente
+docs/
+
 # ── Python ──────────────────────────────────────
 __pycache__/
 *.py[cod]

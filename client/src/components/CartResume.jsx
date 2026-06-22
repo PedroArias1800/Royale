@@ -16,42 +16,32 @@ export const CartResume = ({ products }) => {
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const { totalItems, subTotal, totalPrice, totalSavings, totalSavingsCoupon, flashSavings, productDetails, productsId, typesId, quantities } = useMemo(() => {
-    let subTotal = 0; 
-    let totalPrice = 0; 
+  const { totalItems, actualTotal, totalSavingsCoupon, productDetails, productsId, typesId, quantities } = useMemo(() => {
+    let actualTotal = 0;
     let totalItems = 0;
-    let totalSavings = 0;
     let totalSavingsCoupon = 0;
-    let flashSavings = 0;
     let productDetails = [];
     let productsId = [];
     let typesId = [];
     let quantities = [];
-    
-    // Recorremos los productos en 'products' para mantener el orden original
+
     products.forEach((product) => {
-      // Buscamos el producto correspondiente en el carrito
       const item = cart.find(
         (cartItem) => cartItem.id === product.parfum._id && cartItem.types_id === product.type._id
       );
-      const validFlash = product?.type?.type_of_sale == 'Flash' && product?.type?.quantity_flash > 0 ? true : false
+      const validFlash = product?.type?.type_of_sale === 'Flash' && product?.type?.quantity_flash > 0;
 
       if (item) {
-        const quantity = item.quantity;  // Cantidad desde el carrito
-        const price = product.type.price || 0;  // Precio del producto
-        const oldPrice = product.type.old_price || 0;  // Precio anterior
+        const quantity = item.quantity;
+        const price = validFlash ? (product.type.price_flash || product.type.price) : product.type.price;
 
-        // Calculamos el subTotal y el total de cada producto
-        subTotal += oldPrice * quantity;
-        totalPrice += price * quantity; // El total antes de aplicar descuento
-        totalItems += quantity; // Contamos las unidades
-        flashSavings += validFlash ? (product.type.price - product.type.price_flash) * item.quantity : 0
-        totalSavings += (oldPrice - price) * quantity; // Calculamos el ahorro
-        if (dataCupon?.productsThatApply == 0 || dataCupon?.productsThatApply == product.parfum.gender){
-          totalSavingsCoupon += (price * quantity)*(percentage/100)
+        actualTotal += price * quantity;
+        totalItems += quantity;
+
+        if (dataCupon?.productsThatApply == 0 || dataCupon?.productsThatApply == product.parfum.gender) {
+          totalSavingsCoupon += (price * quantity) * (percentage / 100);
         }
 
-        // Agregamos el detalle del producto al array de detalles, manteniendo el orden de 'products'
         productDetails.push({
           parfum_id: product.parfum._id,
           types_id: product.type._id,
@@ -60,24 +50,18 @@ export const CartResume = ({ products }) => {
           quantity,
           version_name: product.parfum.version_id_fk.version_name,
           ml: product.type.ml,
-          price: product.type.price,
-          price_flash: product.type.price_flash,
-          old_price: product.type.old_price,
+          price,
           subTotal: price * quantity,
           type_of_sale: product.type.type_of_sale
         });
-        productsId.push(`${product.parfum?._id}=${product.parfum?.title}`)
-        typesId.push(product.type?._id)
-        quantities.push(quantity)
+        productsId.push(`${product.parfum?._id}=${product.parfum?.title}`);
+        typesId.push(product.type?._id);
+        quantities.push(quantity);
       }
     });
 
-    totalSavings = subTotal - totalPrice;
-    totalPrice = totalPrice - flashSavings;
-
-
-    return { totalItems, subTotal, totalPrice, totalSavings, totalSavingsCoupon, productDetails, productsId, typesId, quantities, flashSavings };
-  }, [cart, products, dataCupon]); // Dependemos de 'cart' y 'products'
+    return { totalItems, actualTotal, totalSavingsCoupon, productDetails, productsId, typesId, quantities };
+  }, [cart, products, dataCupon, percentage]);
 
 
   const handleResponse = (response) => {
@@ -100,25 +84,30 @@ export const CartResume = ({ products }) => {
   ;
   };
   
-  const handleFormSubmit = async (data) => {
+  const handleFormSubmit = async (data, deliveryOption) => {
+    const deliveryFee   = deliveryOption ? (deliveryOption.is_free ? 0 : Number(deliveryOption.price)) : 0;
+    const deliveryLabel = deliveryOption?.label || '';
+    const total = (actualTotal - totalSavingsCoupon + deliveryFee).toFixed(2);
+
     const transaction = {
-      userName: data.name,
-      phone: data.phone,
-      direction: data.address,
-      email: data.email,
-      subTotal: subTotal.toFixed(2),
-      total: (totalPrice.toFixed(2)-totalSavingsCoupon.toFixed(2)).toFixed(2),
-      code: dataCupon._id,
-      products: productsId,
-      productsTypes: typesId,
-      quantities: quantities,
+      userName:       data.name,
+      phone:          data.phone,
+      direction:      data.address || '',
+      email:          data.email || '',
+      subTotal:       actualTotal.toFixed(2),
+      total,
+      delivery_fee:   deliveryFee,
+      delivery_label: deliveryLabel,
+      payment_method: 'WhatsApp',
+      code:           dataCupon._id,
+      products:       productsId,
+      productsTypes:  typesId,
+      quantities:     quantities,
     }
 
     try {
         const res = await postTransactionRequest(transaction);
-        if (res.status === 200) {
-            console.log('Transacción guardada con éxito');
-        } else {
+        if (res.status !== 200) {
             console.error('Ocurrió un error al guardar la transacción.');
         }
     } catch (error) {
@@ -127,25 +116,26 @@ export const CartResume = ({ products }) => {
 
     let name = data.name
     let message = `Hola, soy ${name} y estos son los productos que he seleccionado desde el sitio web de Royale Panama:\n\n`;
-  
+
     productDetails.forEach((item) => {
       message += `Producto: ${item.brand_name} ${item.title}\n`;
       message += `Versión: ${item.version_name} - ${item.ml}ml\n`;
-      message += `Precio de Promoción: $${Number(item.price).toFixed(2)}\n`;
-      if (item?.price_flash && item?.type_of_sale == 'Flash'){
-        message += `Descuento Flash: -$${((Number(item.price_flash).toFixed(2)-Number(item.price).toFixed(2))*-1).toFixed(2)}\n`;
-      }
-      message += `Precio Regular: $${Number(item.old_price).toFixed(2)}\n`;
+      message += `Precio: $${Number(item.price).toFixed(2)}\n`;
       message += `Cantidad: ${item.quantity}\n`;
       message += `Enlace: ${URLFrontend}/parfum?id=${item.parfum_id}\n\n`;
     });
-  
-    let total = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
+
+    let msgTotal = productDetails.reduce((sum, item) => sum + item.subTotal, 0);
     if (dataCupon.valido){
       message += `Cupón: ${dataCupon.code}, -$${totalSavingsCoupon.toFixed(2)} (-${dataCupon.texto})\n\n`;
-      total = (total-totalSavingsCoupon.toFixed(2)).toFixed(2)
+      msgTotal -= totalSavingsCoupon;
     }
-    message += `Total: $${total}\n\n`;
+    if (deliveryOption) {
+      message += `Delivery: ${deliveryLabel}`;
+      message += deliveryOption.is_free ? ' (Gratis)\n\n' : ` — $${deliveryFee.toFixed(2)}\n\n`;
+      msgTotal += deliveryFee;
+    }
+    message += `Total: $${msgTotal.toFixed(2)}\n\n`;
     message += `Me puedes contactar de la siguiente manera:\n`;
     message += `Número de Teléfono: +507 ${data.phone}\n`;
     message += `Correo: ${data.email}`;
@@ -196,7 +186,7 @@ export const CartResume = ({ products }) => {
   }
 
 
-  const finalTotal = (totalPrice - totalSavingsCoupon).toFixed(2);
+  const finalTotal = (actualTotal - totalSavingsCoupon).toFixed(2);
 
   return (
     <div className='cardResume'>
@@ -218,7 +208,7 @@ export const CartResume = ({ products }) => {
               <span className="cr-item__qty">×{item.quantity}</span>
               {item.brand_name} {item.title}
             </p>
-            <p className="cr-item__price">${item.old_price.toFixed(2)}</p>
+            <p className="cr-item__price">${item.subTotal.toFixed(2)}</p>
           </div>
         ))}
       </div>
@@ -227,20 +217,8 @@ export const CartResume = ({ products }) => {
       <div className="cr-totals">
         <div className='liResumen'>
           <p>Sub Total</p>
-          <p>${subTotal.toFixed(2)}</p>
+          <p>${actualTotal.toFixed(2)}</p>
         </div>
-        {totalSavings > 0 && (
-          <div className='liResumen'>
-            <p>Promociones</p>
-            <p className="cr-saving">-${totalSavings.toFixed(2)}</p>
-          </div>
-        )}
-        {flashSavings > 0 && (
-          <div className='liResumen'>
-            <p>⚡ Descuentos Flash</p>
-            <p className="cr-saving">-${flashSavings.toFixed(2)}</p>
-          </div>
-        )}
         {dataCupon.valido && (
           <div className='liResumen'>
             <p>Cupón ({dataCupon.percentage}%)</p>
@@ -289,6 +267,14 @@ export const CartResume = ({ products }) => {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onSubmit={handleFormSubmit}
+        cartData={{
+          subTotal:       actualTotal,
+          couponDiscount: totalSavingsCoupon,
+          couponId:       dataCupon?._id || null,
+          productsId,
+          typesId,
+          quantities,
+        }}
       />
     </div>
   );

@@ -37,3 +37,12 @@ export const postTransactionRequest = async (transaction) =>
     
 export const getCuponRequest = async (cupon) =>
     await axios.get(`${URL}/cupon?id=${cupon}`)
+
+export const getDeliveryOptionsRequest = async () =>
+    await axios.get(`${URL}/delivery/public`)
+
+export const postYappyCheckoutRequest = async (data) =>
+    await axios.post(`${URL}/yappy/checkout`, data)
+
+export const postYappyVerifyRequest = async (data) =>
+    await axios.post(`${URL}/yappy/verify`, data)

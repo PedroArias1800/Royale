@@ -53,8 +53,6 @@ export const ParfumInfo = ({ product, typeParfum }) => {
     return <p>Cargando...</p>;
   }
 
-  const discount = Math.ceil(-100 + (100 / selectedType?.old_price) * actualPrice);
-
   const handleShare = async () => {
     const shareUrl = `${URLServer}/share/parfum?id=${product._id}`;
     const shareData = {
@@ -83,11 +81,9 @@ export const ParfumInfo = ({ product, typeParfum }) => {
         {/* ── Imagen ── */}
         <div className="parfumImgGrande">
           <div className={`discountPrice ${validFlash ? 'demo animated' : ''}`} style={{border: validFlash ? '10px solid transparent' : 'none', borderRadius: validFlash ? '10px' : ''}}>
-            <FontAwesomeIcon icon={faBookmark} style={gradientStyle} className='iconDiscountPrice' />
             {validFlash && (
               <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash' />
             )}
-            <p>{discount}%</p>
             <img
               src={imgSrc(selectedType?.img)}
               alt={`${product?.brand?.brand_name} ${product?.title} ${product?.version?.version_name} - ${selectedType.ml}ml`}
@@ -116,9 +112,7 @@ export const ParfumInfo = ({ product, typeParfum }) => {
 
           {/* Price block */}
           <div className="pi-price-block">
-            <span className="pi-price-old">${selectedType.old_price}</span>
             <span className="pi-price-current">${actualPrice}</span>
-            <span className="pi-discount-badge">{discount}%</span>
             <Link to={`/search?type=${product.gender}`} className="parfumGenero pi-gender">
               {product.gender === 1 ? 'Damas' : 'Caballeros'}
             </Link>

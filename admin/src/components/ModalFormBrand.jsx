@@ -1,5 +1,6 @@
 import { postBrandsRequest, putBrandsRequest, deleteBrandsRequest } from '../api/Brand.api.js';
 import { useAuth } from '../context/AuthProvider.jsx';
+import { ConfirmDeleteButton } from './ConfirmDeleteButton';
 
 export const ModalFormBrand = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert } = useAuth();
@@ -80,7 +81,7 @@ export const ModalFormBrand = ({ modalData }) => {
                 </label>
             </div>
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
-                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
             </div>
         </form>

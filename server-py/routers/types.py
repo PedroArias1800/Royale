@@ -112,6 +112,7 @@ def get_filtered_types(body: FilterBody, _: dict = Depends(verify_token), page: 
         or_clauses = [
             {"ml": {"$regex": f, "$options": "i"}},
             {"description": {"$regex": f, "$options": "i"}},
+            {"type_of_sale": {"$regex": f, "$options": "i"}},
         ]
         if status_filter is not None:
             or_clauses.append({"status": status_filter})

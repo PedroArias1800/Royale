@@ -1,6 +1,7 @@
 import math
 import os
 import io
+from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel
@@ -16,6 +17,38 @@ router = APIRouter()
 
 class FilterBody(BaseModel):
     filter: str = ""
+
+
+LABELS_INGRESO = ["Venta Directa", "Abono", "Devolución recibida", "Otro ingreso"]
+LABELS_SALIDA = ["Costo del Producto", "Gastos Operativos", "Merma", "Publicidad y Marketing", "Envíos y Logística", "Devolución emitida", "Otro gasto"]
+
+
+class TransactionUpdateBody(BaseModel):
+    payment_method: Optional[str] = None
+    delivery_method: Optional[str] = None
+    channel: Optional[str] = None
+    label: Optional[str] = None
+    description: Optional[str] = None
+    fin_type: Optional[str] = None
+    status: Optional[int] = None
+    omitted: Optional[bool] = None         # True = excluir de estadísticas
+
+
+class TransactionManualBody(BaseModel):
+    fin_type: str                           # ingreso | salida
+    label: str
+    total: float
+    subTotal: Optional[float] = None
+    description: Optional[str] = ""
+    userName: Optional[str] = "Admin"
+    phone: Optional[str] = ""
+    direction: Optional[str] = ""
+    email: Optional[str] = ""
+    payment_method: Optional[str] = ""
+    delivery_method: Optional[str] = ""
+    channel: Optional[str] = ""
+    products: Optional[List[str]] = []
+    quantities: Optional[List[int]] = []
 
 
 def _populate_transaction(doc: dict, db, include_products: bool = False) -> dict:
@@ -101,6 +134,12 @@ def get_filtered_transactions(body: FilterBody, _: dict = Depends(verify_token),
             {"phone": {"$regex": f, "$options": "i"}},
             {"direction": {"$regex": f, "$options": "i"}},
             {"email": {"$regex": f, "$options": "i"}},
+            {"label": {"$regex": f, "$options": "i"}},
+            {"description": {"$regex": f, "$options": "i"}},
+            {"payment_method": {"$regex": f, "$options": "i"}},
+            {"delivery_method": {"$regex": f, "$options": "i"}},
+            {"channel": {"$regex": f, "$options": "i"}},
+            {"fin_type": {"$regex": f, "$options": "i"}},
         ]
         if status_filter is not None:
             or_clauses.append({"status": bool(status_filter)})
@@ -179,6 +218,126 @@ def get_monthly_count_by_user(id: str):
         "seller": f"{user['firstname']} {user['lastname']}",
         "totalQuantitiesThisMonth": total_quantities,
     }
+
+
+@router.get("/api/transactions/pending")
+def get_pending_transactions(_: dict = Depends(verify_token), page: int = Query(default=1)):
+    db = get_db()
+    limit = 15
+    skip = (page - 1) * limit
+    query = {"status": {"$in": [False, 1]}, "is_manual": {"$ne": True}}
+    docs = list(db.transactions.find(query).sort("createdAt", -1).skip(skip).limit(limit))
+    total = db.transactions.count_documents(query)
+    data = [_populate_transaction(d, db, include_products=True) for d in docs]
+    return {
+        "data": data,
+        "pagination": {
+            "currentPage": page,
+            "totalPages": math.ceil(total / limit) if total else 1,
+            "totalItems": total,
+            "itemsPerPage": limit,
+        },
+    }
+
+
+@router.get("/api/transactions/processed")
+def get_processed_transactions(
+    start: Optional[str] = Query(None),
+    end: Optional[str] = Query(None),
+    _: dict = Depends(verify_token),
+):
+    db = get_db()
+    query: dict = {"status": 2, "is_manual": {"$ne": True}}
+    date_filter: dict = {}
+    if start:
+        date_filter["$gte"] = datetime.fromisoformat(start).replace(tzinfo=timezone.utc)
+    if end:
+        date_filter["$lte"] = datetime.fromisoformat(end).replace(tzinfo=timezone.utc)
+    if date_filter:
+        query["createdAt"] = date_filter
+    docs = list(db.transactions.find(query).sort("createdAt", -1))
+    return [_populate_transaction(d, db, include_products=True) for d in docs]
+
+
+@router.get("/api/transactions/manual")
+def get_manual_transactions(
+    start: Optional[str] = Query(None),
+    end: Optional[str] = Query(None),
+    _: dict = Depends(verify_token),
+):
+    db = get_db()
+    query: dict = {"is_manual": True}
+    date_filter: dict = {}
+    if start:
+        date_filter["$gte"] = datetime.fromisoformat(start).replace(tzinfo=timezone.utc)
+    if end:
+        date_filter["$lte"] = datetime.fromisoformat(end).replace(tzinfo=timezone.utc)
+    if date_filter:
+        query["createdAt"] = date_filter
+    docs = list(db.transactions.find(query).sort("createdAt", -1))
+    return [serialize_doc(d) for d in docs]
+
+
+@router.post("/api/transactions/manual")
+def create_manual_transaction(body: TransactionManualBody, db=Depends(get_db), _=Depends(verify_token)):
+    now = datetime.now(timezone.utc)
+    doc = {
+        "fin_type": body.fin_type,
+        "label": body.label,
+        "total": body.total,
+        "subTotal": body.subTotal if body.subTotal is not None else body.total,
+        "description": body.description or "",
+        "userName": body.userName or "",
+        "phone": body.phone or "",
+        "direction": body.direction or "",
+        "email": body.email or "",
+        "payment_method": body.payment_method or "",
+        "delivery_method": body.delivery_method or "",
+        "channel": body.channel or "",
+        "products": body.products or [],
+        "productsTypes": [],
+        "quantities": body.quantities or [],
+        "status": 2,
+        "is_manual": True,
+        "createdAt": now,
+        "updatedAt": now,
+    }
+    result = db.transactions.insert_one(doc)
+    doc["_id"] = result.inserted_id
+    return serialize_doc(doc)
+
+
+@router.put("/api/transactions/{transaction_id}")
+def update_transaction(transaction_id: str, body: TransactionUpdateBody, db=Depends(get_db), _=Depends(verify_token)):
+    oid = to_object_id(transaction_id)
+    updates: dict = {"updatedAt": datetime.now(timezone.utc)}
+    for field in ("payment_method", "delivery_method", "channel", "label", "description", "fin_type"):
+        val = getattr(body, field)
+        if val is not None:
+            updates[field] = val
+    if body.status is not None:
+        updates["status"] = body.status
+    if body.omitted is not None:
+        updates["omitted"] = body.omitted
+
+    result = db.transactions.update_one({"_id": oid}, {"$set": updates})
+    if result.matched_count == 0:
+        return JSONResponse(status_code=404, content={"message": "Transacción no encontrada"})
+
+    doc = db.transactions.find_one({"_id": oid})
+    return _populate_transaction(doc, db, include_products=True)
+
+
+@router.delete("/api/transactions/{transaction_id}")
+def delete_manual_transaction(transaction_id: str, db=Depends(get_db), _=Depends(verify_token)):
+    oid = to_object_id(transaction_id)
+    doc = db.transactions.find_one({"_id": oid})
+    if not doc:
+        return JSONResponse(status_code=404, content={"message": "Transacción no encontrada"})
+    if not doc.get("is_manual"):
+        return JSONResponse(status_code=403, content={"message": "Solo se pueden eliminar transacciones manuales"})
+    db.transactions.delete_one({"_id": oid})
+    return {"message": "Eliminada"}
 
 
 @router.get("/api/transactions/export")

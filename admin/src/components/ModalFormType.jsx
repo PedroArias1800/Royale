@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { getAllParfumsRequest } from '../api/Admin.api';
 import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Type.api';
 import { useAuth } from '../context/AuthProvider';
-import { getParfumsIconGallery, getParfumsIconGallery2 } from '../api/Img.api.js'
+import { getParfumsIconGallery, getParfumsIconGallery2 } from '../api/Img.api.js';
+import { ConfirmDeleteButton } from './ConfirmDeleteButton';
 
 export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, URLServer, imgSrc } = useAuth();
@@ -145,7 +146,6 @@ export const ModalFormType = ({ modalData }) => {
         updatedFiles.forEach(file => dataTransfer.items.add(file));
         inputElement.files = dataTransfer.files;
     
-        console.log(inputElement.files);
     };
     
 
@@ -423,7 +423,7 @@ export const ModalFormType = ({ modalData }) => {
 
 
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
-                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
             </div>
         </form>

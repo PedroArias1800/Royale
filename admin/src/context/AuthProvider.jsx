@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
 import { getParfumsRequest, postGetTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getPromotionsRequest, getCouponsRequest, getCountTransactionsByUserThisMonth } from '../api/Admin.api.js'
-import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest, postFilteredCouponsRequest } from '../api/Filter.api.js'
+import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest, postFilteredCouponsRequest, postFilteredPromotionsRequest } from '../api/Filter.api.js'
 import { getAllTransactionsRequest } from "../api/Transaction.api.js";
 
 import { ModalFormParfum } from "../components/ModalFormParfum";
@@ -126,7 +126,6 @@ export const AuthProvider = ({ children }) => {
                 setIsAuthenticated(true)
                 setUser(res.data)
             } catch(err) {
-                console.log(err)
                 setIsAuthenticated(false)
                 setUser(null)
                 navigate('/login')
@@ -229,10 +228,7 @@ export const AuthProvider = ({ children }) => {
             response = await getCouponsRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
-        else{
-            console.log('Error')
-        }
-        setPagination(response.data.pagination)
+        setPagination(response.data?.pagination ?? {})
     }
 
     const showAlert = (message, type) => {
@@ -277,11 +273,15 @@ export const AuthProvider = ({ children }) => {
             response = await postFilteredTransactionsRequest(page, filter);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
+        else if (id == 8){
+            response = await postFilteredPromotionsRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
         else if (id == 9){
             response = await postFilteredCouponsRequest(page, filter);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
-        setPagination(response.data.pagination)
+        setPagination(response.data?.pagination ?? {})
     }
 
 

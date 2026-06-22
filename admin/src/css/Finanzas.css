@@ -1,0 +1,686 @@
+/* ═══════════════════════════════════════
+   FINANZAS PAGE
+═══════════════════════════════════════ */
+.finanzas-page {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: #1a1a1f;
+    min-height: 100vh;
+    color: #ede8eb;
+}
+
+.finanzas-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.finanzas-title-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.finanzas-title {
+    font-size: 1.7rem;
+    font-weight: 700;
+    color: var(--color-dorado);
+    letter-spacing: 0.04em;
+}
+
+/* ── Period Picker ── */
+.period-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.period-presets {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.period-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(253, 208, 94, 0.25);
+    background: transparent;
+    color: rgba(237, 232, 235, 0.65);
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: all 0.18s;
+}
+
+.period-btn:hover {
+    border-color: var(--color-dorado);
+    color: var(--color-dorado);
+}
+
+.period-btn.active {
+    background: rgba(253, 208, 94, 0.12);
+    border-color: var(--color-dorado);
+    color: var(--color-dorado);
+    font-weight: 600;
+}
+
+.period-custom {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.period-custom label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.75rem;
+    color: rgba(237, 232, 235, 0.5);
+    gap: 4px;
+}
+
+.period-custom input[type="date"] {
+    background: #222227;
+    border: 1px solid rgba(253, 208, 94, 0.2);
+    border-radius: 6px;
+    color: #ede8eb;
+    padding: 4px 8px;
+    font-size: 0.82rem;
+}
+
+/* ── KPI Cards ── */
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.kpi-card {
+    background: #222227;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 3px solid var(--accent, var(--color-dorado));
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    transition: box-shadow 0.2s;
+}
+
+.kpi-card:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.kpi-icon {
+    font-size: 1.4rem;
+    color: var(--accent, var(--color-dorado));
+    opacity: 0.8;
+    margin-top: 2px;
+}
+
+.kpi-body {
+    flex: 1;
+}
+
+.kpi-label {
+    font-size: 0.75rem;
+    color: rgba(237, 232, 235, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+}
+
+.kpi-value {
+    font-size: 1.45rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.kpi-sub {
+    font-size: 0.73rem;
+    color: rgba(237, 232, 235, 0.4);
+    margin-top: 4px;
+}
+
+/* ── Charts Row ── */
+.charts-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 900px) {
+    .charts-row { grid-template-columns: 1fr; }
+}
+
+/* ── Chart Card ── */
+.chart-card {
+    background: #222227;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.chart-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: rgba(237, 232, 235, 0.85);
+    margin-bottom: 12px;
+}
+
+.chart-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    color: rgba(237, 232, 235, 0.3);
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+.chart-tooltip {
+    background: #222227;
+    border: 1px solid rgba(253, 208, 94, 0.25);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+    color: #ede8eb;
+}
+
+.ct-label {
+    font-weight: 600;
+    color: var(--color-dorado);
+    margin-bottom: 4px;
+}
+
+/* ── Dim Tabs ── */
+.dim-tabs {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.dim-tab {
+    padding: 4px 10px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: transparent;
+    color: rgba(237, 232, 235, 0.5);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.dim-tab:hover {
+    border-color: var(--color-dorado);
+    color: var(--color-dorado);
+}
+
+.dim-tab.active {
+    background: rgba(253, 208, 94, 0.12);
+    border-color: var(--color-dorado);
+    color: var(--color-dorado);
+    font-weight: 600;
+}
+
+/* ── Movimientos CRUD ── */
+.mov-crud {
+    background: #222227;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.mov-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.btn-new-mov {
+    padding: 6px 16px;
+    background: rgba(253, 208, 94, 0.12);
+    border: 1px solid var(--color-dorado);
+    color: var(--color-dorado);
+    border-radius: 6px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-new-mov:hover {
+    background: rgba(253, 208, 94, 0.22);
+}
+
+.mov-form {
+    background: #1a1a1f;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mov-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 10px;
+}
+
+.mov-form label {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.78rem;
+    color: rgba(237, 232, 235, 0.55);
+    gap: 4px;
+}
+
+.mov-form input,
+.mov-form select {
+    background: #222227;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ede8eb;
+    padding: 6px 9px;
+    font-size: 0.85rem;
+    transition: border-color 0.15s;
+}
+
+.mov-form input:focus,
+.mov-form select:focus {
+    outline: none;
+    border-color: var(--color-dorado);
+}
+
+.mov-form-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-save-mov {
+    padding: 7px 20px;
+    background: var(--color-dorado);
+    color: #111;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-save-mov:hover { background: var(--color-dorado-hover); }
+
+.btn-cancel-mov {
+    padding: 7px 16px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(237, 232, 235, 0.6);
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.mov-table-wrap { overflow-x: auto; }
+
+.mov-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.mov-table th {
+    padding: 8px 12px;
+    text-align: left;
+    color: rgba(237, 232, 235, 0.45);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.mov-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    color: rgba(237, 232, 235, 0.8);
+    vertical-align: middle;
+}
+
+.mov-table tr:last-child td { border-bottom: none; }
+
+.mov-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+/* ── Tipos de badge adicionales ── */
+.mov-badge.tipo-venta     { background: rgba(255,255,255,0.06); color: rgba(237,232,235,0.55); }
+.mov-badge.tipo-procesada { background: rgba(46,204,113,0.12); color: #2ecc71; }
+
+/* ── Celdas de tabla unificadas ── */
+.mov-row-clickable {
+    cursor: pointer;
+}
+.mov-row-clickable:hover td {
+    background: rgba(255, 255, 255, 0.035) !important;
+}
+
+.mov-cell-date  { white-space: nowrap; }
+.mov-cell-amount { font-weight: 600; white-space: nowrap; }
+.mov-cell-amount.green { color: #2ecc71; }
+.mov-cell-tag   { color: rgba(237,232,235,0.55); font-size: 0.82rem; white-space: nowrap; }
+.mov-cell-ellipsis {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(237,232,235,0.5);
+    font-style: italic;
+}
+
+.mov-cell-ellipsis.expanded {
+    white-space: normal;
+    overflow: visible;
+    max-width: 280px;
+    color: rgba(237,232,235,0.75);
+    font-style: normal;
+    background: rgba(253,208,94,0.04);
+    border-radius: 4px;
+    padding: 4px 6px;
+}
+.mov-cell-client { white-space: nowrap; }
+.mov-sub {
+    color: rgba(237,232,235,0.4);
+    font-size: 0.8rem;
+}
+
+/* ── Descripción con ellipsis/expand ── */
+.mov-cell-desc {
+    max-width: 180px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(237,232,235,0.45);
+    font-style: italic;
+    font-size: 0.82rem;
+    transition: max-width 0.2s, white-space 0.1s;
+}
+
+.mov-cell-desc.expanded {
+    white-space: normal;
+    overflow: visible;
+    max-width: 320px;
+    color: rgba(237,232,235,0.75);
+    font-style: normal;
+    background: rgba(253,208,94,0.04);
+    border-radius: 4px;
+    padding: 4px 6px;
+}
+
+.mov-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.mov-badge.ingreso { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+.mov-badge.salida { background: rgba(214, 10, 95, 0.15); color: #d60a5f; }
+
+.mov-desc { color: rgba(237, 232, 235, 0.4); font-style: italic; }
+
+.mov-actions { display: flex; gap: 6px; }
+
+.mov-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.9rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+
+.mov-actions button:hover { background: rgba(255, 255, 255, 0.08); }
+
+/* ── Pending badge ── */
+.pending-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #d60a5f;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+/* ── Botón procesar ── */
+.btn-procesar {
+    padding: 4px 12px;
+    background: rgba(253, 208, 94, 0.12);
+    border: 1px solid var(--color-dorado);
+    color: var(--color-dorado);
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s;
+}
+.btn-procesar:hover { background: rgba(253, 208, 94, 0.25); }
+
+/* ── Modal de procesado ── */
+.proc-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.proc-modal {
+    background: #222227;
+    border: 1px solid rgba(253, 208, 94, 0.2);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.proc-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.proc-header h3 {
+    font-size: 1rem;
+    color: var(--color-dorado);
+}
+
+.proc-close {
+    background: none;
+    border: none;
+    color: rgba(237, 232, 235, 0.5);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+}
+.proc-close:hover { background: rgba(255, 255, 255, 0.08); }
+
+.proc-info {
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    border-left: 3px solid #2ecc71;
+}
+.proc-info p { margin: 0; font-size: 0.88rem; }
+
+/* ── Botones Procesadas ── */
+.proc-actions { gap: 6px; flex-wrap: wrap; }
+
+.btn-omitir {
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: rgba(237, 232, 235, 0.6);
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.btn-omitir:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-omitir.omitida {
+    border-color: #2ecc71;
+    color: #2ecc71;
+    background: rgba(46, 204, 113, 0.1);
+}
+
+.btn-revertir {
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border: 1px solid rgba(214, 10, 95, 0.4);
+    background: transparent;
+    color: #d60a5f;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.btn-revertir:hover {
+    background: rgba(214, 10, 95, 0.1);
+}
+
+/* ── Formulario manual extendido ── */
+.manual-full-form {
+    gap: 14px;
+}
+
+.mov-form-section-title {
+    font-size: 0.76rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-dorado);
+    padding: 6px 0 2px;
+    border-bottom: 1px solid rgba(253, 208, 94, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-add-product {
+    padding: 2px 10px;
+    background: rgba(253, 208, 94, 0.1);
+    border: 1px solid rgba(253, 208, 94, 0.3);
+    color: var(--color-dorado);
+    border-radius: 5px;
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.btn-add-product:hover {
+    background: rgba(253, 208, 94, 0.2);
+}
+
+.mov-product-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.mov-product-name {
+    flex: 1;
+    background: #222227;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ede8eb;
+    padding: 6px 9px;
+    font-size: 0.85rem;
+    transition: border-color 0.15s;
+}
+
+.mov-product-name:focus {
+    outline: none;
+    border-color: var(--color-dorado);
+}
+
+.mov-product-qty {
+    width: 64px;
+    background: #222227;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: #ede8eb;
+    padding: 6px 8px;
+    font-size: 0.85rem;
+    text-align: center;
+    transition: border-color 0.15s;
+}
+
+.mov-product-qty:focus {
+    outline: none;
+    border-color: var(--color-dorado);
+}
+
+.btn-remove-product {
+    background: none;
+    border: none;
+    color: rgba(214, 10, 95, 0.7);
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+
+.btn-remove-product:hover {
+    background: rgba(214, 10, 95, 0.1);
+    color: var(--color-rojo);
+}
+
+/* ── Responsive finanzas ── */
+@media (max-width: 640px) {
+    .finanzas-page { padding: 14px 12px; gap: 16px; }
+    .finanzas-title { font-size: 1.3rem; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .kpi-card { padding: 12px 12px; }
+    .kpi-value { font-size: 1.15rem; }
+    .mov-crud { padding: 14px 12px; }
+    .mov-form-row { grid-template-columns: 1fr; }
+    .period-presets { gap: 4px; }
+    .period-btn { padding: 5px 10px; font-size: 0.78rem; }
+}

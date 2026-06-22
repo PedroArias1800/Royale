@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAllParfumsRequest } from '../api/Admin.api';
 import { postBodiesRequest, putBodiesRequest, deleteBodiesRequest } from '../api/Body.api';
 import { useAuth } from '../context/AuthProvider';
+import { ConfirmDeleteButton } from './ConfirmDeleteButton';
 
 export const ModalFormBody = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, imgSrc } = useAuth();
@@ -226,7 +227,7 @@ export const ModalFormBody = ({ modalData }) => {
                 )}
             </label>
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
-                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
             </div>
         </form>

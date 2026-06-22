@@ -22,12 +22,14 @@ export const Login = () => {
 
     return (
         <div className='login'>
-            <h2>Login</h2>
-            <form onSubmit={onSubmit}>
-                <input type="email" {...register("email", {required: true})} autoComplete="email" placeholder='email@gmail.com' />
-                <input type="password" {...register("password", {required: true})} autoComplete="password" placeholder='***************' />
-                <input type="submit" value='Log In'/>
-            </form>
+            <div className="login-card">
+                <h2>Royale Admin</h2>
+                <form onSubmit={onSubmit}>
+                    <input type="email" {...register("email", {required: true})} autoComplete="email" placeholder='correo@royale.com' />
+                    <input type="password" {...register("password", {required: true})} autoComplete="current-password" placeholder='Contraseña' />
+                    <input type="submit" value='Ingresar' />
+                </form>
+            </div>
         </div>
     );
 };

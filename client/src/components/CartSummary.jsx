@@ -42,14 +42,10 @@ export const CartSummary = ({ product }) => {
 
   const confirmRemove = () => {
     removeFromCart(product.parfum._id, product.type._id);
-    const productContainer = nodeDrop.target.closest('.originalProductCart');
-    if (productContainer) productContainer.remove();
     setShowModal(false);
   };
 
   const cancelRemove = () => setShowModal(false);
-
-  const discount = Math.ceil(-100 + (100 / Number(product.type.old_price)) * Number(actualPrice));
 
   return (
     <div className='originalProductCart'>
@@ -88,16 +84,12 @@ export const CartSummary = ({ product }) => {
             </Link>
           </div>
 
-          {/* Versión */}
-          <p className="pc-card__version">
-            {product.parfum.version_id_fk.version_name} · {product.type.ml}ml
-          </p>
-
-          {/* Precio + descuento */}
-          <div className="pc-card__price-row">
-            <span className="pc-card__price-old">${Number(product.type.old_price).toFixed(2)}</span>
+          {/* Versión + Precio en la misma fila */}
+          <div className="pc-card__meta-row">
+            <p className="pc-card__version">
+              {product.parfum.version_id_fk.version_name} · {product.type.ml}ml
+            </p>
             <span className="pc-card__price-now">${Number(actualPrice).toFixed(2)}</span>
-            <span className="pc-card__discount">{discount}%</span>
           </div>
 
           {validFlash && (

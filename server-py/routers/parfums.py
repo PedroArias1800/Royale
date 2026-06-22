@@ -67,7 +67,7 @@ def get_filtered_parfums(body: FilterBody, _: dict = Depends(verify_token), page
     f = body.filter
 
     gender_filter = None
-    if "damas" in "damas".lower() and f and "damas".startswith(f.lower()):
+    if f and "damas".startswith(f.lower()):
         gender_filter = 1
     elif f and "caballeros".startswith(f.lower()):
         gender_filter = 2

@@ -14,6 +14,10 @@ class VersionBody(BaseModel):
     description: str = ""
 
 
+class FilterBody(BaseModel):
+    filter: str = ""
+
+
 @router.get("/api/versions/all")
 def get_all_versions(_: dict = Depends(verify_token)):
     db = get_db()
@@ -24,6 +28,18 @@ def get_all_versions(_: dict = Depends(verify_token)):
 def get_versions(_: dict = Depends(verify_token), page: int = Query(default=1)):
     db = get_db()
     query = {}
+    cursor = db.versions.find(query).sort("version_name", 1)
+    return paginate_cursor(cursor, db.versions, query, page)
+
+
+@router.post("/api/versions/filtered")
+def get_filtered_versions(body: FilterBody, _: dict = Depends(verify_token), page: int = Query(default=1)):
+    db = get_db()
+    f = body.filter
+    query = {"$or": [
+        {"version_name": {"$regex": f, "$options": "i"}},
+        {"description": {"$regex": f, "$options": "i"}},
+    ]} if f else {}
     cursor = db.versions.find(query).sort("version_name", 1)
     return paginate_cursor(cursor, db.versions, query, page)
 

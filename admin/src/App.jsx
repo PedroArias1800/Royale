@@ -10,6 +10,8 @@ import { Login } from './pages/Login.jsx';
 import { Admin } from './pages/Admin.jsx';
 import { Register } from './pages/Register.jsx';
 import { Data } from './pages/Data.jsx';
+import { Finanzas } from './Pages/Finanzas.jsx';
+import { Delivery } from './pages/Delivery.jsx';
 
 const App = () => {
 
@@ -26,6 +28,8 @@ const App = () => {
         <Route path="/register" element={<Register />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/data" element={<Data />} />
+        <Route path="/finanzas" element={<Finanzas />} />
+        <Route path="/delivery" element={<Delivery />} />
         <Route path="*" element={<Login />} />
       </Routes>
       <Footer />

@@ -3,6 +3,8 @@ import { postUsersRequest, putUsersRequest } from '../api/User.api.js';
 import { useAuth } from '../context/AuthProvider.jsx';
 import { getAllParfumsRequest, getTypeByParfumId, getUsersByRoleSeller } from '../api/Admin.api';
 import { getAllCouponsRequest } from '../api/Admin.api';
+import { ConfirmDeleteButton } from './ConfirmDeleteButton';
+import { putTransactionRequest } from '../api/Transaction.api.js';
 import { columnMappings, excludedColumns, excludedColumnsSeller } from "../js/mappings";
 
 
@@ -125,15 +127,20 @@ export const ModalFormTransaction = ({ modalData }) => {
         e.preventDefault();
         try {
             if (isUpdate) {
-                // Llamar a la API de actualización
-                const res = await putUsersRequest(modalData._id, modalData);
+                const res = await putTransactionRequest(modalData._id, {
+                    payment_method: modalData.payment_method || null,
+                    delivery_method: modalData.delivery_method || null,
+                    channel: modalData.channel || null,
+                    label: modalData.label || null,
+                    description: modalData.description || null,
+                    status: modalData.status,
+                });
                 if (res.status == 200){
                     showAlert('Datos actualizados con éxito', 1);
                     cargarDataTables(6)
                     closeModal()
                 }
             } else {
-                // Llamar a la API de creación
                 const res = await postUsersRequest(modalData);
                 if (res.status == 200){
                     showAlert('Datos creados con éxito', 1);
@@ -141,7 +148,7 @@ export const ModalFormTransaction = ({ modalData }) => {
                     closeModal()
                 }
             }
-            setModalData(null); // Limpiar los datos del modal
+            setModalData(null);
         } catch (error) {
             console.error('Error al enviar los datos:', error);
             showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
@@ -201,17 +208,13 @@ export const ModalFormTransaction = ({ modalData }) => {
         }])
 
         setTypes([])
-        console.log(datosTransaccion?.subTotal, modalData?.sellType, modalData?.quantityTemp)
         const subTotal = parseFloat(datosTransaccion?.subTotal + parseFloat(modalData?.sellType) * modalData?.quantityTemp).toFixed(2)
-        console.log(subTotal)
         setDatosTransaccion({
             ...datosTransaccion,
             totalQuantity: datosTransaccion?.totalQuantity + modalData?.quantityTemp,
             subTotal: parseFloat(subTotal),
             total: modalData?.coupon_id_fk ? (subTotal-(subTotal*parseInt(modalData?.coupon_id_fk.split('-')[1])/100).toFixed(2)).toFixed(2) : subTotal
         })
-        // console.log(datosTabla)
-        // console.log(datosResumen)
     }
 
     const actualizarDataNoRequerida = () => {
@@ -399,8 +402,65 @@ export const ModalFormTransaction = ({ modalData }) => {
                     <input type="text" name="total" id="total" value={datosTransaccion?.total || ''} required={true} readOnly={true}/>
                 </label>
             </div>
+            {isUpdate && (
+                <>
+                    <h3>Canales y Métodos</h3><hr></hr>
+                    <div className="form-group3">
+                        <label htmlFor="label">
+                            <p>Etiqueta</p>
+                            <select name="label" id="label" value={modalData?.label || ''} onChange={handleInputChange}>
+                                <option value="">Sin etiqueta</option>
+                                <optgroup label="Ingreso">
+                                    <option>Venta Directa</option>
+                                    <option>Abono</option>
+                                    <option>Devolución recibida</option>
+                                    <option>Otro ingreso</option>
+                                </optgroup>
+                            </select>
+                        </label>
+                        <label htmlFor="description">
+                            <p>Notas</p>
+                            <input type="text" name="description" id="description" value={modalData?.description || ''} onChange={handleInputChange} placeholder="Detalles adicionales..." />
+                        </label>
+                    </div>
+                    <div className="form-group3">
+                        <label htmlFor="payment_method">
+                            <p>Método de Pago</p>
+                            <select name="payment_method" id="payment_method" value={modalData?.payment_method || ''} onChange={handleInputChange}>
+                                <option value="">Sin especificar</option>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Transferencia">Transferencia</option>
+                                <option value="Yappy">Yappy</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </label>
+                        <label htmlFor="delivery_method">
+                            <p>Método de Entrega</p>
+                            <select name="delivery_method" id="delivery_method" value={modalData?.delivery_method || ''} onChange={handleInputChange}>
+                                <option value="">Sin especificar</option>
+                                <option value="Pickup">Pickup</option>
+                                <option value="Delivery propio">Delivery propio</option>
+                                <option value="Mensajería">Mensajería</option>
+                                <option value="Digital">Digital</option>
+                            </select>
+                        </label>
+                        <label htmlFor="channel">
+                            <p>Canal de Acceso</p>
+                            <select name="channel" id="channel" value={modalData?.channel || ''} onChange={handleInputChange}>
+                                <option value="">Sin especificar</option>
+                                <option value="Sitio Web">Sitio Web</option>
+                                <option value="WhatsApp">WhatsApp</option>
+                                <option value="Instagram">Instagram</option>
+                                <option value="Vendedor">Vendedor</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </label>
+                    </div>
+                </>
+            )}
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
-                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
             </div>
         </form>

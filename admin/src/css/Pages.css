@@ -1,4 +1,4 @@
-:root{
+:root {
     --color-negro: #373636;
     --color-negro-hover: #222227;
     --color-dorado: #fdd05e;
@@ -9,57 +9,297 @@
     --color-rojo-hover-2: #ff006a;
 }
 
-.pageAdmin{
-    padding: 2vh 2vw;
-    min-height: 75vh;
+/* ═══════════════════════════════════════
+   DASHBOARD ADMIN
+═══════════════════════════════════════ */
+.pageAdmin {
+    padding: 24px 20px;
+    min-height: calc(100vh - 56px);
     display: flex;
-    align-items: start;
-    flex-flow: column;
+    flex-direction: column;
+    gap: 24px;
+    background: #1a1a1f;
+    color: #ede8eb;
 }
-.infoAdmin{
-    width: 100%;
+
+.infoAdmin {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 80px;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-.pageAdmin h1{
-    margin: 2% 0;
+
+.infoAdmin h1 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #ede8eb;
 }
-.adminLinks{
+
+.infoAdmin h3 {
     display: flex;
-    align-items: center;
-    flex-direction: column;
-    gap: 10px;
-    margin: auto;
-    font-size: .8em;
+    gap: 20px;
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: rgba(237, 232, 235, 0.55);
+}
+
+.infoAdmin h3 p { margin: 0; }
+
+/* Grid de links del dashboard */
+.adminLinks {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
     width: 100%;
 }
-.adminLinks a{
-    width: 90%;
-    max-width: 400px;
-    background-color: var(--color-rojo);
-    text-decoration: none;
-    color: white;
-    font-size: 1.7em;
+
+.adminLinks a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     text-align: center;
+    text-decoration: none;
+    color: #ede8eb;
+    background: #222227;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 20px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    min-height: 72px;
+    transition: all 0.18s ease;
+    line-height: 1.3;
+}
+
+.adminLinks a:hover {
+    background: rgba(214, 10, 95, 0.15);
+    border-color: var(--color-rojo);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* ═══════════════════════════════════════
+   DATA PAGE (tabla CRUD)
+═══════════════════════════════════════ */
+.pageHeader {
+    padding: 12px 16px 8px;
+    width: 100%;
+    background: #1a1a1f;
+    color: #ede8eb;
+}
+
+.pageHeader1 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.volverAnadir {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.volverAnadir button {
+    font-size: 0.88rem;
+    padding: 7px 16px;
+    min-width: 90px;
+    border-radius: 6px;
+    border: 0;
+    transition: all 0.2s ease;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.volverAnadir :nth-child(1) {
+    color: #111;
+    background-color: var(--color-dorado);
+}
+
+.volverAnadir :nth-child(1):hover {
+    background-color: var(--color-dorado-hover);
+    color: #111;
+}
+
+.volverAnadir :nth-child(2) {
+    background-color: var(--color-rojo);
+    color: white;
+}
+
+.volverAnadir :nth-child(2):hover {
+    background-color: var(--color-rojo-hover);
+}
+
+.pages {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+/* Botón de paginación estándar */
+.page-btn {
+    padding: 5px 11px;
+    font-size: 0.82rem;
     border-radius: 5px;
-    padding: 5px 0;
-    transition: all .35s ease;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #222227;
+    color: #ede8eb;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 34px;
+    text-align: center;
 }
-.adminLinks a:hover{
-    background-color: var(--color-rojo-2);
+
+.page-btn:hover {
+    background: #373636;
+    border-color: rgba(255, 255, 255, 0.22);
 }
-.inbox{
+
+.page-btn.active {
+    background: var(--color-rojo);
+    color: #fff;
+    border-color: var(--color-rojo);
+    font-weight: 600;
+}
+
+/* Botones Volver / Añadir estandarizados */
+.volverAnadir button,
+.volverAnadir a {
+    font-size: 0.88rem;
+    padding: 7px 16px;
+    min-width: 90px;
+    border-radius: 6px;
+    border: 0;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Clases explícitas — más robustas que nth-child */
+.btn-volver {
+    color: #111 !important;
+    background-color: var(--color-dorado) !important;
+}
+.btn-volver:hover {
+    background-color: var(--color-dorado-hover) !important;
+}
+.btn-anadir {
+    background-color: var(--color-rojo) !important;
+    color: white !important;
+}
+.btn-anadir:hover {
+    background-color: var(--color-rojo-hover) !important;
+}
+
+.inputFilter {
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 0.88rem;
+    width: 220px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: #222227;
+    color: #ede8eb;
+    transition: border-color 0.15s;
+}
+
+.inputFilter:focus {
+    outline: none;
+    border-color: var(--color-dorado);
+}
+
+.dataTable {
+    width: 100%;
+    padding: 8px 16px 16px;
+    min-height: 60vh;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #1a1a1f;
+    color: #ede8eb;
+}
+
+.responsiveTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+    font-size: 0.88rem;
+}
+
+.dataTable th {
+    border: none;
+    border-bottom: 2px solid rgba(141, 9, 63, 0.6);
+    color: rgba(237, 232, 235, 0.7);
+    background: #222227;
+    text-transform: uppercase;
+    font-size: 0.74rem;
+    letter-spacing: 0.06em;
+    padding: 10px 12px;
+}
+
+.responsiveTable td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: middle;
+    color: rgba(237, 232, 235, 0.82);
+}
+
+.responsiveTable tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.responsiveTable tr:last-child td {
+    border-bottom: none;
+}
+
+.width100 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.sinDatosParaMostrar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: rgba(237, 232, 235, 0.35);
+    width: 100%;
+    margin: auto;
+    text-align: center;
+    padding: 40px;
+    font-style: italic;
+}
+
+.formTransaction h3 {
+    text-align: left;
+    margin: 20px 0 8px 0;
+    font-size: 0.9rem;
+    color: var(--color-dorado);
+}
+
+/* Inbox / Notifications (legacy, kept) */
+.inbox {
     min-width: 60px;
     position: relative;
     padding-top: 3.5%;
     cursor: pointer;
 }
-.numberInbox{
-    margin:auto;
-}
-.numberInbox p{
+
+.numberInbox { margin: auto; }
+
+.numberInbox p {
     filter: drop-shadow(0px 0px 1px white);
     font-size: medium;
     position: absolute;
@@ -70,191 +310,216 @@
     padding: 2% 10%;
     border-radius: 50%;
 }
-.contactIcon{
-    font-size: 1.5em;
-}
-.infoInbox{
+
+.contactIcon { font-size: 1.5em; }
+
+.infoInbox {
     position: absolute;
-    top: 15vh;
-    right: 10px !important;
-    width: 370px !important;
-    max-height: 80vh !important;
-    height: 60vh !important;
+    top: 56px;
+    right: 10px;
+    width: 360px;
+    max-height: 80vh;
+    height: 60vh;
     overflow: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--color-dorado) transparent;
     z-index: 1000;
     background-color: white;
-    padding: .3%;
+    padding: 6px;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
-.notificationInbox{
+
+.notificationInbox {
     display: flex;
-    font-size: .8em;
-    box-sizing: border-box;
+    font-size: 0.8em;
     width: 100%;
     padding: 10px;
     background-color: var(--color-rojo);
     color: white;
-    justify-content: space-between !important;
-    flex-direction: row !important;
-    border-radius: 10px;
-    margin: 10px 0;
-    scrollbar-width: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-    transition: all .35s ease;
-}
-.notificationInbox div{
-    margin: auto;
-}
-.notificationInbox:hover{
-    background-color: var(--color-rojo-2);
-}
-.notificationInbox svg{
-    font-size: 1.5em;
-    padding: 10px;
-    color: white;
-    transition: all .35s ease;
-}
-.notificationInbox svg:hover{
-    color: var(--color-dorado);
-}
-
-.infoInbox::-webkit-scrollbar {
-    width: 0.5rem;
-  }
-.infoInbox::-webkit-scrollbar-track {
-    background-color: var(--color-dorado);
-}
-.infoInbox::-webkit-scrollbar-thumb {
-    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
-    border-radius: 15rem;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-}
-.infoInbox::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
-}
-.pageHeader{
-    padding: 1% 1% .5% 1%;
-    width: 100%;
-}
-.pageHeader1{
-    display: flex;
     justify-content: space-between;
-    align-items: center;
+    flex-direction: row;
+    border-radius: 8px;
+    margin: 6px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    transition: background 0.2s;
 }
-.volverAnadir{
+
+.notificationInbox div { margin: auto; }
+
+.notificationInbox:hover { background-color: var(--color-rojo-2); }
+
+.notificationInbox svg {
+    font-size: 1.4em;
+    padding: 8px;
+    color: white;
+    transition: color 0.2s;
+}
+
+.notificationInbox svg:hover { color: var(--color-dorado); }
+
+
+/* ── Fila título + contador ── */
+.pageHeader-title-row {
     display: flex;
-    justify-content: left;
-    align-items: center;
-    gap: 10px;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 8px 0 4px;
 }
-.volverAnadir button{
-    font-size: 1em;
-    padding: 1%;
-    min-width: 100px;
+
+.pageHeader-title-row h1 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #ede8eb;
+    margin: 0;
+}
+
+.pageHeader-count {
+    font-size: 0.78rem;
+    color: rgba(237, 232, 235, 0.42);
+    letter-spacing: 0.06em;
+}
+
+/* ═══════════════════════════════════════
+   PAGINACIÓN ADMIN
+═══════════════════════════════════════ */
+.admin-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 20px 16px 28px;
+}
+
+.admin-pag-pages {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.admin-pag-btn,
+.admin-pag-page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 5px;
-    border: 0px;
-    transition: all .35s ease;
-    color: white;
-    filter: drop-shadow(2px 2px 2px rgba(97, 97, 97, 0.692));
+    transition: all 0.18s ease;
+    background: transparent;
+    color: rgba(237, 232, 235, 0.5);
+    font-family: inherit;
+    user-select: none;
 }
-.volverAnadir :nth-child(1){
-    color: black;
-    background-color: var(--color-dorado);
+
+.admin-pag-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.35rem;
+    line-height: 1;
+    color: rgba(237, 232, 235, 0.45);
 }
-.volverAnadir :nth-child(1):hover{
-    background-color: var(--color-dorado-hover);
+
+.admin-pag-btn:hover:not(:disabled) {
+    border-color: rgba(214, 10, 95, 0.5);
+    color: var(--color-rojo);
+    background: rgba(214, 10, 95, 0.06);
 }
-.volverAnadir :nth-child(2){
-    background-color: var(--color-rojo);
+
+.admin-pag-btn:disabled {
+    opacity: 0.2;
+    cursor: default;
 }
-.volverAnadir :nth-child(2):hover{
-    background-color: var(--color-rojo-hover);
+
+.admin-pag-page {
+    width: 34px;
+    height: 34px;
+    font-size: 0.82rem;
 }
-.pages{
-    display: flex;
-    justify-content: right;
+
+.admin-pag-page:hover {
+    border-color: rgba(214, 10, 95, 0.4);
+    color: var(--color-rojo-hover);
+    background: rgba(214, 10, 95, 0.06);
+}
+
+.admin-pag-page.active {
+    background: rgba(214, 10, 95, 0.18);
+    border-color: var(--color-rojo);
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 0 10px rgba(214, 10, 95, 0.2);
+}
+
+.admin-pag-ellipsis {
+    display: inline-flex;
     align-items: center;
-}
-.inputFilter{
-    border-radius: 4px;
-    padding: .5%;
-    font-size: 1em;
-    width: 250px;
-    border: 1px solid rgba(0, 0, 0, 0.3);
-    filter: drop-shadow(2px 2px 2px rgba(0, 0, 0, 0.4));
-}
-
-.dataTable{
-    width: 100%;
-    padding: 1%;
-    min-height: 62.5vh;
-    overflow-x: auto;
-    margin-bottom: 10px;
-}
-.dataTable th{
-    border: 1px solid black;
-    color: white;
-    background-color: #8d093f;
-    text-transform: uppercase;
-}
-.responsiveTable{
-    width: 100%;
-    border-collapse: collapse;
-}
-
-
-.width100{
-    display: flex;
     justify-content: center;
-    align-items: center;
+    width: 26px;
+    height: 34px;
+    color: rgba(237, 232, 235, 0.25);
+    font-size: 0.9rem;
+    user-select: none;
 }
 
-.sinDatosParaMostrar{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: black;
-    width: 100%;
-    margin: auto;
-    text-align: center;
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 900px) {
+    .adminLinks {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
+@media (max-width: 640px) {
+    .pageAdmin {
+        padding: 16px 12px;
+        gap: 16px;
+    }
 
-.formTransaction h3{
-    text-align: left;
-    margin: 25px 0 10px 0;
-}
+    .adminLinks {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
 
+    .adminLinks a {
+        padding: 16px 8px;
+        font-size: 0.82rem;
+        min-height: 60px;
+    }
 
-@media only screen and (max-width: 600px) {
-    .infoAdmin{
-        padding: 0 10px;
-        display: flex;
+    .infoAdmin {
         flex-direction: column;
-        align-items: start;
-        justify-content: center;
+        align-items: flex-start;
+        gap: 6px;
     }
-    .infoAdmin h1{
-        margin: 0;
-    }
-    .adminLinks, .dataTable{
-        margin: auto 0;
-    }
-}
 
-@media only screen and (max-width: 550px) {
-    .pageHeader1{
-        padding: 0 10px;
-        display: flex;
+    .infoAdmin h3 {
+        gap: 12px;
+    }
+
+    .pageHeader1 {
         flex-direction: column;
-        align-items: start;
-        justify-content: space-around;
+        align-items: flex-start;
         gap: 10px;
-        margin: 10px 0;
     }
-    .pages button{
-        margin: 0px !important;
+
+    .inputFilter {
+        width: 100%;
+    }
+
+    .pages button {
+        margin: 0 2px;
+    }
+
+    .dataTable th {
+        font-size: 0.7rem;
+        padding: 8px 8px;
+    }
+
+    .responsiveTable td {
+        padding: 8px 8px;
+        font-size: 0.82rem;
     }
 }

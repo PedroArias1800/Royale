@@ -26,7 +26,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
       console.error(e);
     }
     setLoading(false);
-  }, []);
+  }, [cart]);
 
   useEffect(() => {
     if (isOpen && !wasOpen.current) {
@@ -156,7 +156,6 @@ export const CartDrawer = ({ isOpen, onClose }) => {
                       )}
                       <div className="cdr__item-foot">
                         <div className="cdr__item-prices">
-                          <s className="cdr__price-old">${Number(p.type.old_price).toFixed(2)}</s>
                           <span className="cdr__price-current">${(price * p.quantity).toFixed(2)}</span>
                         </div>
                         <div className="cdr__controls">

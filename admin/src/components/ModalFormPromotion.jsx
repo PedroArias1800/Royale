@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { getAllPromotionsRequest } from '../api/Admin.api';
 import { postPromotionsRequest, putPromotionsRequest, deletePromotionsRequest } from '../api/Promotion.api';
 import { useAuth } from '../context/AuthProvider';
+import { ConfirmDeleteButton } from './ConfirmDeleteButton';
 
 export const ModalFormPromotion = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, URLServer } = useAuth();
@@ -169,7 +170,7 @@ export const ModalFormPromotion = ({ modalData }) => {
 
 
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
-                {isUpdate && <input type="button" value="Borrar" onClick={deleteDatos} className='btnBorrar' />}
+                {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
             </div>
         </form>

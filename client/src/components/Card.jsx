@@ -1,4 +1,4 @@
-import { faBookmark, faTag } from '@fortawesome/free-solid-svg-icons'
+import { faTag } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBolt } from '@fortawesome/free-solid-svg-icons'
 import { useEffect, useState } from 'react'
@@ -29,13 +29,11 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
     return (
         <Link to={`/parfum?id=${element._id}&type=${element?.types[0]?.ml}`} className={`card si ${typeOfSale=='Flash' ? 'demo animated' : ''}`} key={index} ref={(el) => (cardsRef.current[index] = el)} style={{'width': `${width100}`, ...(typeOfSale=='Flash' ? { border: '10px solid transparent' } : {})}}>
             <div className='discountPrice infoCardsFlash'>
-              <FontAwesomeIcon icon={faBookmark} style={gradientStyle}/>
               {
                 (typeOfSales) && (
                   <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash' />
                 )
               }
-              <p>{(Math.ceil(-100+(100/element?.types[0]?.old_price*actualPrice)))}%</p>
               <img src={imgSrc(element?.types[0]?.img)} alt={`Imagen de ${element?.brand.brand_name} ${element?.title}`} />
               {
                 (typeOfSales) && (
@@ -47,10 +45,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
               <h2>{element?.brand?.brand_name} {element?.title}</h2>
               <div className='infoCards'>
                 <FontAwesomeIcon icon={faTag} style={{'background': '#d60a5f', 'color': 'white', 'borderRadius': '50%', 'padding': '2%'}}/>
-                <div style={{'display': 'flex', 'gap': '5px'}}>
-                  <p className="price" style={{'textDecoration': 'line-through', 'margin': 'auto 0'}}>${element?.types[0]?.old_price}</p>
-                  <p className="price" style={{'color': 'red', 'margin': 'auto 0'}}>${actualPrice}</p>
-                </div>
+                <p className="price">${actualPrice}</p>
               </div>
             </div>
             <div className='infoCards'>

@@ -8,6 +8,7 @@ load_dotenv()
 
 from routers import auth, parfums, brands, types, bodies, versions
 from routers import promotions, coupons, transactions, users, public
+from routers import analytics, delivery, yappy
 
 app = FastAPI(title="Royale API")
 
@@ -41,6 +42,9 @@ app.include_router(coupons.router)
 app.include_router(transactions.router)
 app.include_router(users.router)
 app.include_router(public.router)
+app.include_router(analytics.router)
+app.include_router(delivery.router)
+app.include_router(yappy.router)
 
 # Lambda handler
 handler = Mangum(app, lifespan="off")

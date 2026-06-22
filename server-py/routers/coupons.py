@@ -39,7 +39,10 @@ def get_coupons(_: dict = Depends(verify_token), page: int = Query(default=1)):
 def get_filtered_coupons(body: FilterBody, _: dict = Depends(verify_token), page: int = Query(default=1)):
     db = get_db()
     f = body.filter
-    query = {"$or": [{"title": {"$regex": f, "$options": "i"}}]} if f else {}
+    query = {"$or": [
+        {"title": {"$regex": f, "$options": "i"}},
+        {"code": {"$regex": f, "$options": "i"}},
+    ]} if f else {}
     cursor = db.coupons.find(query).sort("title", 1)
     return paginate_cursor(cursor, db.coupons, query, page)
 

@@ -56,8 +56,7 @@ def get_filtered_bodies(body: FilterBody, _: dict = Depends(verify_token), page:
         or_clauses = [
             {"title": {"$regex": f, "$options": "i"}},
             {"align": {"$regex": f, "$options": "i"}},
-            {"parfum_img": {"$regex": f, "$options": "i"}},
-            {"back_img": {"$regex": f, "$options": "i"}},
+            {"url": {"$regex": f, "$options": "i"}},
             {"color": {"$regex": f, "$options": "i"}},
             {"color2": {"$regex": f, "$options": "i"}},
         ]

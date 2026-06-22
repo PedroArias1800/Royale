@@ -8,6 +8,8 @@ import { ParfumDetails } from "./Pages/ParfumDetails";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { Cart } from "./Pages/Cart.";
+import { YappySuccess } from "./Pages/YappySuccess";
+import { YappyCancel } from "./Pages/YappyCancel";
 import { PrivacyTermModal } from './components/PrivacyTermModal.jsx';
 
 import 'aos/dist/aos.css';
@@ -26,6 +28,8 @@ const App = () => {
         <Route path="/search" element={<Search />} />
         <Route path="/parfum" element={<ParfumDetails />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/pago-exitoso" element={<YappySuccess />} />
+        <Route path="/pago-cancelado" element={<YappyCancel />} />
         <Route path="*" element={<Index />} />
       </Routes>
       <PrivacyTermModal />
