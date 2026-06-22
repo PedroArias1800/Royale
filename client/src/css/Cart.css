@@ -381,8 +381,11 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.75);
   display: flex;
-  align-items: center;
+  align-items: flex-start;          /* contenido empieza desde el padding-top */
   justify-content: center;
+  padding-top: 16vh;                /* queda por debajo del header sticky (15vh) */
+  padding-bottom: 2vh;
+  overflow-y: auto;                 /* scroll si el modal es más alto que la pantalla */
   z-index: 1600;
   opacity: 0;
   visibility: hidden;
@@ -462,7 +465,8 @@
 }
 .payment-form2 .form-group2 input[type="text"],
 .payment-form2 .form-group2 input[type="email"],
-.payment-form2 .form-group2 input[type="tel"] {
+.payment-form2 .form-group2 input[type="tel"],
+.payment-form2 .form-group2 select {
   width: 100%;
   padding: 9px 11px;
   border: 1px solid rgba(253, 208, 94, 0.2);
@@ -476,9 +480,14 @@
 }
 .payment-form2 .form-group2 input[type="text"]:focus,
 .payment-form2 .form-group2 input[type="email"]:focus,
-.payment-form2 .form-group2 input[type="tel"]:focus {
+.payment-form2 .form-group2 input[type="tel"]:focus,
+.payment-form2 .form-group2 select:focus {
   border-color: rgba(253, 208, 94, 0.45);
   box-shadow: 0 0 0 2px rgba(253, 208, 94, 0.1);
+}
+.payment-form2 .form-group2 select option {
+  background: #1c1019;
+  color: #f0eaed;
 }
 .payment-form2 .form-group2 input[type="checkbox"] {
   width: 1.2em;
@@ -488,7 +497,8 @@
   margin-right: 10px;
   accent-color: var(--color-rojo);
 }
-.payment-form2 .form-group2 label {
+/* Checkbox row labels only — no anular los labels de inputs/selects */
+.payment-form2 .inputsChecks label {
   margin: 0;
   display: inline-flex;
   align-items: center;
@@ -983,8 +993,7 @@
 ═══════════════════════════════════════════════ */
 
 .pm-scrollable {
-  max-height: 90dvh;
-  overflow-y: auto;
+  max-height: none;   /* el overlay externo maneja el scroll */
 }
 
 /* Section label */
