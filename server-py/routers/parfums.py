@@ -103,8 +103,8 @@ def create_parfum(body: ParfumBody, _: dict = Depends(verify_token)):
     from datetime import datetime, timezone
     now = datetime.now(timezone.utc)
     doc = {
-        "title": body.title,
-        "description": body.description,
+        "title": body.title.strip(),
+        "description": body.description.strip(),
         "gender": body.gender,
         "status": body.status,
         "version_id_fk": ObjectId(body.version_id_fk),
@@ -124,8 +124,8 @@ def update_parfum(id: str, body: ParfumBody, _: dict = Depends(verify_token)):
     from datetime import datetime, timezone
     update = {
         "$set": {
-            "title": body.title,
-            "description": body.description,
+            "title": body.title.strip(),
+            "description": body.description.strip(),
             "gender": body.gender,
             "status": body.status,
             "version_id_fk": ObjectId(body.version_id_fk),

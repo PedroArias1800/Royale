@@ -43,21 +43,26 @@ export const ModalFormParfum = ({ modalData }) => {
 
     const enviarDatos = async (e) => {
             e.preventDefault();
-            modalData.status =  parseInt(modalData.status, 10)
-            modalData.gender =  parseInt(modalData.gender, 10)
+
+            const payload = {
+                title:          modalData.title,
+                description:    modalData.description,
+                gender:         parseInt(modalData.gender, 10),
+                status:         parseInt(modalData.status, 10),
+                version_id_fk:  modalData.version_id_fk?._id ?? modalData.version_id_fk,
+                brand_id_fk:    modalData.brand_id_fk?._id   ?? modalData.brand_id_fk,
+            };
 
             try {
                 if (isUpdate) {
-                    // Llamar a la API de actualización
-                    const res = await putParfumsRequest(modalData._id, modalData);
+                    const res = await putParfumsRequest(modalData._id, payload);
                     if (res.status == 200){
                         showAlert('Datos actualizados con éxito', 1);
                         cargarDataTables(1, pagination.totalPages)
                         closeModal()
                     }
                 } else {
-                    // Llamar a la API de creación
-                    const res = await postParfumsRequest(modalData);
+                    const res = await postParfumsRequest(payload);
                     if (res.status == 200){
                         showAlert('Datos creados con éxito', 1);
                         cargarDataTables(1, pagination.totalPages)

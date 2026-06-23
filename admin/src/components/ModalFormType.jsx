@@ -25,8 +25,12 @@ export const ModalFormType = ({ modalData }) => {
             setParfum(Array.isArray(response.data) ? response.data : []);
         }
         async function loadParfumGallery() {
-            const response = await getParfumsIconGallery();
-            setParfumsGallery(Array.isArray(response.data.images) ? response.data.images : []);
+            try {
+                const response = await getParfumsIconGallery();
+                setParfumsGallery(Array.isArray(response.data.images) ? response.data.images : []);
+            } catch {
+                setParfumsGallery([]);
+            }
         }
         async function loadParfumGallery2() {
             const response = await getParfumsIconGallery2();
@@ -158,8 +162,13 @@ export const ModalFormType = ({ modalData }) => {
             // files.forEach(file => formData.append('multiImages', file));
             files.forEach(file => formData.append('multiImages', URL.createObjectURL(file)));
             for (const key in modalData) {
-                if (key == 'imgPreview'){
-                    formData.append('img', modalData[key]);
+                if (key === 'imgPreview') {
+                    continue; // blob URL local — no enviamos al servidor
+                } else if (key === 'img') {
+                    if (modalData[key] instanceof File) {
+                        formData.append('img', modalData[key]);
+                    }
+                    continue;
                 } else if (key == 'parfum_id_fk' && typeof modalData[key] === 'object'){
                     formData.append('parfum_id_fk', modalData[key]._id);
                 } else if (key == 'cost' || key == 'price' || key == 'old_price' || key == 'price_flash'){
@@ -224,9 +233,9 @@ export const ModalFormType = ({ modalData }) => {
         setSelectedImage(image);
         setModalData((prevData) => ({
             ...prevData,
-            imgServer: image.split("uploads/parfumIcon/")[1], // Guarda solo el nombre de la imagen
-            img: null, // Limpiar el input de archivo
-            imgPreview: null, // Limpiar la vista previa
+            imgServer: image, // URL completa de S3
+            img: null,
+            imgPreview: null,
         }));
     };
 
@@ -341,14 +350,14 @@ export const ModalFormType = ({ modalData }) => {
                     <p className='mostrarImg' style={{display: !showImgServer ? 'block' : 'none'}}>Desde el Servidor</p>
                     <div style={{ display: showImgServer ? 'flex' : 'none', flexWrap: 'wrap', justifyContent: 'center', width: '100%'}}>
                         {parfumsGallery.map((image, index) => (
-                            <div 
-                                key={index} 
-                                style={{ margin: '10px', cursor: 'pointer', border: selectedImage === `${URLServer}/uploads/parfumIcon/${image}` ? '2px solid blue' : 'none' }}
-                                onClick={() => {handleSelectImage(`${URLServer}/uploads/parfumIcon/${image}`); handleShowImgServer()}}
+                            <div
+                                key={index}
+                                style={{ margin: '10px', cursor: 'pointer', border: selectedImage === image ? '2px solid blue' : 'none' }}
+                                onClick={() => {handleSelectImage(image); handleShowImgServer()}}
                             >
                                 <img
-                                    src={`${URLServer}/uploads/parfumIcon/${image}`}
-                                    alt={image}
+                                    src={image}
+                                    alt={`icon-${index}`}
                                     style={{ width: '100px', height: '100px', objectFit: 'cover' }}
                                 />
                             </div>

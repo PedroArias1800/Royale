@@ -119,6 +119,7 @@ const PendientesList = ({ pendientes, onProcess, loading }) => {
 // ─── Modal de procesado ───────────────────────────────────────────────────────
 const ProcesarModal = ({ tx, onClose, onSave }) => {
     const [form, setForm] = useState({
+        fin_type: tx.fin_type || 'ingreso',
         payment_method: tx.payment_method || '',
         delivery_method: tx.delivery_method || '',
         channel: tx.channel || '',
@@ -176,7 +177,12 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
                                 <option value="Sitio Web">Sitio Web</option>
                                 <option>WhatsApp</option>
                                 <option>Instagram</option>
+                                <option>Facebook</option>
+                                <option>QR</option>
+                                <option>Google</option>
+                                <option>Directo</option>
                                 <option>Vendedor</option>
+                                <option>Presencial</option>
                                 <option>Otro</option>
                             </select>
                         </label>
@@ -357,6 +363,10 @@ const ManualesList = ({ manuales, onSaveManual, onDeleteManual, loading }) => {
                                 <option value="Sitio Web">Sitio Web</option>
                                 <option>WhatsApp</option>
                                 <option>Instagram</option>
+                                <option>Facebook</option>
+                                <option>QR</option>
+                                <option>Google</option>
+                                <option>Directo</option>
                                 <option>Vendedor</option>
                                 <option>Presencial</option>
                                 <option>Otro</option>

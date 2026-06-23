@@ -38,13 +38,21 @@ function scheduleStatus(rule) {
     return 'active';
 }
 
-// DD/MM/YYYY
+// DD/MM/YYYY from ISO string
 function fmtDate(iso) {
     if (!iso) return '';
     const d = new Date(iso);
     const day   = String(d.getDate()).padStart(2, '0');
     const month = String(d.getMonth() + 1).padStart(2, '0');
     return `${day}/${month}/${d.getFullYear()}`;
+}
+
+// DD/MM/AAAA from YYYY-MM-DD string (timezone-safe)
+function fmtDateInput(dateStr) {
+    if (!dateStr) return '';
+    const [y, m, d] = dateStr.split('-');
+    if (!y || !m || !d) return '';
+    return `${d}/${m}/${y}`;
 }
 
 const EMPTY_FORM = {
@@ -57,8 +65,8 @@ const EMPTY_FORM = {
     filter_gender: '',
     filter_price_min: '',
     filter_price_max: '',
-    filter_created_after:  '2025-01-01',  // default: 1 enero 2025
-    filter_created_before: '',
+    filter_created_after:  '',   // vacío = sin restricción de fecha inicial
+    filter_created_before: '',   // vacío = sin restricción de fecha final
     schedule_enabled: false,
     schedule_mode:    'none',
     schedule_start:   '',
@@ -82,7 +90,7 @@ export const ModalFormDiscount = ({ item, onClose, onSaved, onDeleted, showAlert
                 filter_price_min:    item.filter_price_min ?? '',
                 filter_price_max:    item.filter_price_max ?? '',
                 filter_created_after:  item.filter_created_after
-                    ? item.filter_created_after.slice(0, 10) : '2025-01-01',
+                    ? item.filter_created_after.slice(0, 10) : '',
                 filter_created_before: item.filter_created_before
                     ? item.filter_created_before.slice(0, 10) : '',
                 schedule_enabled: item.schedule_enabled || false,
@@ -332,14 +340,20 @@ export const ModalFormDiscount = ({ item, onClose, onSaved, onDeleted, showAlert
                         </p>
                         <div className="form-group3">
                             <label>
-                                <p>Desde</p>
+                                <p>Desde (vacío = sin límite)</p>
                                 <input type="date" value={form.filter_created_after}
                                     onChange={e => set('filter_created_after', e.target.value)} />
+                                {form.filter_created_after
+                                    ? <small className="ds-date-fmt">{fmtDateInput(form.filter_created_after)}</small>
+                                    : <small className="ds-date-fmt ds-date-fmt--empty">Sin límite de fecha</small>}
                             </label>
                             <label>
                                 <p>Hasta</p>
                                 <input type="date" value={form.filter_created_before}
                                     onChange={e => set('filter_created_before', e.target.value)} />
+                                {form.filter_created_before && (
+                                    <small className="ds-date-fmt">{fmtDateInput(form.filter_created_before)}</small>
+                                )}
                             </label>
                         </div>
 

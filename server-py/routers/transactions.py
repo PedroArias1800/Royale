@@ -254,8 +254,8 @@ def get_processed_transactions(
     if end:
         date_filter["$lte"] = datetime.fromisoformat(end).replace(tzinfo=timezone.utc)
     if date_filter:
-        query["createdAt"] = date_filter
-    docs = list(db.transactions.find(query).sort("createdAt", -1))
+        query["updatedAt"] = date_filter
+    docs = list(db.transactions.find(query).sort("updatedAt", -1))
     return [_populate_transaction(d, db, include_products=True) for d in docs]
 
 

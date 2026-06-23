@@ -56,7 +56,7 @@ def create_brand(body: BrandBody, _: dict = Depends(verify_token)):
     db = get_db()
     from datetime import datetime, timezone
     now = datetime.now(timezone.utc)
-    doc = {"brand_name": body.brand_name, "createdAt": now, "updatedAt": now}
+    doc = {"brand_name": body.brand_name.strip(), "createdAt": now, "updatedAt": now}
     result = db.brands.insert_one(doc)
     doc["_id"] = result.inserted_id
     return serialize_doc(doc)
@@ -68,7 +68,7 @@ def update_brand(id: str, body: BrandBody, _: dict = Depends(verify_token)):
     from datetime import datetime, timezone
     doc = db.brands.find_one_and_update(
         {"_id": to_object_id(id)},
-        {"$set": {"brand_name": body.brand_name, "updatedAt": datetime.now(timezone.utc)}},
+        {"$set": {"brand_name": body.brand_name.strip(), "updatedAt": datetime.now(timezone.utc)}},
         return_document=True,
     )
     if not doc:

@@ -38,33 +38,28 @@ YAPPY_GATEWAY = "https://pagosbg.bgeneral.com"
 
 
 def _secret_key(token: str) -> str:
-    """Decodifica el secretToken y extrae la primera parte (clave HMAC)."""
+    """Decodifica el secretToken (base64). El token completo decodificado es la clave HMAC."""
     try:
-        # Banco General entrega el token en base64; la clave está en la primera parte
         padding = "=" * (-len(token) % 4)
-        decoded = base64.b64decode(token + padding).decode("utf-8")
-        return decoded.split("|")[0]
+        return base64.b64decode(token + padding).decode("utf-8")
     except Exception:
-        return token   # fallback: usar el token directamente
+        return token
 
 
 def _build_yappy_url(order_id: str, total: float, sub_total: float, taxes: float,
                      success_url: str, fail_url: str) -> str:
     """
-    Genera la URL de pago firmada de Yappy.
-    Hash: HMAC-SHA256 de (total + merchantId + subTotal + taxes + paymentDate + 'YAP' + 'VEN'
-                           + orderId + successUrl + failUrl + domainUrl)
+    Genera la URL de pago firmada de Yappy (Banco General).
+    Hash: HMAC-SHA256(secret, merchantId + total + subTotal + taxes + orderId + successUrl + failUrl + domain)
     """
-    payment_date = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S")
-    key          = _secret_key(SECRET_TOKEN)
-
-    total_s   = f"{total:.2f}"
-    sub_s     = f"{sub_total:.2f}"
-    taxes_s   = f"{taxes:.2f}"
+    key     = _secret_key(SECRET_TOKEN)
+    total_s = f"{total:.2f}"
+    sub_s   = f"{sub_total:.2f}"
+    taxes_s = f"{taxes:.2f}"
 
     hash_input = (
-        total_s + MERCHANT_ID + sub_s + taxes_s + payment_date
-        + "YAP" + "VEN" + order_id + success_url + fail_url + DOMAIN_URL
+        MERCHANT_ID + total_s + sub_s + taxes_s
+        + order_id + success_url + fail_url + DOMAIN_URL
     )
     sig = hmac.new(
         key.encode("utf-8"),
@@ -73,17 +68,16 @@ def _build_yappy_url(order_id: str, total: float, sub_total: float, taxes: float
     ).hexdigest()
 
     params = [
-        ("merchantId",   MERCHANT_ID),
-        ("total",        total_s),
-        ("subTotal",     sub_s),
-        ("taxes",        taxes_s),
-        ("orderId",      order_id),
-        ("successUrl",   success_url),
-        ("failUrl",      fail_url),
-        ("domain",       DOMAIN_URL),
-        ("hash",         sig),
-        ("paymentDate",  payment_date),
-        ("sbx",          SANDBOX),
+        ("merchantId", MERCHANT_ID),
+        ("total",      total_s),
+        ("subTotal",   sub_s),
+        ("taxes",      taxes_s),
+        ("orderId",    order_id),
+        ("successUrl", success_url),
+        ("failUrl",    fail_url),
+        ("domain",     DOMAIN_URL),
+        ("hash",       sig),
+        ("sbx",        SANDBOX),
     ]
     qs = "&".join(f"{k}={quote(str(v), safe='')}" for k, v in params)
     return f"{YAPPY_GATEWAY}?{qs}"

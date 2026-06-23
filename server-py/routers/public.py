@@ -303,6 +303,7 @@ class TransactionBody(BaseModel):
     delivery_fee: float = 0.0
     delivery_label: str = ""
     payment_method: str = "WhatsApp"
+    channel: Optional[str] = None
 
 
 @router.post("/transaction")
@@ -320,6 +321,7 @@ def create_transaction(body: TransactionBody):
         "delivery_fee": body.delivery_fee,
         "delivery_label": body.delivery_label,
         "payment_method": body.payment_method,
+        "channel": body.channel or "",
         "products": body.products,
         "productsTypes": body.productsTypes,
         "quantities": body.quantities,

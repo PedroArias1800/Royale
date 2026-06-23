@@ -625,8 +625,7 @@
 }
 .cr-item__price {
   font-size: 0.92rem !important;
-  color: rgba(240, 234, 237, 0.5) !important;
-  text-decoration: line-through;
+  color: rgba(240, 234, 237, 0.7) !important;
   flex-shrink: 0;
 }
 
@@ -1107,6 +1106,36 @@
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+}
+.pm-yappy-web-wrapper {
+  flex: 1;
+  min-width: 160px;
+}
+@media (max-width: 480px) {
+  /* Modal de pago — apila columnas en pantallas pequeñas */
+  .modal-content2 {
+    width: 95%;
+    padding: 20px 16px;
+  }
+  .payment-form2 .form-group3 {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .payment-form2 .form-group3 .form-group2 {
+    width: 100%;
+  }
+  .pm-method-tabs {
+    flex-direction: column;
+  }
+  /* Métodos de pago */
+  .pm-methods-row {
+    flex-direction: column;
+  }
+  .pm-yappy-web-wrapper,
+  .pm-methods-row .pagar {
+    flex: unset;
+    width: 100%;
+  }
 }
 .pm-yappy-btn {
   flex: 1;

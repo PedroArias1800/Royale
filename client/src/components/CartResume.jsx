@@ -5,7 +5,7 @@ import { useParfum } from '../context/ParfumContext'
 
 
 export const CartResume = ({ products }) => {
-  const { cart, clearCart, URLFrontend } = useParfum();  // Obtenemos el carrito desde el contexto
+  const { cart, clearCart, URLFrontend, channelSource } = useParfum();  // Obtenemos el carrito desde el contexto
   const [isModalOpen, setModalOpen] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [dataCupon, setDataCupon] = useState({
@@ -45,10 +45,10 @@ export const CartResume = ({ products }) => {
         productDetails.push({
           parfum_id: product.parfum._id,
           types_id: product.type._id,
-          brand_name: product.parfum.brand_id_fk.brand_name,
+          brand_name: product.parfum.brand?.brand_name,
           title: product.parfum.title,
           quantity,
-          version_name: product.parfum.version_id_fk.version_name,
+          version_name: product.parfum.version?.version_name,
           ml: product.type.ml,
           price,
           subTotal: price * quantity,
@@ -99,6 +99,7 @@ export const CartResume = ({ products }) => {
       delivery_fee:   deliveryFee,
       delivery_label: deliveryLabel,
       payment_method: 'WhatsApp',
+      channel:        channelSource,
       code:           dataCupon._id,
       products:       productsId,
       productsTypes:  typesId,

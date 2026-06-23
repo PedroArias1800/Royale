@@ -11,7 +11,33 @@ export const useParfum = () => {
     return context;
 }
 
+function detectChannel() {
+    const params = new URLSearchParams(window.location.search);
+    const ref = (params.get('ref') || params.get('utm_source') || '').toLowerCase().trim();
+    const MAP = {
+        instagram: 'Instagram', facebook: 'Facebook', fb: 'Facebook',
+        qr: 'QR', whatsapp: 'WhatsApp', google: 'Google',
+    };
+    if (ref && MAP[ref]) return MAP[ref];
+
+    const referrer = (document.referrer || '').toLowerCase();
+    if (!referrer) return 'Directo';
+    if (referrer.includes('instagram.com')) return 'Instagram';
+    if (referrer.includes('facebook.com') || referrer.includes('fb.com')) return 'Facebook';
+    if (referrer.includes('google.')) return 'Google';
+    if (referrer.includes('royalepanama.com') || referrer.includes('localhost')) return 'Sitio Web';
+    return 'Directo';
+}
+
 export const ParfumContextProvider = ({ children }) => {
+
+    const [channelSource] = useState(() => {
+        const saved = sessionStorage.getItem('royale_channel');
+        if (saved) return saved;
+        const detected = detectChannel();
+        sessionStorage.setItem('royale_channel', detected);
+        return detected;
+    });
 
     const [cart, setCart] = useState(() => {
         const savedCart = localStorage.getItem("cart");
@@ -166,7 +192,7 @@ export const ParfumContextProvider = ({ children }) => {
       };
         
 
-    return <ParfumContext.Provider value={{ cart, setCart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend, imgSrc }}>
+    return <ParfumContext.Provider value={{ cart, setCart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend, imgSrc, channelSource }}>
         {children}
     </ParfumContext.Provider>
 

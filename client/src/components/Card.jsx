@@ -42,7 +42,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
               }
             </div>
             <div>
-              <h2>{element?.brand?.brand_name} {element?.title}</h2>
+              <h2>{[element?.brand?.brand_name, element?.title].filter(Boolean).join(' ')}</h2>
               <div className='infoCards'>
                 <FontAwesomeIcon icon={faTag} style={{'background': '#d60a5f', 'color': 'white', 'borderRadius': '50%', 'padding': '2%'}}/>
                 <p className="price">${actualPrice}</p>

@@ -73,79 +73,93 @@ def _is_rule_active(rule: dict) -> bool:
     return True
 
 
-def _get_matching_parfums(db, filters: dict, limit: int = 0, require_types: bool = False) -> list:
+def _python_match_parfums(db, filters: dict, limit: int = 0, require_types: bool = True) -> list:
     """
-    Retorna parfums que aplican a los filtros dados.
-    require_types=True filtra parfums sin tipos (para el endpoint público).
+    Python-level matching — avoids aggregation pipeline type/ObjectId mismatches.
+    Used for both the preview and the public endpoint.
     """
+    # ── Step 1: base parfum query (gender + date; brand handled in Python) ──
     parfum_q: dict = {}
-
-    brand_ids = filters.get("filter_brand_ids") or []
-    if brand_ids:
-        oids = [ObjectId(b) for b in brand_ids if ObjectId.is_valid(b)]
-        brand_conds = []
-        if oids:
-            brand_conds.append({"brand_id_fk": {"$in": oids}})
-        # Fallback string comparison (backup data may store IDs as strings)
-        brand_conds.append({"brand_id_fk": {"$in": brand_ids}})
-        parfum_q["$or"] = brand_conds
 
     gender = filters.get("filter_gender")
     if gender is not None:
-        parfum_q["gender"] = int(gender)
+        try:
+            parfum_q["gender"] = int(gender)
+        except (TypeError, ValueError):
+            pass
 
-    date_q: dict = {}
     after  = _parse_dt(filters.get("filter_created_after"))
     before = _parse_dt(filters.get("filter_created_before"))
-    if after:  date_q["$gte"] = after
-    if before: date_q["$lte"] = before
-    if date_q: parfum_q["createdAt"] = date_q
+    if after or before:
+        dq: dict = {}
+        if after:  dq["$gte"] = after
+        if before: dq["$lte"] = before
+        parfum_q["createdAt"] = dq
 
-    # Type-level price filter (only applied when price range is set)
-    type_price_stage: list = []
+    fetch_limit = max(limit * 4, 500) if limit else 500
+    all_parfums = list(db.parfums.find(parfum_q).sort("createdAt", -1).limit(fetch_limit))
+
+    # ── Step 2: brand filter in Python ──
+    brand_ids = filters.get("filter_brand_ids") or []
+    if brand_ids:
+        brand_set = {str(b) for b in brand_ids}
+        all_parfums = [p for p in all_parfums if str(p.get("brand_id_fk", "")) in brand_set]
+
+    # ── Step 3: types + price filter in Python ──
     price_min = filters.get("filter_price_min")
     price_max = filters.get("filter_price_max")
-    if price_min is not None or price_max is not None:
-        pq: dict = {}
-        if price_min is not None: pq["$gte"] = float(price_min)
-        if price_max is not None: pq["$lte"] = float(price_max)
-        type_price_stage = [{"$match": {"price": pq}}]
+    apply_price = price_min is not None or price_max is not None
 
-    pipeline: list = [
-        {"$match": parfum_q},
-        {"$lookup": {
-            "from": "types",
-            "let": {"pid": "$_id"},
-            "pipeline": [
-                # Handle both ObjectId and string parfum_id_fk (backup data compat)
-                {"$match": {"$expr": {
-                    "$or": [
-                        {"$eq": ["$parfum_id_fk", "$$pid"]},
-                        {"$eq": [{"$toString": "$parfum_id_fk"}, {"$toString": "$$pid"}]},
-                    ]
-                }}},
-                *type_price_stage,
-                {"$sort": {"price": 1}},
-            ],
-            "as": "types",
-        }},
-    ]
+    def _price_ok(t: dict) -> bool:
+        try:
+            pr = float(t.get("price") or 0)
+            if price_min is not None and pr < float(price_min): return False
+            if price_max is not None and pr > float(price_max): return False
+            return True
+        except Exception:
+            return False
 
-    if require_types:
-        pipeline.append({"$match": {"types.0": {"$exists": True}}})
+    results      = []
+    brand_cache  = {}
+    version_cache = {}
 
-    pipeline += [
-        {"$lookup": {"from": "brands",   "localField": "brand_id_fk",   "foreignField": "_id", "as": "brand"}},
-        {"$lookup": {"from": "versions", "localField": "version_id_fk", "foreignField": "_id", "as": "version"}},
-        # preserveNullAndEmptyArrays: parfums without brand/version match are still returned
-        {"$unwind": {"path": "$brand",   "preserveNullAndEmptyArrays": True}},
-        {"$unwind": {"path": "$version", "preserveNullAndEmptyArrays": True}},
-        {"$sort": {"createdAt": -1}},
-    ]
-    if limit:
-        pipeline.append({"$limit": limit})
+    for p in all_parfums:
+        pid = p["_id"]
 
-    return list(db.parfums.aggregate(pipeline))
+        # ObjectId match first; fall back to string match for backup data
+        types = list(db.types.find({"parfum_id_fk": pid}).sort("price", 1))
+        if not types:
+            types = list(db.types.find({"parfum_id_fk": str(pid)}).sort("price", 1))
+
+        if apply_price:
+            types = [t for t in types if _price_ok(t)]
+
+        if require_types and not types:
+            continue
+
+        # Attach brand (cached)
+        bf = p.get("brand_id_fk")
+        if bf is not None:
+            key = str(bf)
+            if key not in brand_cache:
+                brand_cache[key] = db.brands.find_one({"_id": bf})
+            p["brand"] = brand_cache.get(key)
+
+        # Attach version (cached)
+        vf = p.get("version_id_fk")
+        if vf is not None:
+            key = str(vf)
+            if key not in version_cache:
+                version_cache[key] = db.versions.find_one({"_id": vf})
+            p["version"] = version_cache.get(key)
+
+        p["types"] = types[:5]
+        results.append(p)
+
+        if limit and len(results) >= limit:
+            break
+
+    return results
 
 
 # ── Admin endpoints ───────────────────────────────────────────────────────────
@@ -159,67 +173,10 @@ def get_discounts(_: dict = Depends(verify_token), page: int = Query(default=1))
 
 @router.post("/api/discounts/preview")
 def preview_discount(body: PreviewBody, _: dict = Depends(verify_token)):
-    """
-    Python-level filtering avoids aggregation pipeline ObjectId/type issues.
-    """
     db = get_db()
-    f = body.dict()
-
-    # ── Step 1: basic parfum query (brand filter handled in Python) ──
-    parfum_q: dict = {}
-    gender = f.get("filter_gender")
-    if gender is not None:
-        parfum_q["gender"] = int(gender)
-
-    after  = _parse_dt(f.get("filter_created_after"))
-    before = _parse_dt(f.get("filter_created_before"))
-    if after or before:
-        dq: dict = {}
-        if after:  dq["$gte"] = after
-        if before: dq["$lte"] = before
-        parfum_q["createdAt"] = dq
-
-    all_parfums = list(db.parfums.find(parfum_q).sort("createdAt", -1).limit(500))
-
-    # ── Step 2: brand filter in Python — str() comparison handles ObjectId/string mismatch ──
-    brand_ids = f.get("filter_brand_ids") or []
-    if brand_ids:
-        brand_set = set(brand_ids)
-        all_parfums = [p for p in all_parfums if str(p.get("brand_id_fk", "")) in brand_set]
-
-    # ── Step 3: type + price filter in Python ──
-    price_min = f.get("filter_price_min")
-    price_max = f.get("filter_price_max")
-
-    def _price_ok(t: dict) -> bool:
-        try:
-            pr = float(t.get("price", 0))
-            if price_min is not None and pr < float(price_min): return False
-            if price_max is not None and pr > float(price_max): return False
-            return True
-        except Exception:
-            return False
-
-    results = []
-    for p in all_parfums:
-        pid = p["_id"]
-        types = list(db.types.find({
-            "$or": [{"parfum_id_fk": pid}, {"parfum_id_fk": str(pid)}]
-        }).sort("price", 1))
-
-        if price_min is not None or price_max is not None:
-            types = [t for t in types if _price_ok(t)]
-
-        if not types:
-            continue
-
-        brand = db.brands.find_one({"_id": p.get("brand_id_fk")})
-        p["brand"] = brand
-        p["types"] = types[:3]
-        results.append(p)
-
+    results = _python_match_parfums(db, body.dict(), limit=0, require_types=True)
     return {
-        "count": len(results),
+        "count":   len(results),
         "parfums": [serialize_doc(p) for p in results[:20]],
     }
 
@@ -284,7 +241,7 @@ def get_discounts_public():
         rule_s = serialize_doc(rule)
         discount = float(rule_s.get("discount_pct", 0))
 
-        parfums_raw = _get_matching_parfums(db, rule_s, limit=50, require_types=True)
+        parfums_raw = _python_match_parfums(db, rule_s, limit=50, require_types=True)
         parfums_out = []
         for p in parfums_raw:
             p_s = serialize_doc(p)

@@ -159,6 +159,7 @@
   color: #ede8eb;
   position: relative;
   z-index: 3;
+  word-spacing: 0.12em;
 }
 
 .card .price {

@@ -15,6 +15,9 @@ Globals:
         S3_MEDIA_BUCKET: !Ref MediaBucket
         FRONTEND_URL: !Ref FrontendUrl
         ADMIN_URL: !Ref AdminUrl
+        YAPPY_MERCHANT_ID: !Ref YappyMerchantId
+        YAPPY_SECRET_TOKEN: !Ref YappySecretToken
+        YAPPY_SANDBOX: !Ref YappySandbox
 
 
 Parameters:
@@ -36,6 +39,19 @@ Parameters:
   AdminUrl:
     Type: String
     Default: https://admin.royalepanama.com
+  YappyMerchantId:
+    Type: String
+    Default: ""
+    Description: Yappy Comercial — API Key (campo 'key' en la URL de pago)
+  YappySecretToken:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Yappy Comercial — Clave Secreta (base64) para firma HMAC-SHA256
+  YappySandbox:
+    Type: String
+    Default: "yes"
+    Description: "'yes' = modo pruebas sin cobro real, 'no' = producción"
 
 Resources:
   # ── Lambda Function ──────────────────────────────────────────────────────────

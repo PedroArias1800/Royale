@@ -59,7 +59,7 @@ export const CartSummary = ({ product }) => {
             >
               <img
                 src={imgSrc(product.type.img)}
-                alt={`${product.parfum.brand_id_fk.brand_name} ${product.parfum.title}`}
+                alt={`${product.parfum.brand?.brand_name} ${product.parfum.title}`}
                 className="pc-card__img"
               />
             </div>
@@ -122,7 +122,7 @@ export const CartSummary = ({ product }) => {
             <div className="modal-icon">🗑</div>
             <h3 className="modal-title">¿Eliminar producto?</h3>
             <p className="modal-desc">
-              <strong>{product.parfum.brand_id_fk.brand_name} {product.parfum.title}</strong>
+              <strong>{product.parfum.brand?.brand_name} {product.parfum.title}</strong>
               <br />será eliminado de tu cesta.
             </p>
             <div className="modalActions">

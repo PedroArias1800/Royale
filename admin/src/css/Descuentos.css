@@ -290,3 +290,17 @@
     color: rgba(200,190,196,0.38);
     padding: 4px 0;
 }
+
+/* ── Formato de fecha DD/MM/AAAA ── */
+.ds-date-fmt {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.74rem;
+    color: #fdd05e;
+    letter-spacing: 0.04em;
+    font-weight: 600;
+}
+.ds-date-fmt--empty {
+    color: rgba(200,190,196,0.35);
+    font-weight: 400;
+}
