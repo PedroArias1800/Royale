@@ -32,6 +32,11 @@ class TransactionUpdateBody(BaseModel):
     fin_type: Optional[str] = None
     status: Optional[int] = None
     omitted: Optional[bool] = None         # True = excluir de estadísticas
+    operational_cost: Optional[float] = None
+    products_cost: Optional[float] = None
+    products_prices: Optional[List[float]] = None
+    total: Optional[float] = None
+    seller_id_fk: Optional[str] = None
 
 
 class TransactionManualBody(BaseModel):
@@ -46,9 +51,15 @@ class TransactionManualBody(BaseModel):
     email: Optional[str] = ""
     payment_method: Optional[str] = ""
     delivery_method: Optional[str] = ""
+    delivery_fee: Optional[float] = 0.0
+    delivery_label: Optional[str] = ""
     channel: Optional[str] = ""
     products: Optional[List[str]] = []
+    productsTypes: Optional[List[str]] = []
     quantities: Optional[List[int]] = []
+    seller_id_fk: Optional[str] = None
+    status: Optional[int] = 2              # 1=pendiente, 2=procesada
+    created_at: Optional[str] = None       # ISO date override (YYYY-MM-DD)
 
 
 def _populate_transaction(doc: dict, db, include_products: bool = False) -> dict:
@@ -225,7 +236,7 @@ def get_pending_transactions(_: dict = Depends(verify_token), page: int = Query(
     db = get_db()
     limit = 15
     skip = (page - 1) * limit
-    query = {"status": {"$in": [False, 1]}, "is_manual": {"$ne": True}}
+    query = {"status": {"$in": [False, 1]}}
     docs = list(db.transactions.find(query).sort("createdAt", -1).skip(skip).limit(limit))
     total = db.transactions.count_documents(query)
     data = [_populate_transaction(d, db, include_products=True) for d in docs]
@@ -247,12 +258,14 @@ def get_processed_transactions(
     _: dict = Depends(verify_token),
 ):
     db = get_db()
-    query: dict = {"status": 2, "is_manual": {"$ne": True}}
+    query: dict = {"status": 2}
     date_filter: dict = {}
     if start:
-        date_filter["$gte"] = datetime.fromisoformat(start).replace(tzinfo=timezone.utc)
+        dt = datetime.fromisoformat(start)
+        date_filter["$gte"] = dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
     if end:
-        date_filter["$lte"] = datetime.fromisoformat(end).replace(tzinfo=timezone.utc)
+        dt = datetime.fromisoformat(end)
+        date_filter["$lte"] = dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
     if date_filter:
         query["updatedAt"] = date_filter
     docs = list(db.transactions.find(query).sort("updatedAt", -1))
@@ -293,15 +306,22 @@ def create_manual_transaction(body: TransactionManualBody, db=Depends(get_db), _
         "email": body.email or "",
         "payment_method": body.payment_method or "",
         "delivery_method": body.delivery_method or "",
+        "delivery_fee": body.delivery_fee or 0.0,
+        "delivery_label": body.delivery_label or "",
         "channel": body.channel or "",
         "products": body.products or [],
-        "productsTypes": [],
+        "productsTypes": body.productsTypes or [],
         "quantities": body.quantities or [],
-        "status": 2,
+        "status": body.status if body.status in (1, 2) else 2,
         "is_manual": True,
-        "createdAt": now,
+        "createdAt": datetime.fromisoformat(body.created_at).replace(tzinfo=timezone.utc) if body.created_at else now,
         "updatedAt": now,
     }
+    if body.seller_id_fk:
+        try:
+            doc["seller_id_fk"] = ObjectId(body.seller_id_fk)
+        except Exception:
+            pass
     result = db.transactions.insert_one(doc)
     doc["_id"] = result.inserted_id
     return serialize_doc(doc)
@@ -319,6 +339,19 @@ def update_transaction(transaction_id: str, body: TransactionUpdateBody, db=Depe
         updates["status"] = body.status
     if body.omitted is not None:
         updates["omitted"] = body.omitted
+    if body.operational_cost is not None:
+        updates["operational_cost"] = body.operational_cost
+    if body.products_cost is not None:
+        updates["products_cost"] = body.products_cost
+    if body.products_prices is not None:
+        updates["products_prices"] = body.products_prices
+    if body.total is not None:
+        updates["total"] = body.total
+    if body.seller_id_fk:
+        try:
+            updates["seller_id_fk"] = ObjectId(body.seller_id_fk)
+        except Exception:
+            pass
 
     result = db.transactions.update_one({"_id": oid}, {"$set": updates})
     if result.matched_count == 0:
@@ -334,8 +367,6 @@ def delete_manual_transaction(transaction_id: str, db=Depends(get_db), _=Depends
     doc = db.transactions.find_one({"_id": oid})
     if not doc:
         return JSONResponse(status_code=404, content={"message": "Transacción no encontrada"})
-    if not doc.get("is_manual"):
-        return JSONResponse(status_code=403, content={"message": "Solo se pueden eliminar transacciones manuales"})
     db.transactions.delete_one({"_id": oid})
     return {"message": "Eliminada"}
 

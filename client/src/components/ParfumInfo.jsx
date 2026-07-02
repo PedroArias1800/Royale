@@ -7,7 +7,7 @@ import { Alert } from '../components/Alert'
 import { Link, useNavigate } from 'react-router-dom';
 import { useParfum } from '../context/ParfumContext'
 
-export const ParfumInfo = ({ product, typeParfum }) => {
+export const ParfumInfo = ({ product, typeParfum, discountPct = null }) => {
   const navigate = useNavigate();
   const [selectedType, setSelectedType] = useState();
   const [alertMessage, setAlertMessage] = useState("");
@@ -31,13 +31,13 @@ export const ParfumInfo = ({ product, typeParfum }) => {
       setSelectedType(
         product?.types.find((type) => type?.ml === typeParfum) || product?.types[0]
       );
-      setActualPrice(product?.types[0]?.price_flash)
     }
   }, [product]);
 
   useEffect(() => {
-    setActualPrice(selectedType?.price_flash || selectedType?.price)
-    setValidFlash(selectedType?.type_of_sale == 'Flash' && selectedType.quantity_flash > 0)
+    const flash = selectedType?.type_of_sale === 'Flash' && selectedType.quantity_flash > 0;
+    setActualPrice(flash ? selectedType?.price_flash : selectedType?.price);
+    setValidFlash(flash);
   }, [selectedType]);
 
   const gradientStyle = {
@@ -118,12 +118,28 @@ export const ParfumInfo = ({ product, typeParfum }) => {
           </h3>
 
           {/* Price block */}
-          <div className="pi-price-block">
-            <span className="pi-price-current">${actualPrice}</span>
-            <Link to={`/search?type=${product.gender}`} className="parfumGenero pi-gender">
-              {product.gender === 1 ? 'Damas' : 'Caballeros'}
-            </Link>
-          </div>
+          {(() => {
+            const hasDiscount = discountPct != null && discountPct > 0 && !validFlash;
+            const discountedPrice = hasDiscount
+              ? (Number(actualPrice) * (1 - discountPct / 100)).toFixed(2)
+              : null;
+            return (
+              <div className="pi-price-block">
+                {hasDiscount ? (
+                  <div className="pi-discount-block">
+                    <span className="pi-price-old">${Number(actualPrice).toFixed(2)}</span>
+                    <span className="pi-price-current pi-price-discounted">${discountedPrice}</span>
+                    <span className="pi-discount-badge">−{discountPct}%</span>
+                  </div>
+                ) : (
+                  <span className="pi-price-current">${Number(actualPrice).toFixed(2)}</span>
+                )}
+                <Link to={`/search?type=${product.gender}`} className="parfumGenero pi-gender">
+                  {product.gender === 1 ? 'Damas' : 'Caballeros'}
+                </Link>
+              </div>
+            );
+          })()}
 
           <div className="pi-separator">
             <span className="pi-sep-line" />

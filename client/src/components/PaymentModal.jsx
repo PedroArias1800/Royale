@@ -203,6 +203,11 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
             <div className="pm-delivery-section">
               <p className="pm-section-label">Método de Entrega</p>
 
+              {/* Aviso horario de corte */}
+              <div className="pm-cutoff-banner">
+                🕙 Pedidos realizados después de las <strong>10:00 am</strong> serán entregados al <strong>día siguiente</strong>.
+              </div>
+
               {/* Gratis banner */}
               {isFreeOrder && (
                 <div className="pm-gratis-banner">

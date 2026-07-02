@@ -5,7 +5,7 @@ import { useParfum } from '../context/ParfumContext'
 
 
 export const CartResume = ({ products }) => {
-  const { cart, clearCart, URLFrontend, channelSource } = useParfum();  // Obtenemos el carrito desde el contexto
+  const { cart, clearCart, URLFrontend, channelSource, getDiscount } = useParfum();
   const [isModalOpen, setModalOpen] = useState(false);
   const [percentage, setPercentage] = useState(0);
   const [dataCupon, setDataCupon] = useState({
@@ -16,10 +16,11 @@ export const CartResume = ({ products }) => {
   const handleOpenModal = () => setModalOpen(true);
   const handleCloseModal = () => setModalOpen(false);
 
-  const { totalItems, actualTotal, totalSavingsCoupon, productDetails, productsId, typesId, quantities } = useMemo(() => {
+  const { totalItems, actualTotal, totalSavingsCoupon, totalSavingsDiscount, productDetails, productsId, typesId, quantities } = useMemo(() => {
     let actualTotal = 0;
     let totalItems = 0;
     let totalSavingsCoupon = 0;
+    let totalSavingsDiscount = 0;
     let productDetails = [];
     let productsId = [];
     let typesId = [];
@@ -33,10 +34,18 @@ export const CartResume = ({ products }) => {
 
       if (item) {
         const quantity = item.quantity;
-        const price = validFlash ? (product.type.price_flash || product.type.price) : product.type.price;
+        const basePrice = validFlash
+          ? parseFloat(product.type.price_flash || product.type.price)
+          : parseFloat(product.type.price);
+        const discPct = (!validFlash && getDiscount) ? getDiscount(product.parfum) : null;
+        const price = discPct ? basePrice * (1 - discPct / 100) : basePrice;
 
         actualTotal += price * quantity;
         totalItems += quantity;
+
+        if (discPct) {
+          totalSavingsDiscount += (basePrice - price) * quantity;
+        }
 
         if (dataCupon?.productsThatApply == 0 || dataCupon?.productsThatApply == product.parfum.gender) {
           totalSavingsCoupon += (price * quantity) * (percentage / 100);
@@ -51,6 +60,8 @@ export const CartResume = ({ products }) => {
           version_name: product.parfum.version?.version_name,
           ml: product.type.ml,
           price,
+          basePrice,
+          discPct,
           subTotal: price * quantity,
           type_of_sale: product.type.type_of_sale
         });
@@ -60,8 +71,8 @@ export const CartResume = ({ products }) => {
       }
     });
 
-    return { totalItems, actualTotal, totalSavingsCoupon, productDetails, productsId, typesId, quantities };
-  }, [cart, products, dataCupon, percentage]);
+    return { totalItems, actualTotal, totalSavingsCoupon, totalSavingsDiscount, productDetails, productsId, typesId, quantities };
+  }, [cart, products, dataCupon, percentage, getDiscount]);
 
 
   const handleResponse = (response) => {
@@ -90,20 +101,21 @@ export const CartResume = ({ products }) => {
     const total = (actualTotal - totalSavingsCoupon + deliveryFee).toFixed(2);
 
     const transaction = {
-      userName:       data.name,
-      phone:          data.phone,
-      direction:      data.address || '',
-      email:          data.email || '',
-      subTotal:       actualTotal.toFixed(2),
+      userName:        data.name,
+      phone:           data.phone,
+      direction:       data.address || '',
+      email:           data.email || '',
+      subTotal:        actualTotal.toFixed(2),
       total,
-      delivery_fee:   deliveryFee,
-      delivery_label: deliveryLabel,
-      payment_method: 'WhatsApp',
-      channel:        channelSource,
-      code:           dataCupon._id,
-      products:       productsId,
-      productsTypes:  typesId,
-      quantities:     quantities,
+      delivery_fee:    deliveryFee,
+      delivery_label:  deliveryLabel,
+      payment_method:  'WhatsApp',
+      channel:         channelSource,
+      code:            dataCupon._id,
+      products:        productsId,
+      productsTypes:   typesId,
+      quantities:      quantities,
+      products_prices: productDetails.map(item => parseFloat(item.price.toFixed(2))),
     }
 
     try {
@@ -121,7 +133,11 @@ export const CartResume = ({ products }) => {
     productDetails.forEach((item) => {
       message += `Producto: ${item.brand_name} ${item.title}\n`;
       message += `Versión: ${item.version_name} - ${item.ml}ml\n`;
-      message += `Precio: $${Number(item.price).toFixed(2)}\n`;
+      if (item.discPct) {
+        message += `Precio: $${Number(item.price).toFixed(2)} (descuento −${item.discPct}% aplicado)\n`;
+      } else {
+        message += `Precio: $${Number(item.price).toFixed(2)}\n`;
+      }
       message += `Cantidad: ${item.quantity}\n`;
       message += `Enlace: ${URLFrontend}/parfum?id=${item.parfum_id}\n\n`;
     });
@@ -220,6 +236,12 @@ export const CartResume = ({ products }) => {
           <p>Sub Total</p>
           <p>${actualTotal.toFixed(2)}</p>
         </div>
+        {totalSavingsDiscount > 0 && (
+          <div className='liResumen'>
+            <p>Descuento aplicado</p>
+            <p className="cr-saving">-${totalSavingsDiscount.toFixed(2)}</p>
+          </div>
+        )}
         {dataCupon.valido && (
           <div className='liResumen'>
             <p>Cupón ({dataCupon.percentage}%)</p>

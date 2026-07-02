@@ -13,6 +13,7 @@ import { Data } from './pages/Data.jsx';
 import { Finanzas } from './Pages/Finanzas.jsx';
 import { Delivery } from './pages/Delivery.jsx';
 import { Descuentos } from './pages/Descuentos.jsx';
+import { Cortes } from './pages/Cortes.jsx';
 
 const App = () => {
 
@@ -32,6 +33,7 @@ const App = () => {
         <Route path="/finanzas" element={<Finanzas />} />
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/descuentos" element={<Descuentos />} />
+        <Route path="/cortes" element={<Cortes />} />
         <Route path="*" element={<Login />} />
       </Routes>
       <Footer />

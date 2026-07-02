@@ -6,7 +6,7 @@ import { useParfum } from '../context/ParfumContext';
 import { postCartRequest } from '../api/Cart.api';
 
 export const CartDrawer = ({ isOpen, onClose }) => {
-  const { cart, addToCart, decreaseQuantity, removeFromCart, getTotalQuantity, imgSrc } = useParfum();
+  const { cart, addToCart, decreaseQuantity, removeFromCart, getTotalQuantity, imgSrc, getDiscount } = useParfum();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const wasOpen = useRef(false);
@@ -71,11 +71,14 @@ export const CartDrawer = ({ isOpen, onClose }) => {
     ));
   };
 
-  const total = products.reduce((acc, p) => {
-    const price = p.type.type_of_sale === 'Flash' && p.type.quantity_flash > 0
-      ? p.type.price_flash : p.type.price;
-    return acc + price * p.quantity;
-  }, 0);
+  const effectivePrice = (p) => {
+    const isFlash = p.type.type_of_sale === 'Flash' && p.type.quantity_flash > 0;
+    if (isFlash) return parseFloat(p.type.price_flash);
+    const disc = getDiscount?.(p.parfum);
+    return disc ? parseFloat(p.type.price) * (1 - disc / 100) : parseFloat(p.type.price);
+  };
+
+  const total = products.reduce((acc, p) => acc + effectivePrice(p) * p.quantity, 0);
 
   return (
     <>
@@ -127,7 +130,9 @@ export const CartDrawer = ({ isOpen, onClose }) => {
             <ul className="cdr__list">
               {products.map((p, i) => {
                 const isFlash = p.type.type_of_sale === 'Flash' && p.type.quantity_flash > 0;
-                const price = isFlash ? p.type.price_flash : p.type.price;
+                const basePrice = parseFloat(isFlash ? p.type.price_flash : p.type.price);
+                const discPct = (!isFlash && getDiscount) ? getDiscount(p.parfum) : null;
+                const price = discPct ? basePrice * (1 - discPct / 100) : basePrice;
                 const brandName = p.parfum.brand?.brand_name ?? '';
                 const versionName = p.parfum.version?.version_name ?? '';
                 return (
@@ -156,7 +161,13 @@ export const CartDrawer = ({ isOpen, onClose }) => {
                       )}
                       <div className="cdr__item-foot">
                         <div className="cdr__item-prices">
+                          {discPct && (
+                            <span className="cdr__price-old">${(basePrice * p.quantity).toFixed(2)}</span>
+                          )}
                           <span className="cdr__price-current">${(price * p.quantity).toFixed(2)}</span>
+                          {discPct && (
+                            <span className="cdr__price-disc-badge">−{discPct}%</span>
+                          )}
                         </div>
                         <div className="cdr__controls">
                           <button

@@ -9,14 +9,13 @@ import { faBolt, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 export const CartSummary = ({ product }) => {
   const [showModal, setShowModal] = useState(false);
   const [nodeDrop, setNodeDrop] = useState({});
-  const { cart, addToCart, decreaseQuantity, removeFromCart, imgSrc, URLFrontend } = useParfum();
-  const [actualPrice, setActualPrice] = useState(product?.type?.price);
-  const [validFlash, setValidFlash] = useState(product?.type?.type_of_sale == 'Flash' && product?.type?.quantity_flash > 0)
-
-  useEffect(() => {
-    if (validFlash)
-    setActualPrice(product?.type?.price_flash)
-  }, [product, validFlash]);
+  const { cart, addToCart, decreaseQuantity, removeFromCart, imgSrc, URLFrontend, getDiscount } = useParfum();
+  const [validFlash] = useState(product?.type?.type_of_sale == 'Flash' && product?.type?.quantity_flash > 0);
+  const basePrice = validFlash ? product?.type?.price_flash : product?.type?.price;
+  const discountPct = (!validFlash && getDiscount) ? getDiscount(product?.parfum) : null;
+  const actualPrice = discountPct
+    ? parseFloat(basePrice) * (1 - discountPct / 100)
+    : basePrice;
 
   const currentItem = cart.find(
     (item) => item.id === product.parfum._id && item.types_id === product.type._id
@@ -89,7 +88,15 @@ export const CartSummary = ({ product }) => {
             <p className="pc-card__version">
               {product.parfum.version_id_fk.version_name} · {product.type.ml}ml
             </p>
-            <span className="pc-card__price-now">${Number(actualPrice).toFixed(2)}</span>
+            <div className="pc-card__price-block">
+              {discountPct && (
+                <span className="pc-card__price-old">${Number(basePrice).toFixed(2)}</span>
+              )}
+              <span className="pc-card__price-now">${Number(actualPrice).toFixed(2)}</span>
+              {discountPct && (
+                <span className="pc-card__disc-badge">−{discountPct}%</span>
+              )}
+            </div>
           </div>
 
           {validFlash && (

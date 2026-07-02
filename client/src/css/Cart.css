@@ -879,6 +879,23 @@
   margin: 0;
 }
 
+/* Precio con descuento por métricas */
+.pc-card__price-block {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.pc-card__disc-badge {
+  background: linear-gradient(135deg, #7d0532, #d60a5f);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.04em;
+}
+
 /* Precio */
 .pc-card__price-row {
   display: flex;
@@ -1194,6 +1211,18 @@
   background: rgba(214, 10, 95, 0.08);
   border-left: 2px solid var(--color-rojo);
   border-radius: 2px;
+}
+
+/* ── Aviso horario de corte ── */
+.pm-cutoff-banner {
+  background: rgba(253, 208, 94, 0.07);
+  border: 1px solid rgba(253, 208, 94, 0.22);
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 0.84rem;
+  color: rgba(253, 208, 94, 0.85);
+  margin-bottom: 12px;
+  line-height: 1.45;
 }
 
 /* ── Gratis banner / hint ── */

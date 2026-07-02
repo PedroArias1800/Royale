@@ -1,4 +1,4 @@
-import axios from 'axios'
+import axios from './axios.js'
 
 export const getDiscountRulesRequest = async (page = 1) =>
     await axios.get(`/api/discounts?page=${page}`)

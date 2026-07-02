@@ -359,7 +359,8 @@
 
   .subirTop {
     margin: 0 !important;
-    right: 20px;
+    right: 28px;
+    bottom: 82px;
     z-index: 2000;
     background: linear-gradient(135deg, var(--color-rojo-2), var(--color-rojo));
   }

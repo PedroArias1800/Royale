@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { getDiscountsPublicRequest } from '../api/Discounts.api.js';
 
 
 export const ParfumContext = createContext();
@@ -38,6 +39,55 @@ export const ParfumContextProvider = ({ children }) => {
         sessionStorage.setItem('royale_channel', detected);
         return detected;
     });
+
+    const [discountRules, setDiscountRules] = useState([]);
+
+    useEffect(() => {
+        getDiscountsPublicRequest()
+            .then(res => setDiscountRules(res.data || []))
+            .catch(() => {});
+    }, []);
+
+    const getDiscount = useCallback((product) => {
+        if (!product || !discountRules.length) return null;
+        const now = Date.now();
+        for (const rule of discountRules) {
+            if (rule.status !== 1) continue;
+            if (rule.schedule_enabled) {
+                const start = rule.schedule_start ? new Date(rule.schedule_start).getTime() : null;
+                const end   = rule.schedule_end   ? new Date(rule.schedule_end).getTime()   : null;
+                if (start && now < start) continue;
+                if (end   && now > end)   continue;
+            }
+            if (rule.filter_gender != null && rule.filter_gender !== '') {
+                if (product.gender !== rule.filter_gender) continue;
+            }
+            if (rule.filter_brand_ids?.length > 0) {
+                const brandId = product.brand?._id || product.brand?.id
+                    || product.brand_id_fk?._id || product.brand_id_fk?.id || '';
+                if (!rule.filter_brand_ids.includes(brandId)) continue;
+            }
+            if (rule.filter_price_min != null || rule.filter_price_max != null) {
+                const types = product.types?.length ? product.types : [];
+                const hasMatch = types.some(t => {
+                    const p = parseFloat(t.price || 0);
+                    if (rule.filter_price_min != null && p < rule.filter_price_min) return false;
+                    if (rule.filter_price_max != null && p > rule.filter_price_max) return false;
+                    return true;
+                });
+                if (!hasMatch) continue;
+            }
+            if (rule.filter_created_after || rule.filter_created_before) {
+                const pCreated = product.createdAt ? new Date(product.createdAt).getTime() : null;
+                if (pCreated) {
+                    if (rule.filter_created_after && pCreated < new Date(rule.filter_created_after).getTime()) continue;
+                    if (rule.filter_created_before && pCreated > new Date(rule.filter_created_before).getTime()) continue;
+                }
+            }
+            return rule.discount_pct;
+        }
+        return null;
+    }, [discountRules]);
 
     const [cart, setCart] = useState(() => {
         const savedCart = localStorage.getItem("cart");
@@ -153,7 +203,7 @@ export const ParfumContextProvider = ({ children }) => {
 <br/>Podemos actualizar esta política en cualquier momento. Notificaremos los cambios relevantes en esta página.
 <br/>
 <br/>8. Contacto
-<br/>Si tienes preguntas sobre nuestra Política de Privacidad, contáctanos en: royalepanama1@gmail.com o escríbenos al +507 6838-9280<p/>`
+<br/>Si tienes preguntas sobre nuestra Política de Privacidad, contáctanos en: royalepanama1@gmail.com o escríbenos al +507 6562-3382<p/>`
                       : `1. Introducción
 <br/>Bienvenido a Royale Panama. Al utilizar nuestra página web y nuestros servicios, aceptas cumplir con los términos y condiciones establecidos en este documento. Por favor, léelos cuidadosamente antes de realizar una compra.
 <br/>
@@ -181,7 +231,7 @@ export const ParfumContextProvider = ({ children }) => {
 <br/>Nos reservamos el derecho de modificar estos términos en cualquier momento. Las modificaciones serán notificadas en esta página y entrarán en vigor inmediatamente después de su publicación.
 <br/>
 <br/>8. Contacto
-<br/>Si tienes dudas o inquietudes, puedes contactarnos en: royalepanama1@gmail.com o escríbenos al +507 6838-9280`,
+<br/>Si tienes dudas o inquietudes, puedes contactarnos en: royalepanama1@gmail.com o escríbenos al +507 6562-3382`,
           };
           setModalContent(content);
           setIsModalOpen(true);
@@ -192,7 +242,7 @@ export const ParfumContextProvider = ({ children }) => {
       };
         
 
-    return <ParfumContext.Provider value={{ cart, setCart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend, imgSrc, channelSource }}>
+    return <ParfumContext.Provider value={{ cart, setCart, addToCart, removeFromCart, decreaseQuantity, clearCart, getTotalQuantity, isModalOpen, modalContent, openModal, closeModal, alertMessage, setAlertMessage, color, color2, URLServer, URLFrontend, imgSrc, channelSource, getDiscount }}>
         {children}
     </ParfumContext.Provider>
 

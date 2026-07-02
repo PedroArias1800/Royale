@@ -61,7 +61,13 @@ export const Admin = () => {
                   <Link to="/finanzas">Finanzas</Link>
                   <Link to="/delivery">Delivery</Link>
                   <Link to="/descuentos">Descuentos</Link>
+                  <Link to="/cortes">Días de Corte</Link>
                 </>
+              )
+            }
+            {
+              user.rol == 2 && (
+                <Link to="/cortes">Mis Ganancias</Link>
               )
             }
         </div>

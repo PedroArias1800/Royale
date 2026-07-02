@@ -143,11 +143,11 @@ def get_filtered_types(body: FilterBody, _: dict = Depends(verify_token), page: 
 
 
 @router.get("/api/type/parfum/{parfumId}")
-def get_type_by_parfum_id(parfumId: str):
+def get_type_by_parfum_id(parfumId: str, _: dict = Depends(verify_token)):
     db = get_db()
     types = list(db.types.find(
         {"parfum_id_fk": to_object_id(parfumId)},
-        {"ml": 1, "price": 1, "price_flash": 1},
+        {"ml": 1, "price": 1, "price_flash": 1, "cost": 1},
     ))
     if not types:
         return JSONResponse(status_code=404, content={"message": "Type not Found"})

@@ -1,6 +1,7 @@
 import { faChevronDown, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 export const Filter = ({ onFilter, brands, type }) => {
   const scrollToTop = () => {
@@ -164,10 +165,12 @@ export const Filter = ({ onFilter, brands, type }) => {
 
       </div>
 
-      {/* ── Botón volver arriba ── */}
-      <button className="subirTop" onClick={scrollToTop} aria-label="Volver arriba">
-        <FontAwesomeIcon icon={faChevronDown} />
-      </button>
+      {createPortal(
+        <button className="subirTop" onClick={scrollToTop} aria-label="Volver arriba">
+          <FontAwesomeIcon icon={faChevronDown} />
+        </button>,
+        document.body
+      )}
     </div>
   );
 };

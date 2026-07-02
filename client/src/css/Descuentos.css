@@ -261,6 +261,63 @@
     50%       { opacity: 0.5; }
 }
 
+/* ── Imagen placeholder ── */
+.desc-card__img-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    background: rgba(255,255,255,0.04);
+    border-radius: 4px;
+}
+
+/* ── Paginación por sección ── */
+.desc-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(253, 208, 94, 0.1);
+}
+
+.desc-pag-btn {
+    background: rgba(253, 208, 94, 0.08);
+    border: 1px solid rgba(253, 208, 94, 0.25);
+    color: var(--color-dorado);
+    font-size: 1.3rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.desc-pag-btn:hover:not(:disabled) {
+    background: rgba(253, 208, 94, 0.18);
+    border-color: var(--color-dorado);
+}
+
+.desc-pag-btn:disabled {
+    opacity: 0.25;
+    cursor: default;
+}
+
+.desc-pag-info {
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    color: rgba(237, 232, 235, 0.55);
+    letter-spacing: 0.04em;
+}
+
+.desc-pag-total {
+    color: rgba(237, 232, 235, 0.3);
+    font-size: 0.75rem;
+}
+
 @media (max-width: 500px) {
     .desc-page { padding: 1.5rem 1rem; }
     .desc-card { width: clamp(140px, 42vw, 170px); }

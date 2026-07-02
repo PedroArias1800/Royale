@@ -13,7 +13,7 @@ export const Footer = () => {
         if (/mobile|android|iphone|ipad|ipod/.test(userAgent)) {
             return `whatsapp://send?phone=50765623382&text=Hola,%20estoy%20interesado%20en%20algunos%20productos`;
         }
-        return `https://wa.me/+50768389280?text=Hola,%20estoy%20interesado%20en%20algunos%20productos%20de%20Royale%20Panama`;
+        return `https://wa.me/+50765623382?text=Hola,%20estoy%20interesado%20en%20algunos%20productos%20de%20Royale%20Panama`;
     };
 
     return (
@@ -26,6 +26,14 @@ export const Footer = () => {
 
             <div className="footerBody">
                 <div className="footerCol footerCol--brand">
+                    <HashLink to="/#MasBuscados" className="footerMainLogo">
+                        <img src="icons/RoyalePanama2.png" alt="Royale Panama" />
+                    </HashLink>
+                    <div className="footerLogoSep">
+                        <span className="footerLogoSep-line" />
+                        <span className="footerLogoSep-gem">◆</span>
+                        <span className="footerLogoSep-line" />
+                    </div>
                     <HashLink to="/#MasBuscados" className="footerBrandLogo">
                         <img src="logos/RoyaleDorado.webp" alt="Royale Panama" />
                     </HashLink>

@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
     getPendingTransactionsRequest,
-    getManualTransactionsRequest,
     getProcessedTransactionsRequest,
     putTransactionRequest,
     postManualTransactionRequest,
@@ -14,6 +13,7 @@ import { KpiCards } from '../components/finanzas/KpiCards.jsx';
 import { ChartTendencia } from '../components/finanzas/ChartTendencia.jsx';
 import { ChartDesglose } from '../components/finanzas/ChartDesglose.jsx';
 import { ChartMetodos } from '../components/finanzas/ChartMetodos.jsx';
+import { ChartTopParfums } from '../components/finanzas/ChartTopParfums.jsx';
 import { MovimientosCRUD } from '../components/finanzas/MovimientosCRUD.jsx';
 import '../css/Finanzas.css';
 
@@ -36,17 +36,16 @@ export const Finanzas = () => {
     const [trends, setTrends] = useState([]);
     const [breakdown, setBreakdown] = useState([]);
     const [pendientes, setPendientes] = useState([]);
-    const [manuales, setManuales] = useState([]);
     const [procesadas, setProcesadas] = useState([]);
 
     const [loadingSummary, setLoadingSummary] = useState(false);
     const [loadingTrends, setLoadingTrends] = useState(false);
     const [loadingBreakdown, setLoadingBreakdown] = useState(false);
     const [loadingPendientes, setLoadingPendientes] = useState(false);
-    const [loadingManuales, setLoadingManuales] = useState(false);
     const [loadingProcesadas, setLoadingProcesadas] = useState(false);
 
-    const qs = `start=${period.start}T00:00:00&end=${period.end}T23:59:59`;
+    // Panamá = UTC-5 (sin DST). Se incluye el offset para que el backend filtre correctamente.
+    const qs = `start=${period.start}T00:00:00-05:00&end=${period.end}T23:59:59-05:00`;
 
     const loadSummary = useCallback(async () => {
         setLoadingSummary(true);
@@ -60,7 +59,7 @@ export const Finanzas = () => {
     const loadTrends = useCallback(async () => {
         setLoadingTrends(true);
         const days = Math.round((new Date(period.end) - new Date(period.start)) / 86400000);
-        const granularity = days <= 31 ? 'day' : days <= 90 ? 'week' : 'month';
+        const granularity = period.granularity || (days <= 31 ? 'day' : days <= 90 ? 'week' : 'month');
         try {
             const res = await axios.get(`/api/analytics/trends?${qs}&granularity=${granularity}`);
             setTrends(res.data);
@@ -78,6 +77,13 @@ export const Finanzas = () => {
         finally { setLoadingBreakdown(false); }
     }, [qs]);
 
+    const loadTopProducts = useCallback(async () => {
+        try {
+            const res = await axios.get(`/api/analytics/top-products?${qs}&limit=10`);
+            return res.data;
+        } catch (e) { console.error(e); return []; }
+    }, [qs]);
+
     const loadPendientes = useCallback(async () => {
         setLoadingPendientes(true);
         try {
@@ -86,15 +92,6 @@ export const Finanzas = () => {
         } catch (e) { console.error(e); }
         finally { setLoadingPendientes(false); }
     }, []);
-
-    const loadManuales = useCallback(async () => {
-        setLoadingManuales(true);
-        try {
-            const res = await getManualTransactionsRequest(period.start, period.end);
-            setManuales(res.data || []);
-        } catch (e) { console.error(e); }
-        finally { setLoadingManuales(false); }
-    }, [period]);
 
     const loadProcesadas = useCallback(async () => {
         setLoadingProcesadas(true);
@@ -109,7 +106,6 @@ export const Finanzas = () => {
         loadSummary();
         loadTrends();
         loadBreakdown('label');
-        loadManuales();
         loadProcesadas();
     }, [period]);
 
@@ -131,21 +127,17 @@ export const Finanzas = () => {
         } catch (e) { console.error(e); }
     };
 
-    const handleSaveManual = async (data) => {
+    const handleAddTransaction = async (data) => {
         try {
             await postManualTransactionRequest(data);
-            loadManuales();
-            loadSummary();
-            loadBreakdown('label');
-        } catch (e) { console.error(e); }
-    };
-
-    const handleDeleteManual = async (id) => {
-        try {
-            await deleteManualTransactionRequest(id);
-            loadManuales();
-            loadSummary();
-            loadBreakdown('label');
+            if (data.status === 2) {
+                loadProcesadas();
+                loadSummary();
+                loadTrends();
+                loadBreakdown('label');
+            } else {
+                loadPendientes();
+            }
         } catch (e) { console.error(e); }
     };
 
@@ -174,6 +166,17 @@ export const Finanzas = () => {
         } catch (e) { console.error(e); }
     };
 
+    const handleDelete = async (id) => {
+        if (!confirm('¿Eliminar esta transacción permanentemente?')) return;
+        try {
+            await deleteManualTransactionRequest(id);
+            loadProcesadas();
+            loadSummary();
+            loadTrends();
+            loadBreakdown('label');
+        } catch (e) { console.error(e); }
+    };
+
     return (
         <div className="finanzas-page">
             <div className="finanzas-header">
@@ -195,17 +198,17 @@ export const Finanzas = () => {
 
             <ChartMetodos fetchBreakdown={loadBreakdown} loading={loadingBreakdown} />
 
+            <ChartTopParfums fetchTopProducts={loadTopProducts} loading={false} />
+
             <MovimientosCRUD
                 pendientes={pendientes}
-                manuales={manuales}
                 procesadas={procesadas}
                 onProcess={handleProcess}
-                onSaveManual={handleSaveManual}
-                onDeleteManual={handleDeleteManual}
+                onAddTransaction={handleAddTransaction}
                 onRevert={handleRevert}
                 onToggleOmit={handleToggleOmit}
+                onDelete={handleDelete}
                 loadingPendientes={loadingPendientes}
-                loadingManuales={loadingManuales}
                 loadingProcesadas={loadingProcesadas}
             />
         </div>

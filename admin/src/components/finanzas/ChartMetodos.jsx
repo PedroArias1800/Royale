@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell,
 } from 'recharts';
@@ -27,20 +27,23 @@ export const ChartMetodos = ({ fetchBreakdown, loading }) => {
     const [dim, setDim] = useState('payment');
     const [data, setData] = useState([]);
     const [innerLoading, setInnerLoading] = useState(false);
+    const dimRef = useRef('payment');
 
     const loadDim = async (key) => {
         setDim(key);
+        dimRef.current = key;
         setInnerLoading(true);
         const result = await fetchBreakdown(key);
         setData(result || []);
         setInnerLoading(false);
     };
 
-    // Load on first render via useEffect-like pattern (called from parent via prop change)
-    // Parent triggers initial load by calling fetchBreakdown on period change
-    const handleDimChange = (key) => {
-        loadDim(key);
-    };
+    // Re-carga la dimensión activa al montar y cuando cambia el período (fetchBreakdown cambia ref)
+    useEffect(() => {
+        loadDim(dimRef.current);
+    }, [fetchBreakdown]);
+
+    const handleDimChange = (key) => loadDim(key);
 
     return (
         <div className="chart-card">

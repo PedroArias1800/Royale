@@ -12,6 +12,7 @@ import { YappySuccess } from "./Pages/YappySuccess";
 import { YappyCancel } from "./Pages/YappyCancel";
 import { PrivacyTermModal } from './components/PrivacyTermModal.jsx';
 import { Descuentos } from './Pages/Descuentos.jsx';
+import { WhatsAppFab } from './components/WhatsAppFab.jsx';
 
 import 'aos/dist/aos.css';
 
@@ -34,6 +35,7 @@ const App = () => {
         <Route path="/pago-cancelado" element={<YappyCancel />} />
         <Route path="*" element={<Index />} />
       </Routes>
+      <WhatsAppFab />
       <PrivacyTermModal />
       <Footer />
     </ParfumContextProvider>

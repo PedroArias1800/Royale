@@ -63,7 +63,8 @@ export const Search = () => {
       const matchesGender = gender ? product.gender === genderTemp : true;
       const matchesBrand = brand ? product.brand.brand_name === brand : true;
       const matchesPrice = product.types.some(t => {
-        const price = parseFloat(t?.type_of_sale === 'Normal' ? t.price : t.price_flash);
+        const isFlashActive = t?.type_of_sale === 'Flash' && t?.quantity_flash > 0;
+        const price = parseFloat(isFlashActive ? t.price_flash : t.price);
         return (minPrice ? price >= minPrice : true) && (maxPrice ? price <= maxPrice : true);
       });
       return matchesSearch && matchesGender && matchesBrand && matchesPrice;

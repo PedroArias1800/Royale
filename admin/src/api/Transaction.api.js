@@ -19,4 +19,4 @@ export const deleteManualTransactionRequest = async (id) =>
     await axios.delete(`/api/transactions/${id}`)
 
 export const getProcessedTransactionsRequest = async (start, end) =>
-    await axios.get(`/api/transactions/processed?start=${start}T00:00:00&end=${end}T23:59:59`)
+    await axios.get(`/api/transactions/processed?start=${start}T00:00:00-05:00&end=${end}T23:59:59-05:00`)

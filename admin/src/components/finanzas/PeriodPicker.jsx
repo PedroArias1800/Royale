@@ -1,11 +1,13 @@
 import { useState } from 'react';
 
 const PRESETS = [
-    { label: 'Hoy', key: 'today' },
-    { label: 'Semana', key: 'week' },
-    { label: 'Mes', key: 'month' },
-    { label: 'Año', key: 'year' },
-    { label: 'Personalizado', key: 'custom' },
+    { label: 'Hoy',       key: 'today'       },
+    { label: 'Semana',    key: 'week'         },
+    { label: 'Mes',       key: 'month'        },
+    { label: '4 Semanas', key: 'four_weeks'   },
+    { label: '4 Meses',   key: 'four_months'  },
+    { label: 'Año',       key: 'year'         },
+    { label: 'Personalizado', key: 'custom'   },
 ];
 
 function toLocalISO(date) {
@@ -17,18 +19,30 @@ function toLocalISO(date) {
 function getRangeForPreset(key) {
     const now = new Date();
     const today = toLocalISO(now);
+    const dow = now.getDay(); // 0=Dom … 6=Sáb
+
     if (key === 'today') {
         return { start: today, end: today };
     }
     if (key === 'week') {
-        const day = now.getDay();
         const monday = new Date(now);
-        monday.setDate(now.getDate() - ((day + 6) % 7));
+        monday.setDate(now.getDate() - ((dow + 6) % 7));
         return { start: toLocalISO(monday), end: today };
     }
     if (key === 'month') {
         const first = new Date(now.getFullYear(), now.getMonth(), 1);
         return { start: toLocalISO(first), end: today };
+    }
+    if (key === 'four_weeks') {
+        // Lunes de hace 3 semanas → hoy, agrupado por semana ISO
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - ((dow + 6) % 7) - 21);
+        return { start: toLocalISO(monday), end: today, granularity: 'week' };
+    }
+    if (key === 'four_months') {
+        // Día 1 de hace 3 meses → hoy, agrupado por mes
+        const first = new Date(now.getFullYear(), now.getMonth() - 3, 1);
+        return { start: toLocalISO(first), end: today, granularity: 'month' };
     }
     if (key === 'year') {
         const first = new Date(now.getFullYear(), 0, 1);

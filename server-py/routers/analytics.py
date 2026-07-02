@@ -66,46 +66,50 @@ def get_summary(
             "$group": {
                 "_id": None,
                 "total_ingresos": {"$sum": "$total"},
-                "count_ventas": {
-                    "$sum": {"$cond": [{"$ne": [{"$ifNull": ["$is_manual", False]}, True]}, 1, 0]}
-                },
+                "count_ventas":   {"$sum": 1},
                 "ingresos_ventas": {
                     "$sum": {"$cond": [{"$ne": [{"$ifNull": ["$is_manual", False]}, True]}, "$total", 0]}
                 },
                 "ingresos_manuales": {
                     "$sum": {"$cond": [{"$eq": ["$is_manual", True]}, "$total", 0]}
                 },
-                "all_productsTypes": {"$push": "$productsTypes"},
-                "all_quantities": {"$push": "$quantities"},
             }
         },
     ]
     income_result = list(db.transactions.aggregate(income_pipe))
-    total_ingresos = income_result[0]["total_ingresos"] if income_result else 0.0
-    count_ventas = income_result[0]["count_ventas"] if income_result else 0
-    ingresos_ventas = income_result[0]["ingresos_ventas"] if income_result else 0.0
+    total_ingresos    = income_result[0]["total_ingresos"]    if income_result else 0.0
+    count_ventas      = income_result[0]["count_ventas"]      if income_result else 0
+    ingresos_ventas   = income_result[0]["ingresos_ventas"]   if income_result else 0.0
     ingresos_manuales = income_result[0]["ingresos_manuales"] if income_result else 0.0
 
-    # --- COGS: costo de productos vendidos ---
+    # --- COGS: usa products_cost/operational_cost almacenados; fallback a cost de tipos ---
+    income_txs = list(db.transactions.find(
+        _income_match(start_dt, end_dt),
+        {"products_cost": 1, "operational_cost": 1, "productsTypes": 1, "quantities": 1},
+    ))
     cogs = 0.0
-    if income_result:
-        flat_types, flat_qtys = [], []
-        for pt_list, qty_list in zip(income_result[0]["all_productsTypes"], income_result[0]["all_quantities"]):
-            for pt, qty in zip(pt_list or [], qty_list or []):
+    needs_type_lookup = []
+    for tx in income_txs:
+        if tx.get("products_cost") is not None:
+            cogs += tx["products_cost"]
+        else:
+            for pt, qty in zip(tx.get("productsTypes", []), tx.get("quantities", [])):
                 try:
-                    flat_types.append(ObjectId(pt))
-                    flat_qtys.append(qty)
+                    needs_type_lookup.append((ObjectId(pt), int(qty or 1)))
                 except Exception:
                     pass
-        if flat_types:
-            types_cost = {
-                str(t["_id"]): t.get("cost", 0)
-                for t in db.types.find({"_id": {"$in": flat_types}}, {"cost": 1})
-            }
-            for oid, qty in zip(flat_types, flat_qtys):
-                cogs += types_cost.get(str(oid), 0) * qty
+        if tx.get("operational_cost"):
+            cogs += tx["operational_cost"]
+    if needs_type_lookup:
+        type_ids = list({str(oid): oid for oid, _ in needs_type_lookup}.values())
+        types_cost = {
+            str(t["_id"]): t.get("cost", 0)
+            for t in db.types.find({"_id": {"$in": type_ids}}, {"cost": 1})
+        }
+        for oid, qty in needs_type_lookup:
+            cogs += types_cost.get(str(oid), 0) * qty
 
-    # --- Salidas manuales ---
+    # --- Salidas manuales (tipo "salida") ---
     expense_pipe = [
         {"$match": _expense_match(start_dt, end_dt)},
         {"$group": {"_id": None, "total_salidas": {"$sum": "$total"}}},
@@ -115,7 +119,8 @@ def get_summary(
 
     total_salidas = cogs + total_salidas_manuales
     balance = total_ingresos - total_salidas
-    margen_bruto = round((ingresos_ventas - cogs) / ingresos_ventas * 100, 2) if ingresos_ventas > 0 else 0.0
+    base = total_ingresos if total_ingresos > 0 else ingresos_ventas
+    margen_bruto = round((base - cogs) / base * 100, 2) if base > 0 else 0.0
 
     return {
         "ingresos": round(total_ingresos, 2),
@@ -154,6 +159,7 @@ def get_trends(
     ]
     income_by_period = {r["_id"]: r["ingresos"] for r in db.transactions.aggregate(income_pipe)}
 
+    # Salidas manuales (fin_type=salida)
     expense_pipe = [
         {"$match": _expense_match(start_dt, end_dt)},
         {
@@ -165,12 +171,37 @@ def get_trends(
     ]
     expense_by_period = {r["_id"]: r["salidas"] for r in db.transactions.aggregate(expense_pipe)}
 
-    all_periods = sorted(set(list(income_by_period) + list(expense_by_period)))
+    # COGS de ingresos (products_cost + operational_cost) por período
+    cogs_pipe = [
+        {"$match": _income_match(start_dt, end_dt)},
+        {
+            "$group": {
+                "_id": {"$dateToString": {"format": fmt, "date": "$createdAt"}},
+                "cogs": {
+                    "$sum": {
+                        "$add": [
+                            {"$ifNull": ["$products_cost", 0]},
+                            {"$ifNull": ["$operational_cost", 0]},
+                        ]
+                    }
+                },
+            }
+        },
+    ]
+    cogs_by_period = {r["_id"]: r["cogs"] for r in db.transactions.aggregate(cogs_pipe)}
+
+    all_periods = sorted(set(list(income_by_period) + list(expense_by_period) + list(cogs_by_period)))
     return [
         {
             "period": p,
             "ingresos": round(income_by_period.get(p, 0), 2),
-            "salidas": round(expense_by_period.get(p, 0), 2),
+            "salidas": round(expense_by_period.get(p, 0) + cogs_by_period.get(p, 0), 2),
+            "balance": round(
+                income_by_period.get(p, 0)
+                - expense_by_period.get(p, 0)
+                - cogs_by_period.get(p, 0),
+                2,
+            ),
         }
         for p in all_periods
     ]
@@ -228,7 +259,7 @@ def get_breakdown(
 
     elif by == "seller":
         pipe = [
-            {"$match": {**_income_match(start_dt, end_dt), "is_manual": {"$ne": True}}},
+            {"$match": {**_income_match(start_dt, end_dt), "seller_id_fk": {"$exists": True, "$ne": None}}},
             {"$group": {"_id": "$seller_id_fk", "total": {"$sum": "$total"}, "count": {"$sum": 1}}},
             {"$sort": {"total": -1}},
         ]
@@ -243,4 +274,43 @@ def get_breakdown(
                 name = "Sitio Web"
             result.append({"name": name, "value": round(r["total"], 2), "count": r["count"]})
 
+    return result
+
+
+@router.get("/api/analytics/top-products")
+def get_top_products(
+    start: Optional[str] = Query(None),
+    end: Optional[str] = Query(None),
+    limit: int = Query(10),
+    db=Depends(get_db),
+    _=Depends(verify_token),
+):
+    start_dt, end_dt = _parse_range(start, end)
+    pipe = [
+        {"$match": _income_match(start_dt, end_dt)},
+        {"$project": {
+            "pairs": {"$zip": {"inputs": [
+                {"$ifNull": ["$products", []]},
+                {"$ifNull": ["$quantities", []]},
+            ]}}
+        }},
+        {"$unwind": "$pairs"},
+        {"$project": {
+            "product_str": {"$arrayElemAt": ["$pairs", 0]},
+            "qty": {"$toInt": {"$ifNull": [{"$arrayElemAt": ["$pairs", 1]}, 1]}},
+        }},
+        {"$group": {
+            "_id": "$product_str",
+            "units": {"$sum": "$qty"},
+            "orders": {"$sum": 1},
+        }},
+        {"$sort": {"units": -1}},
+        {"$limit": limit},
+    ]
+    result = []
+    for r in db.transactions.aggregate(pipe):
+        product_str = r["_id"] or ""
+        parts = product_str.split("=", 1)
+        name = parts[1] if len(parts) > 1 else (parts[0] or "Desconocido")
+        result.append({"name": name, "units": r["units"], "orders": r["orders"]})
     return result
