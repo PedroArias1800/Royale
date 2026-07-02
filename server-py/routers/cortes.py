@@ -49,7 +49,7 @@ def _parse_dt(s: str) -> datetime:
 def _seller_tx_match(start_dt: datetime, end_dt: datetime) -> dict:
     """Transacciones de ingreso procesadas con vendedor asignado, dentro del período."""
     return {
-        "updatedAt": {"$gte": start_dt, "$lte": end_dt},
+        "createdAt": {"$gte": start_dt, "$lte": end_dt},
         "status": 2,
         "omitted": {"$ne": True},
         "seller_id_fk": {"$exists": True, "$ne": None},

@@ -545,7 +545,9 @@ export const Cortes = () => {
             {/* Header */}
             <div className="cortes-header">
                 <div className="cortes-header-left">
-                    <Link to="/admin" className="btn-volver">← Volver</Link>
+                    <div className="volverAnadir">
+                        <Link to="/admin" className="btn-volver">← Volver</Link>
+                    </div>
                     <h1 className="cortes-title">
                         {isAdmin ? 'Días de Corte' : 'Mis Ganancias'}
                     </h1>
