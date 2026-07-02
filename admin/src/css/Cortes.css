@@ -37,8 +37,40 @@
 
 .cortes-header-actions {
     display: flex;
+    align-items: center;
     gap: 10px;
     flex-wrap: wrap;
+}
+
+/* ── Tabs de vista (admin) ── */
+.cortes-view-tabs {
+    display: flex;
+    border: 1px solid rgba(253,208,94,0.2);
+    border-radius: 7px;
+    overflow: hidden;
+}
+.cortes-tab-btn {
+    padding: 7px 16px;
+    background: transparent;
+    border: none;
+    color: rgba(237,232,235,0.5);
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    white-space: nowrap;
+}
+.cortes-tab-btn + .cortes-tab-btn {
+    border-left: 1px solid rgba(253,208,94,0.2);
+}
+.cortes-tab-btn.active {
+    background: rgba(253,208,94,0.12);
+    color: #fdd05e;
+    font-weight: 600;
+}
+.cortes-tab-btn:hover:not(.active) {
+    background: rgba(237,232,235,0.05);
+    color: rgba(237,232,235,0.8);
 }
 
 /* ── Botones globales de cortes ── */

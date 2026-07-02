@@ -483,16 +483,20 @@ export const Cortes = () => {
     const [cortes, setCortes]           = useState([]);
     const [loading, setLoading]         = useState(true);
     const [showNewCorte, setShowNew]    = useState(false);
+    const [viewMode, setViewMode]       = useState('gestion'); // 'gestion' | 'personal'
+    const [sellerSummary, setSellerSummary] = useState(null);
 
     const loadAll = useCallback(async () => {
         setLoading(true);
         try {
-            const [cortesRes, configRes] = await Promise.all([
+            const [cortesRes, configRes, summaryRes] = await Promise.all([
                 getCortesRequest(),
                 getCortesConfigRequest(),
+                getSellerSummaryRequest(),
             ]);
             setCortes(cortesRes.data || []);
             setConfig(configRes.data);
+            setSellerSummary(summaryRes.data);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     }, []);
@@ -538,6 +542,11 @@ export const Cortes = () => {
         } catch (e) { alert(e?.response?.data?.detail || 'Error'); }
     };
 
+    // Cortes donde el admin aparece como vendedor (filtrado por su ID)
+    const myCortes = cortes
+        .map(c => ({ ...c, sellers: c.sellers.filter(s => s.seller_id === user?.id) }))
+        .filter(c => c.sellers.length > 0);
+
     if (!user) return <div className="cortes-loading">Cargando...</div>;
 
     return (
@@ -554,12 +563,28 @@ export const Cortes = () => {
                 </div>
                 {isAdmin && (
                     <div className="cortes-header-actions">
-                        <button
-                            className="btn-corte-primary"
-                            onClick={() => setShowNew(v => !v)}
-                        >
-                            {showNewCorte ? '✕ Cancelar' : '+ Nuevo Corte'}
-                        </button>
+                        <div className="cortes-view-tabs">
+                            <button
+                                className={`cortes-tab-btn${viewMode === 'gestion' ? ' active' : ''}`}
+                                onClick={() => { setViewMode('gestion'); setShowNew(false); }}
+                            >
+                                Gestión
+                            </button>
+                            <button
+                                className={`cortes-tab-btn${viewMode === 'personal' ? ' active' : ''}`}
+                                onClick={() => { setViewMode('personal'); setShowNew(false); }}
+                            >
+                                Mis Ganancias
+                            </button>
+                        </div>
+                        {viewMode === 'gestion' && (
+                            <button
+                                className="btn-corte-primary"
+                                onClick={() => setShowNew(v => !v)}
+                            >
+                                {showNewCorte ? '✕ Cancelar' : '+ Nuevo Corte'}
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
@@ -567,8 +592,8 @@ export const Cortes = () => {
             {/* Vista vendedor */}
             {!isAdmin && <SellerView user={user} />}
 
-            {/* Vista admin */}
-            {isAdmin && (
+            {/* Vista admin — Gestión */}
+            {isAdmin && viewMode === 'gestion' && (
                 <>
                     <ConfigPanel config={config} onSave={handleSaveConfig} />
 
@@ -596,6 +621,51 @@ export const Cortes = () => {
                                     isAdmin={true}
                                     onDelete={handleDelete}
                                     onTogglePaid={handleTogglePaid}
+                                />
+                            ))
+                        )}
+                    </div>
+                </>
+            )}
+
+            {/* Vista admin — Mis Ganancias */}
+            {isAdmin && viewMode === 'personal' && (
+                <>
+                    {sellerSummary && (
+                        <div className="corte-seller-summary-card">
+                            <div className="corte-summary-kpi">
+                                <span className="kpi-label">Total Ganado</span>
+                                <span className="kpi-value">{fmtMoney(sellerSummary.total_earned)}</span>
+                            </div>
+                            <div className="corte-summary-kpi">
+                                <span className="kpi-label">Cobrado</span>
+                                <span className="kpi-value paid">{fmtMoney(sellerSummary.total_paid)}</span>
+                            </div>
+                            <div className="corte-summary-kpi">
+                                <span className="kpi-label">Por Cobrar</span>
+                                <span className="kpi-value pending">{fmtMoney(sellerSummary.total_pending)}</span>
+                            </div>
+                            <div className="corte-summary-kpi">
+                                <span className="kpi-label">Cortes</span>
+                                <span className="kpi-value" style={{ color: '#a78bfa' }}>{sellerSummary.corte_count}</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="cortes-history">
+                        <p className="cortes-history-title">Mi historial de cortes</p>
+                        {loading ? (
+                            <div className="cortes-loading">Cargando...</div>
+                        ) : !myCortes.length ? (
+                            <div className="cortes-empty">No apareces como vendedor en ningún corte.</div>
+                        ) : (
+                            myCortes.map(c => (
+                                <CorteCard
+                                    key={c._id}
+                                    corte={c}
+                                    isAdmin={false}
+                                    onDelete={() => {}}
+                                    onTogglePaid={() => {}}
                                 />
                             ))
                         )}
