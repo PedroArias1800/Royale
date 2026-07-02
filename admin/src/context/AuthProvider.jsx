@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { postLoginRequest, postRegisterRequest, postLogOutRequest, verifyTokenRequest } from '../api/Login';
-import { getParfumsRequest, postGetTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getPromotionsRequest, getCouponsRequest, getCountTransactionsByUserThisMonth } from '../api/Admin.api.js'
-import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest, postFilteredCouponsRequest, postFilteredPromotionsRequest } from '../api/Filter.api.js'
+import { getParfumsRequest, postGetTypesRequest, getBodiesRequest, getBrandsRequest, getVersionsRequest, getUsersRequest, getPromotionsRequest, getCouponsRequest, getCountTransactionsByUserThisMonth, getProvidersRequest } from '../api/Admin.api.js'
+import { postFilteredParfumsRequest, postFilteredTypesRequest, postFilteredBodiesRequest, postFilteredBrandsRequest, postFilteredVersionsRequest, postFilteredUsersRequest, postFilteredTransactionsRequest, postFilteredCouponsRequest, postFilteredPromotionsRequest, postFilteredProvidersRequest } from '../api/Filter.api.js'
 import { getAllTransactionsRequest } from "../api/Transaction.api.js";
 
 import { ModalFormParfum } from "../components/ModalFormParfum";
@@ -17,7 +17,8 @@ import { useNavigate } from "react-router-dom";
 
 
 // import { io } from 'socket.io-client';
-import { ModalFormCoupon } from "../components/ModalFormCoupon.jsx";
+import { ModalFormCoupon } from "../components/ModalFormCoupon.jsx"
+import { ModalFormProvider } from "../components/ModalFormProvider.jsx";
 const URLServer = import.meta.env.VITE_SERVER_URL || 'http://localhost:4001'
 const URLFrontend = import.meta.env.VITE_FRONTEND_URL || 'http://localhost:4173'
 const URLAdmin = import.meta.env.VITE_ADMIN_URL || 'http://localhost:4174'
@@ -182,6 +183,10 @@ export const AuthProvider = ({ children }) => {
             setModalContent(<ModalFormCoupon modalData={modalData} />);
             setModalVisible(true);
         }
+        else if (modalData && idNumber === 10) {
+            setModalContent(<ModalFormProvider modalData={modalData} />);
+            setModalVisible(true);
+        }
     }, [modalData, idNumber]);
 
     const closeModal = () => {
@@ -226,6 +231,10 @@ export const AuthProvider = ({ children }) => {
         }
         else if (id == 9){
             response = await getCouponsRequest(page);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 10){
+            response = await getProvidersRequest(page);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         setPagination(response.data?.pagination ?? {})
@@ -279,6 +288,10 @@ export const AuthProvider = ({ children }) => {
         }
         else if (id == 9){
             response = await postFilteredCouponsRequest(page, filter);
+            setResponse(Array.isArray(response.data.data) ? response.data.data : []);
+        }
+        else if (id == 10){
+            response = await postFilteredProvidersRequest(page, filter);
             setResponse(Array.isArray(response.data.data) ? response.data.data : []);
         }
         setPagination(response.data?.pagination ?? {})

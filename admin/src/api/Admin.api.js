@@ -67,5 +67,11 @@ export const getCountTransactionsByUserThisMonth = async (id) =>
 export const getUsersByRoleSeller = async () =>
     await axios.get(`/api/users/sellers`)
 
-export const getTypeByParfumId = async (parfumId) => 
+export const getTypeByParfumId = async (parfumId) =>
     await axios.get(`/api/type/parfum/${parfumId}`)
+
+export const getProvidersRequest = async (page = 1) =>
+    await axios.get(`/api/providers?page=${page}`)
+
+export const getAllProvidersRequest = async () =>
+    await axios.get(`/api/providers/all`)

@@ -41,8 +41,8 @@ export const columnMappings = {
     code: 'Código',
     percentage: 'Porcentaje',
     seller: 'Vendedor',
-    productsThatApply: 'Productos que Aplican'
-    // Agrega más columnas si es necesario
+    productsThatApply: 'Productos que Aplican',
+    provider_id_fk: 'Proveedor'
   };
 
   export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk"];

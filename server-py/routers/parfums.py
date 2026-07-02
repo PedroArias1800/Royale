@@ -18,6 +18,7 @@ class ParfumBody(BaseModel):
     status: int
     version_id_fk: str
     brand_id_fk: str
+    provider_id_fk: str
 
 
 class FilterBody(BaseModel):
@@ -32,6 +33,9 @@ def _with_refs(doc: dict, db) -> dict:
     if s and doc.get("brand_id_fk"):
         b = db.brands.find_one({"_id": doc["brand_id_fk"]}, {"brand_name": 1})
         s["brand_id_fk"] = {"_id": str(b["_id"]), "brand_name": b["brand_name"]} if b else None
+    if s and doc.get("provider_id_fk"):
+        p = db.providers.find_one({"_id": doc["provider_id_fk"]}, {"provider_name": 1})
+        s["provider_id_fk"] = {"_id": str(p["_id"]), "provider_name": p["provider_name"]} if p else None
     return s
 
 
@@ -109,6 +113,7 @@ def create_parfum(body: ParfumBody, _: dict = Depends(verify_token)):
         "status": body.status,
         "version_id_fk": ObjectId(body.version_id_fk),
         "brand_id_fk": ObjectId(body.brand_id_fk),
+        "provider_id_fk": ObjectId(body.provider_id_fk),
         "createdAt": now,
         "updatedAt": now,
     }
@@ -130,6 +135,7 @@ def update_parfum(id: str, body: ParfumBody, _: dict = Depends(verify_token)):
             "status": body.status,
             "version_id_fk": ObjectId(body.version_id_fk),
             "brand_id_fk": ObjectId(body.brand_id_fk),
+            "provider_id_fk": ObjectId(body.provider_id_fk),
             "updatedAt": datetime.now(timezone.utc),
         }
     }

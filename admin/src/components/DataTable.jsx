@@ -68,6 +68,8 @@ export const DataTable = ({ data, idCategory }) => {
                   ? productsThatApply[row[header]] || "N/A"
                   : header === "brand_id_fk"
                   ? row[header]?.brand_name || "N/A"
+                  : header === "provider_id_fk"
+                  ? row[header]?.provider_name || "N/A"
                   : header === "createdAt"
                   ? `${(row[header]).split('T')[0]} a las ${(row[header]).split('T')[1].split('.')[0]}`
                   : header === "parfum_id_fk"

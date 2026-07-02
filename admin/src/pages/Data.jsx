@@ -55,8 +55,11 @@ export const Data = () => {
             else if (id == 9){
                 setConsulta('Cupones')
             }
+            else if (id == 10){
+                setConsulta('Proveedores')
+            }
 
-    
+
             await cargarDataTables(id, page);
         }
         loadData()

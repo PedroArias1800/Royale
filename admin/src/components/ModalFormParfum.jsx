@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getAllVersionsRequest, getAllBrandsRequest } from '../api/Admin.api';
+import { getAllVersionsRequest, getAllBrandsRequest, getAllProvidersRequest } from '../api/Admin.api';
 import { postParfumsRequest, putParfumsRequest, deleteParfumsRequest } from '../api/Parfum.api';
 import { useAuth } from '../context/AuthProvider';
 import { ConfirmDeleteButton } from './ConfirmDeleteButton';
@@ -8,6 +8,7 @@ export const ModalFormParfum = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, pagination } = useAuth();
     const [versions, setVersions] = useState([]);
     const [brands, setBrands] = useState([]);
+    const [providers, setProviders] = useState([]);
     const isUpdate = Boolean(modalData?._id);
 
     useEffect(() => {
@@ -19,8 +20,13 @@ export const ModalFormParfum = ({ modalData }) => {
             const response = await getAllVersionsRequest();
             setVersions(Array.isArray(response.data) ? response.data : []);
         }
+        async function loadProviders() {
+            const response = await getAllProvidersRequest();
+            setProviders(Array.isArray(response.data) ? response.data : []);
+        }
         loadBrands();
         loadVersions();
+        loadProviders();
     }, []);
 
     useEffect(() => {
@@ -45,12 +51,13 @@ export const ModalFormParfum = ({ modalData }) => {
             e.preventDefault();
 
             const payload = {
-                title:          modalData.title,
-                description:    modalData.description,
-                gender:         parseInt(modalData.gender, 10),
-                status:         parseInt(modalData.status, 10),
-                version_id_fk:  modalData.version_id_fk?._id ?? modalData.version_id_fk,
-                brand_id_fk:    modalData.brand_id_fk?._id   ?? modalData.brand_id_fk,
+                title:           modalData.title,
+                description:     modalData.description,
+                gender:          parseInt(modalData.gender, 10),
+                status:          parseInt(modalData.status, 10),
+                version_id_fk:   modalData.version_id_fk?._id   ?? modalData.version_id_fk,
+                brand_id_fk:     modalData.brand_id_fk?._id     ?? modalData.brand_id_fk,
+                provider_id_fk:  modalData.provider_id_fk?._id  ?? modalData.provider_id_fk,
             };
 
             try {
@@ -156,6 +163,19 @@ export const ModalFormParfum = ({ modalData }) => {
                         {versions.map((version) => (
                             <option key={version._id} value={version._id}>
                                 {version.version_name}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            </div>
+            <div className="form-group3">
+                <label htmlFor="provider_id_fk">
+                    <p>Proveedor</p>
+                    <select name="provider_id_fk" id="provider_id_fk" value={modalData?.provider_id_fk?._id !== undefined ? modalData?.provider_id_fk?._id : modalData?.provider_id_fk !== undefined ? modalData?.provider_id_fk : ''} onChange={handleInputChange} required={true}>
+                        <option value="" disabled>Selecciona un proveedor</option>
+                        {providers.map((provider) => (
+                            <option key={provider._id} value={provider._id}>
+                                {provider.provider_name}
                             </option>
                         ))}
                     </select>
