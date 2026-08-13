@@ -69,5 +69,5 @@ export const columnMappings = {
     seller_id_fk: 'Vendedor',
   };
 
-  export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "corte_id", "seller_id", "active", "category", "delivery_assigned_to", "delivered_by", "delivery_note", "delivered_at", "products_prices", "quantities", "productsTypes"];
-  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "corte_id", "seller_id", "active", "category"];
+  export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "operational_costs", "corte_id", "seller_id", "active", "category", "delivery_assigned_to", "delivered_by", "delivery_note", "delivered_at", "products_prices", "quantities", "productsTypes"];
+  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "operational_costs", "corte_id", "seller_id", "active", "category"];
