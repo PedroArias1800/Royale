@@ -619,8 +619,79 @@
     padding: 8px 0;
 }
 
+/* ── Fila de dos configs ── */
+.corte-configs-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+/* ── Breakdown pills (tabla unificada) ── */
+.corte-breakdown-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+}
+
+.corte-breakdown-pill {
+    font-size: 0.78rem;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid currentColor;
+    opacity: 0.85;
+    white-space: nowrap;
+}
+
+/* ── Fila expandible de detalle ── */
+.corte-user-detail {
+    padding: 10px 14px 12px;
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.corte-detail-section {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: rgba(237,232,235,0.55);
+}
+
+.detail-section-label {
+    font-weight: 700;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+}
+
+.detail-section-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: baseline;
+}
+
+.detail-sep {
+    color: rgba(237,232,235,0.2);
+}
+
+@media (max-width: 768px) {
+    .corte-configs-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 640px) {
     .cortes-page { padding: 16px 14px; }
     .corte-item-stats { gap: 12px; }
     .corte-seller-nums { gap: 8px; }
+    .corte-configs-row { grid-template-columns: 1fr; }
 }

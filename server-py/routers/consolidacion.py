@@ -247,10 +247,11 @@ def update_delivery_status(tx_id: str, body: DeliveryStatusBody, token: dict = D
                 day_end   = now.replace(hour=23, minute=59, second=59, microsecond=999999)
 
                 # Transacciones del mismo repartidor ya entregadas hoy (excluye la actual)
+                # El campo puede estar guardado como string u ObjectId — consultamos ambas formas
                 delivered_today = list(db.transactions.find(
                     {
                         "_id":                 {"$ne": oid},
-                        "delivery_assigned_to": assigned_oid,
+                        "delivery_assigned_to": {"$in": [assigned_oid, assigned_str]},
                         "delivery_status":     "delivered",
                         "delivered_at":        {"$gte": day_start, "$lte": day_end},
                     },

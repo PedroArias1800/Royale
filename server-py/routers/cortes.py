@@ -126,72 +126,142 @@ def _tx_utility(tx: dict, cost_cache: dict, db) -> tuple[float, float]:
     return round(total - cogs, 4), round(cogs, 4)
 
 
-def _build_preview(start_dt: datetime, end_dt: datetime, db, config: dict) -> list:
-    """Calcula el breakdown por vendedor sin persistir."""
+def _build_unified_preview(start_dt: datetime, end_dt: datetime, db, config: dict) -> list:
+    """Calcula el breakdown unificado por usuario: ventas + delivery + reembolsos de op-costs."""
+    income_match = {
+        "createdAt": {"$gte": start_dt, "$lte": end_dt},
+        "status": 2,
+        "omitted": {"$ne": True},
+        "$or": [
+            {"fin_type": {"$exists": False}},
+            {"fin_type": None},
+            {"fin_type": "ingreso"},
+        ],
+    }
     txs = list(db.transactions.find(
-        _seller_tx_match(start_dt, end_dt),
-        {"seller_id_fk": 1, "total": 1, "products_cost": 1, "operational_cost": 1,
-         "operational_costs": 1, "productsTypes": 1, "quantities": 1},
+        income_match,
+        {"seller_id_fk": 1, "total": 1, "products_cost": 1,
+         "operational_cost": 1, "operational_costs": 1,
+         "productsTypes": 1, "quantities": 1},
     ))
 
     cost_cache: dict = {}
-    sellers_map: dict = {}
+    users_map: dict  = {}
 
-    for tx in txs:
-        sid = str(tx["seller_id_fk"])
-        utility, cogs = _tx_utility(tx, cost_cache, db)
-        total = float(tx.get("total") or 0)
-
-        if sid not in sellers_map:
-            sellers_map[sid] = {"total_ingresos": 0.0, "total_cogs": 0.0,
-                                "utilidad": 0.0, "tx_count": 0}
-        sellers_map[sid]["total_ingresos"] += total
-        sellers_map[sid]["total_cogs"] += cogs
-        sellers_map[sid]["utilidad"] += utility
-        sellers_map[sid]["tx_count"] += 1
+    def ensure_user(uid_str: str):
+        if uid_str not in users_map:
+            users_map[uid_str] = {
+                "total_ingresos": 0.0,
+                "total_cogs":     0.0,
+                "utilidad":       0.0,
+                "tx_count":       0,
+                "delivery_pay":   0.0,
+                "op_reimbursements": {},   # {type_key: {"label": str, "amount": float}}
+            }
 
     royale_pct = config["royale_pct"]
     seller_pct = config["seller_pct"]
-    result = []
 
-    for sid, data in sellers_map.items():
+    for tx in txs:
+        # Contribución del vendedor
+        if tx.get("seller_id_fk"):
+            try:
+                sid = str(tx["seller_id_fk"])
+                ensure_user(sid)
+                utility, cogs = _tx_utility(tx, cost_cache, db)
+                total = float(tx.get("total") or 0)
+                users_map[sid]["total_ingresos"] += total
+                users_map[sid]["total_cogs"]     += cogs
+                users_map[sid]["utilidad"]       += utility
+                users_map[sid]["tx_count"]       += 1
+            except Exception:
+                pass
+
+        # Reembolsos de op-costs a usuarios internos
+        for item in (tx.get("operational_costs") or []):
+            resp_id = item.get("responsible_id")
+            if not resp_id:
+                continue  # Servicio externo (Yappy, etc.)
+            try:
+                resp_str   = str(resp_id)
+                ensure_user(resp_str)
+                amount     = float(item.get("amount") or 0)
+                type_key   = item.get("type_key", "other")
+                type_label = item.get("type_label", type_key)
+
+                if type_key == "delivery":
+                    users_map[resp_str]["delivery_pay"] += amount
+                else:
+                    if type_key not in users_map[resp_str]["op_reimbursements"]:
+                        users_map[resp_str]["op_reimbursements"][type_key] = {
+                            "label": type_label, "amount": 0.0,
+                        }
+                    users_map[resp_str]["op_reimbursements"][type_key]["amount"] += amount
+            except Exception:
+                pass
+
+    result = []
+    for uid, data in users_map.items():
+        utilidad     = round(data["utilidad"], 2)
+        seller_cut   = round(utilidad * seller_pct / 100, 2)
+        royale_cut   = round(utilidad * royale_pct / 100, 2)
+        delivery_pay = round(data["delivery_pay"], 2)
+        op_reimb     = {
+            k: {"label": v["label"], "amount": round(v["amount"], 2)}
+            for k, v in data["op_reimbursements"].items()
+        }
+        op_reimb_total = round(sum(v["amount"] for v in op_reimb.values()), 2)
+        total_pay    = round(seller_cut + delivery_pay + op_reimb_total, 2)
+
         try:
-            u = db.users.find_one({"_id": ObjectId(sid)}, {"firstname": 1, "lastname": 1})
+            u    = db.users.find_one({"_id": ObjectId(uid)}, {"firstname": 1, "lastname": 1})
             name = f"{u['firstname']} {u['lastname']}" if u else "Desconocido"
         except Exception:
             name = "Desconocido"
 
-        utilidad = round(data["utilidad"], 2)
         result.append({
-            "seller_id":      sid,
-            "seller_name":    name,
-            "total_ingresos": round(data["total_ingresos"], 2),
-            "total_cogs":     round(data["total_cogs"], 2),
-            "utilidad":       utilidad,
-            "seller_cut":     round(utilidad * seller_pct / 100, 2),
-            "royale_cut":     round(utilidad * royale_pct / 100, 2),
-            "tx_count":       data["tx_count"],
+            "seller_id":               uid,
+            "seller_name":             name,
+            "total_ingresos":          round(data["total_ingresos"], 2),
+            "total_cogs":              round(data["total_cogs"], 2),
+            "utilidad":                utilidad,
+            "tx_count":                data["tx_count"],
+            "seller_cut":              seller_cut,
+            "royale_cut":              royale_cut,
+            "delivery_pay":            delivery_pay,
+            "op_reimbursements":       op_reimb,
+            "op_reimbursements_total": op_reimb_total,
+            "total_pay":               total_pay,
         })
 
-    return sorted(result, key=lambda x: x["utilidad"], reverse=True)
+    return sorted(result, key=lambda x: x["total_pay"], reverse=True)
 
 
 def _serialize_corte(doc: dict) -> dict:
     sellers = []
     for s in doc.get("sellers", []):
+        op_reimb       = s.get("op_reimbursements", {})
+        op_reimb_total = round(sum(v.get("amount", 0) for v in op_reimb.values()), 2)
+        # total_pay: nuevo campo; fallback a seller_cut para cortes históricos
+        total_pay      = s.get("total_pay", s.get("seller_cut", 0))
         sellers.append({
-            "seller_id":      str(s.get("seller_id", "")),
-            "seller_name":    s.get("seller_name", ""),
-            "total_ingresos": s.get("total_ingresos", 0),
-            "total_cogs":     s.get("total_cogs", 0),
-            "utilidad":       s.get("utilidad", 0),
-            "seller_cut":     s.get("seller_cut", 0),
-            "royale_cut":     s.get("royale_cut", 0),
-            "tx_count":       s.get("tx_count", 0),
-            "paid":           s.get("paid", False),
-            "paid_at":        s["paid_at"].isoformat() if s.get("paid_at") else None,
-            "transaction_id": str(s["transaction_id"]) if s.get("transaction_id") else None,
+            "seller_id":               str(s.get("seller_id", "")),
+            "seller_name":             s.get("seller_name", ""),
+            "total_ingresos":          s.get("total_ingresos", 0),
+            "total_cogs":              s.get("total_cogs", 0),
+            "utilidad":                s.get("utilidad", 0),
+            "seller_cut":              s.get("seller_cut", 0),
+            "royale_cut":              s.get("royale_cut", 0),
+            "tx_count":                s.get("tx_count", 0),
+            "delivery_pay":            s.get("delivery_pay", 0),
+            "op_reimbursements":       op_reimb,
+            "op_reimbursements_total": op_reimb_total,
+            "total_pay":               total_pay,
+            "paid":                    s.get("paid", False),
+            "paid_at":                 s["paid_at"].isoformat() if s.get("paid_at") else None,
+            "transaction_id":          str(s["transaction_id"]) if s.get("transaction_id") else None,
         })
+    total_pay_sum = round(sum(s["total_pay"] for s in sellers), 2)
     return {
         "_id":               str(doc["_id"]),
         "label":             doc.get("label", ""),
@@ -204,7 +274,9 @@ def _serialize_corte(doc: dict) -> dict:
         "total_cogs":        doc.get("total_cogs", 0),
         "total_utilidad":    doc.get("total_utilidad", 0),
         "total_seller_cuts": doc.get("total_seller_cuts", 0),
+        "total_delivery_pay": doc.get("total_delivery_pay", 0),
         "total_royale_cuts": doc.get("total_royale_cuts", 0),
+        "total_pay":         total_pay_sum,
         "createdAt":         doc["createdAt"].isoformat() if doc.get("createdAt") else None,
     }
 
@@ -382,15 +454,18 @@ def preview_corte(
     start_dt = _parse_dt(start)
     end_dt   = _parse_dt(end)
     config   = _get_config(db)
-    sellers  = _build_preview(start_dt, end_dt, db, config)
+    sellers  = _build_unified_preview(start_dt, end_dt, db, config)
     return {
-        "sellers":           sellers,
-        "total_ingresos":    round(sum(s["total_ingresos"] for s in sellers), 2),
-        "total_cogs":        round(sum(s["total_cogs"]     for s in sellers), 2),
-        "total_utilidad":    round(sum(s["utilidad"]       for s in sellers), 2),
-        "total_seller_cuts": round(sum(s["seller_cut"]     for s in sellers), 2),
-        "total_royale_cuts": round(sum(s["royale_cut"]     for s in sellers), 2),
-        "config":            config,
+        "sellers":              sellers,
+        "total_ingresos":       round(sum(s["total_ingresos"] for s in sellers), 2),
+        "total_cogs":           round(sum(s["total_cogs"]     for s in sellers), 2),
+        "total_utilidad":       round(sum(s["utilidad"]       for s in sellers), 2),
+        "total_seller_cuts":    round(sum(s["seller_cut"]     for s in sellers), 2),
+        "total_delivery_pay":   round(sum(s["delivery_pay"]   for s in sellers), 2),
+        "total_op_reimb":       round(sum(s["op_reimbursements_total"] for s in sellers), 2),
+        "total_pay":            round(sum(s["total_pay"]      for s in sellers), 2),
+        "total_royale_cuts":    round(sum(s["royale_cut"]     for s in sellers), 2),
+        "config":               config,
     }
 
 
@@ -408,46 +483,52 @@ def create_corte(body: CorteBody, db=Depends(get_db), payload: dict = Depends(ve
     start_dt = _parse_dt(body.period_start)
     end_dt   = _parse_dt(body.period_end)
     config   = _get_config(db)
-    sellers  = _build_preview(start_dt, end_dt, db, config)
+    users    = _build_unified_preview(start_dt, end_dt, db, config)
 
-    if not sellers:
+    if not users:
         raise HTTPException(status_code=400,
-                            detail="No hay transacciones de vendedores en ese período")
+                            detail="No hay actividad (ventas o gastos operacionales) en ese período")
 
     now = datetime.now(timezone.utc)
     seller_docs = [
         {
-            "seller_id":      ObjectId(s["seller_id"]),
-            "seller_name":    s["seller_name"],
-            "total_ingresos": s["total_ingresos"],
-            "total_cogs":     s["total_cogs"],
-            "utilidad":       s["utilidad"],
-            "seller_cut":     s["seller_cut"],
-            "royale_cut":     s["royale_cut"],
-            "tx_count":       s["tx_count"],
-            "paid":           False,
-            "paid_at":        None,
+            "seller_id":               ObjectId(u["seller_id"]),
+            "seller_name":             u["seller_name"],
+            "total_ingresos":          u["total_ingresos"],
+            "total_cogs":              u["total_cogs"],
+            "utilidad":                u["utilidad"],
+            "seller_cut":              u["seller_cut"],
+            "royale_cut":              u["royale_cut"],
+            "tx_count":                u["tx_count"],
+            "delivery_pay":            u["delivery_pay"],
+            "op_reimbursements":       u["op_reimbursements"],
+            "op_reimbursements_total": u["op_reimbursements_total"],
+            "total_pay":               u["total_pay"],
+            "paid":                    False,
+            "paid_at":                 None,
         }
-        for s in sellers
+        for u in users
     ]
 
     doc = {
-        "label":             body.label,
-        "period_start":      start_dt,
-        "period_end":        end_dt,
-        "royale_pct":        config["royale_pct"],
-        "seller_pct":        config["seller_pct"],
-        "sellers":           seller_docs,
-        "total_ingresos":    round(sum(s["total_ingresos"] for s in sellers), 2),
-        "total_cogs":        round(sum(s["total_cogs"]     for s in sellers), 2),
-        "total_utilidad":    round(sum(s["utilidad"]       for s in sellers), 2),
-        "total_seller_cuts": round(sum(s["seller_cut"]     for s in sellers), 2),
-        "total_royale_cuts": round(sum(s["royale_cut"]     for s in sellers), 2),
-        "createdAt":         now,
-        "createdBy":         ObjectId(payload["id"]),
+        "label":              body.label,
+        "period_start":       start_dt,
+        "period_end":         end_dt,
+        "royale_pct":         config["royale_pct"],
+        "seller_pct":         config["seller_pct"],
+        "sellers":            seller_docs,
+        "total_ingresos":     round(sum(u["total_ingresos"] for u in users), 2),
+        "total_cogs":         round(sum(u["total_cogs"]     for u in users), 2),
+        "total_utilidad":     round(sum(u["utilidad"]       for u in users), 2),
+        "total_seller_cuts":  round(sum(u["seller_cut"]     for u in users), 2),
+        "total_delivery_pay": round(sum(u["delivery_pay"]   for u in users), 2),
+        "total_royale_cuts":  round(sum(u["royale_cut"]     for u in users), 2),
+        "total_pay":          round(sum(u["total_pay"]      for u in users), 2),
+        "createdAt":          now,
+        "createdBy":          ObjectId(payload["id"]),
     }
-    result = db.cortes.insert_one(doc)
-    doc["_id"] = result.inserted_id
+    ins = db.cortes.insert_one(doc)
+    doc["_id"] = ins.inserted_id
     return _serialize_corte(doc)
 
 
@@ -517,13 +598,14 @@ def mark_paid(corte_id: str, seller_id: str, db=Depends(get_db), payload: dict =
         tx_id = existing_tx_id
     else:
         # Crear transacción de salida — Día de Corte
+        pay_amount = round(seller_entry.get("total_pay", seller_entry.get("seller_cut", 0)), 2)
         tx_doc = {
             "fin_type":    "salida",
             "label":       "Pago de Corte",
             "is_manual":   True,
             "category":    "Día de Corte",
-            "description": f"Pago a {seller_entry['seller_name']} — {corte.get('label', '')}",
-            "total":       round(seller_entry.get("seller_cut", 0), 2),
+            "description": f"Pago a {seller_entry.get('seller_name', '')} — {corte.get('label', '')}",
+            "total":       pay_amount,
             "active":      True,
             "corte_id":    corte_oid,
             "seller_id":   seller_oid,
@@ -589,7 +671,7 @@ def seller_summary(db=Depends(get_db), payload: dict = Depends(verify_token)):
     for d in docs:
         for s in d.get("sellers", []):
             if s.get("seller_id") == uid:
-                cut = float(s.get("seller_cut") or 0)
+                cut = float(s.get("total_pay", s.get("seller_cut") or 0))
                 total_earned += cut
                 if s.get("paid"):
                     total_paid += cut

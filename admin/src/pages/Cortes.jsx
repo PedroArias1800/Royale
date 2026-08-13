@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthProvider.jsx';
 import {
@@ -13,7 +13,6 @@ import {
     getSellerSummaryRequest,
     getDeliveryConfigRequest,
     putDeliveryConfigRequest,
-    getDeliveryPreviewRequest,
 } from '../api/Cortes.api.js';
 import '../css/Cortes.css';
 
@@ -28,72 +27,140 @@ const todayISO = () => {
     return d.toISOString().slice(0, 10);
 };
 
-// ─── Tabla de preview / detalle ───────────────────────────────────────────
-const SellerTable = ({ sellers, royale_pct, seller_pct, isAdmin, corteId, onTogglePaid }) => {
+// ─── Tabla unificada por usuario ──────────────────────────────────────────
+const UnifiedUserTable = ({ sellers, royale_pct, seller_pct, isAdmin, corteId, onTogglePaid }) => {
+    const [expandedId, setExpandedId] = useState(null);
+
     if (!sellers?.length) {
-        return <div className="corte-preview-empty">No hay vendedores con transacciones en este período.</div>;
+        return <div className="corte-preview-empty">No hay actividad en este período.</div>;
     }
 
-    const totIngresos   = sellers.reduce((s, r) => s + r.total_ingresos, 0);
-    const totCogs       = sellers.reduce((s, r) => s + r.total_cogs,     0);
-    const totUtilidad   = sellers.reduce((s, r) => s + r.utilidad,        0);
-    const totSeller     = sellers.reduce((s, r) => s + r.seller_cut,      0);
-    const totRoyale     = sellers.reduce((s, r) => s + r.royale_cut,      0);
+    const totPay    = sellers.reduce((s, r) => s + (r.total_pay ?? r.seller_cut), 0);
+    const totRoyale = sellers.reduce((s, r) => s + r.royale_cut, 0);
+    const colSpan   = isAdmin ? (corteId ? 5 : 4) : 3;
 
     return (
         <div className="corte-preview-table-wrap">
             <table className="corte-table">
                 <thead>
                     <tr>
-                        <th>Vendedor</th>
-                        <th style={{ textAlign: 'right' }}>Tx</th>
-                        <th style={{ textAlign: 'right' }}>Ingresos</th>
-                        <th style={{ textAlign: 'right' }}>COGS</th>
-                        <th style={{ textAlign: 'right' }}>Utilidad</th>
-                        <th style={{ textAlign: 'right' }}>Vendedor ({seller_pct}%)</th>
-                        {isAdmin && <th style={{ textAlign: 'right' }}>Royale ({royale_pct}%)</th>}
+                        <th>Usuario</th>
+                        <th>Desglose</th>
+                        <th style={{ textAlign: 'right' }}>Total a Cobrar</th>
+                        {isAdmin && <th style={{ textAlign: 'right' }}>Royale</th>}
                         {isAdmin && corteId && <th style={{ textAlign: 'center' }}>Estado</th>}
                     </tr>
                 </thead>
                 <tbody>
-                    {sellers.map((s, i) => (
-                        <tr key={i}>
-                            <td className="td-name">{s.seller_name}</td>
-                            <td className="td-money" style={{ textAlign: 'right', color: 'rgba(237,232,235,0.5)' }}>
-                                {s.tx_count}
-                            </td>
-                            <td className="td-money td-ingreso">{fmtMoney(s.total_ingresos)}</td>
-                            <td className="td-money td-cogs">{fmtMoney(s.total_cogs)}</td>
-                            <td className="td-money td-utilidad">{fmtMoney(s.utilidad)}</td>
-                            <td className="td-money td-seller-cut">{fmtMoney(s.seller_cut)}</td>
-                            {isAdmin && <td className="td-money td-royale-cut">{fmtMoney(s.royale_cut)}</td>}
-                            {isAdmin && corteId && (
-                                <td style={{ textAlign: 'center' }}>
-                                    {s.paid ? (
-                                        <span className="badge-paid">✓ Pagado</span>
-                                    ) : (
-                                        <span className="badge-pending">◉ Pendiente</span>
+                    {sellers.map((s, i) => {
+                        const userId   = s.seller_id;
+                        const totalPay = s.total_pay ?? s.seller_cut;
+                        const expanded = expandedId === userId;
+
+                        const pills = [];
+                        if (s.seller_cut > 0)   pills.push({ label: 'Ventas',    amount: s.seller_cut,    color: '#fdd05e' });
+                        if (s.delivery_pay > 0) pills.push({ label: 'Deliverys', amount: s.delivery_pay, color: '#2ecc71' });
+                        Object.values(s.op_reimbursements || {}).forEach(item => {
+                            if (item.amount > 0)
+                                pills.push({ label: item.label, amount: item.amount, color: '#a78bfa' });
+                        });
+
+                        return (
+                            <Fragment key={i}>
+                                <tr
+                                    style={{ cursor: 'pointer' }}
+                                    onClick={() => setExpandedId(expanded ? null : userId)}
+                                >
+                                    <td className="td-name">
+                                        {s.seller_name}
+                                        {s.tx_count > 0 && (
+                                            <span style={{ marginLeft: 6, fontSize: '0.7rem', color: 'rgba(237,232,235,0.35)' }}>
+                                                {s.tx_count} tx
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td>
+                                        <div className="corte-breakdown-pills">
+                                            {pills.map((p, j) => (
+                                                <span key={j} className="corte-breakdown-pill" style={{ color: p.color }}>
+                                                    {p.label}: {fmtMoney(p.amount)}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="td-money td-seller-cut">{fmtMoney(totalPay)}</td>
+                                    {isAdmin && (
+                                        <td className="td-money td-royale-cut">
+                                            {s.royale_cut > 0 ? fmtMoney(s.royale_cut) : '—'}
+                                        </td>
                                     )}
-                                    <button
-                                        className={s.paid ? 'btn-corte-ghost' : 'btn-corte-secondary'}
-                                        style={{ marginLeft: 6, padding: '3px 10px', fontSize: '0.72rem' }}
-                                        onClick={() => onTogglePaid(s.seller_id, s.paid)}
-                                    >
-                                        {s.paid ? 'Revertir' : 'Marcar Pagado'}
-                                    </button>
-                                </td>
-                            )}
-                        </tr>
-                    ))}
+                                    {isAdmin && corteId && (
+                                        <td style={{ textAlign: 'center' }}>
+                                            {s.paid
+                                                ? <span className="badge-paid">✓ Pagado</span>
+                                                : <span className="badge-pending">◉ Pendiente</span>}
+                                            <button
+                                                className={s.paid ? 'btn-corte-ghost' : 'btn-corte-secondary'}
+                                                style={{ marginLeft: 6, padding: '3px 10px', fontSize: '0.72rem' }}
+                                                onClick={(e) => { e.stopPropagation(); onTogglePaid(s.seller_id, s.paid); }}
+                                            >
+                                                {s.paid ? 'Revertir' : 'Marcar Pagado'}
+                                            </button>
+                                        </td>
+                                    )}
+                                </tr>
+
+                                {expanded && (
+                                    <tr>
+                                        <td colSpan={colSpan} style={{ padding: 0 }}>
+                                            <div className="corte-user-detail">
+                                                {s.seller_cut > 0 && (
+                                                    <div className="corte-detail-section">
+                                                        <span className="detail-section-label" style={{ color: '#fdd05e' }}>Ventas</span>
+                                                        <div className="detail-section-body">
+                                                            <span>Ingresos: <strong>{fmtMoney(s.total_ingresos)}</strong></span>
+                                                            <span className="detail-sep">—</span>
+                                                            <span>COGS: <strong>{fmtMoney(s.total_cogs)}</strong></span>
+                                                            <span className="detail-sep">—</span>
+                                                            <span>Utilidad: <strong style={{ color: '#38bdf8' }}>{fmtMoney(s.utilidad)}</strong></span>
+                                                            <span className="detail-sep">—</span>
+                                                            <span style={{ color: '#fdd05e' }}>
+                                                                Corte ({seller_pct}%): <strong>{fmtMoney(s.seller_cut)}</strong>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {s.delivery_pay > 0 && (
+                                                    <div className="corte-detail-section">
+                                                        <span className="detail-section-label" style={{ color: '#2ecc71' }}>Deliverys</span>
+                                                        <div className="detail-section-body">
+                                                            <span style={{ color: '#2ecc71' }}>Total: <strong>{fmtMoney(s.delivery_pay)}</strong></span>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                                {Object.entries(s.op_reimbursements || {}).map(([key, val]) =>
+                                                    val.amount > 0 ? (
+                                                        <div key={key} className="corte-detail-section">
+                                                            <span className="detail-section-label" style={{ color: '#a78bfa' }}>{val.label}</span>
+                                                            <div className="detail-section-body">
+                                                                <span style={{ color: '#a78bfa' }}><strong>{fmtMoney(val.amount)}</strong></span>
+                                                            </div>
+                                                        </div>
+                                                    ) : null
+                                                )}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </Fragment>
+                        );
+                    })}
                 </tbody>
                 <tfoot>
                     <tr>
                         <td className="td-name">Total</td>
                         <td />
-                        <td className="td-money td-ingreso">{fmtMoney(totIngresos)}</td>
-                        <td className="td-money td-cogs">{fmtMoney(totCogs)}</td>
-                        <td className="td-money td-utilidad">{fmtMoney(totUtilidad)}</td>
-                        <td className="td-money td-seller-cut">{fmtMoney(totSeller)}</td>
+                        <td className="td-money td-seller-cut">{fmtMoney(totPay)}</td>
                         {isAdmin && <td className="td-money td-royale-cut">{fmtMoney(totRoyale)}</td>}
                         {isAdmin && corteId && <td />}
                     </tr>
@@ -107,7 +174,9 @@ const SellerTable = ({ sellers, royale_pct, seller_pct, isAdmin, corteId, onTogg
 const CorteCard = ({ corte, isAdmin, onDelete, onTogglePaid }) => {
     const [open, setOpen] = useState(false);
 
-    const allPaid = corte.sellers.every(s => s.paid);
+    const allPaid    = corte.sellers.every(s => s.paid);
+    const totalPay   = corte.total_pay ?? corte.total_seller_cuts;
+    const userCount  = corte.sellers.length;
 
     return (
         <div className="corte-item">
@@ -125,8 +194,8 @@ const CorteCard = ({ corte, isAdmin, onDelete, onTogglePaid }) => {
                         <span className="stat-value utilidad">{fmtMoney(corte.total_utilidad)}</span>
                     </div>
                     <div className="corte-stat">
-                        <span className="stat-label">Vendedores</span>
-                        <span className="stat-value vendedor">{fmtMoney(corte.total_seller_cuts)}</span>
+                        <span className="stat-label">A Pagar</span>
+                        <span className="stat-value vendedor">{fmtMoney(totalPay)}</span>
                     </div>
                     {isAdmin && (
                         <div className="corte-stat">
@@ -135,7 +204,7 @@ const CorteCard = ({ corte, isAdmin, onDelete, onTogglePaid }) => {
                         </div>
                     )}
                     <span className="corte-sellers-count">
-                        {corte.sellers.length} vendedor{corte.sellers.length !== 1 ? 'es' : ''}
+                        {userCount} usuario{userCount !== 1 ? 's' : ''}
                     </span>
                     {allPaid && <span className="badge-paid">✓ Todo pagado</span>}
                 </div>
@@ -152,7 +221,7 @@ const CorteCard = ({ corte, isAdmin, onDelete, onTogglePaid }) => {
                         {' · '}Distribución: Royale {corte.royale_pct}% / Vendedor {corte.seller_pct}%
                     </div>
                     <div className="corte-sep" />
-                    <SellerTable
+                    <UnifiedUserTable
                         sellers={corte.sellers}
                         royale_pct={corte.royale_pct}
                         seller_pct={corte.seller_pct}
@@ -176,7 +245,7 @@ const CorteCard = ({ corte, isAdmin, onDelete, onTogglePaid }) => {
     );
 };
 
-// ─── Panel de configuración ───────────────────────────────────────────────
+// ─── Panel de configuración — Distribución de Utilidad ───────────────────
 const ConfigPanel = ({ config, onSave }) => {
     const [edit, setEdit] = useState(false);
     const [royale, setRoyale] = useState(String(config.royale_pct));
@@ -281,11 +350,11 @@ const ConfigPanel = ({ config, onSave }) => {
 
 // ─── Panel configuración Delivery ────────────────────────────────────────
 const DeliveryConfigPanel = ({ config, onSave }) => {
-    const [edit, setEdit]         = useState(false);
-    const [fee, setFee]           = useState(String(config.fee_per_order));
-    const [minFee, setMinFee]     = useState(String(config.min_daily_fee));
-    const [error, setError]       = useState('');
-    const [saving, setSaving]     = useState(false);
+    const [edit, setEdit]     = useState(false);
+    const [fee, setFee]       = useState(String(config.fee_per_order));
+    const [minFee, setMinFee] = useState(String(config.min_daily_fee));
+    const [error, setError]   = useState('');
+    const [saving, setSaving] = useState(false);
 
     useEffect(() => {
         setFee(String(config.fee_per_order));
@@ -363,101 +432,6 @@ const DeliveryConfigPanel = ({ config, onSave }) => {
     );
 };
 
-// ─── Preview Corte Delivery ───────────────────────────────────────────────
-const DeliveryPreviewPanel = () => {
-    const [form, setForm]       = useState({ start: '', end: todayISO() });
-    const [data, setData]       = useState(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError]     = useState('');
-
-    const canFetch = form.start && form.end && form.start <= form.end;
-
-    const handleFetch = async () => {
-        if (!canFetch) return;
-        setLoading(true);
-        setError('');
-        try {
-            const res = await getDeliveryPreviewRequest(
-                `${form.start}T00:00:00-05:00`,
-                `${form.end}T23:59:59-05:00`,
-            );
-            setData(res.data);
-        } catch (e) {
-            setError(e?.response?.data?.detail || 'Error al cargar datos');
-        }
-        setLoading(false);
-    };
-
-    return (
-        <div className="corte-card">
-            <p className="corte-card-title">📦 Corte de Delivery</p>
-            <div className="corte-nuevo-form">
-                <div className="corte-form-row">
-                    <div className="corte-form-field">
-                        <label>Desde</label>
-                        <input type="date" value={form.start} max={form.end || todayISO()}
-                            onChange={e => { setForm(f => ({ ...f, start: e.target.value })); setData(null); }} />
-                    </div>
-                    <div className="corte-form-field">
-                        <label>Hasta</label>
-                        <input type="date" value={form.end} max={todayISO()}
-                            onChange={e => { setForm(f => ({ ...f, end: e.target.value })); setData(null); }} />
-                    </div>
-                </div>
-                <div className="corte-form-actions">
-                    <button className="btn-corte-secondary" onClick={handleFetch}
-                        disabled={!canFetch || loading}>
-                        {loading ? 'Calculando...' : '🔍 Ver Corte Delivery'}
-                    </button>
-                </div>
-                {error && <span className="corte-error">{error}</span>}
-
-                {data && (
-                    <>
-                        <p className="corte-preview-title">
-                            {data.deliveries.length} repartidor{data.deliveries.length !== 1 ? 'es' : ''}
-                            {' — '}Total: <strong>{fmtMoney(data.total_pay)}</strong>
-                        </p>
-                        {!data.deliveries.length ? (
-                            <div className="corte-preview-empty">Sin entregas completadas en este período.</div>
-                        ) : (
-                            <div className="corte-preview-table-wrap">
-                                <table className="corte-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Repartidor</th>
-                                            <th style={{ textAlign: 'right' }}>Entregas</th>
-                                            <th style={{ textAlign: 'right' }}>Total a Pagar</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data.deliveries.map((d, i) => (
-                                            <tr key={i}>
-                                                <td className="td-name">{d.delivery_user_name}</td>
-                                                <td className="td-money" style={{ textAlign: 'right', color: 'rgba(237,232,235,0.55)' }}>
-                                                    {d.delivery_count}
-                                                </td>
-                                                <td className="td-money td-seller-cut">{fmtMoney(d.total_pay)}</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr>
-                                            <td className="td-name">Total</td>
-                                            <td />
-                                            <td className="td-money td-seller-cut">{fmtMoney(data.total_pay)}</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        )}
-                    </>
-                )}
-            </div>
-        </div>
-    );
-};
-
 // ─── Panel para crear un nuevo corte ─────────────────────────────────────
 const NuevoCortePanel = ({ config, onCreated, onCancel }) => {
     const [form, setForm] = useState({
@@ -465,10 +439,10 @@ const NuevoCortePanel = ({ config, onCreated, onCancel }) => {
         period_start: '',
         period_end:   todayISO(),
     });
-    const [preview, setPreview]     = useState(null);
-    const [loadingPrev, setLPrev]   = useState(false);
-    const [creating, setCreating]   = useState(false);
-    const [error, setError]         = useState('');
+    const [preview, setPreview]   = useState(null);
+    const [loadingPrev, setLPrev] = useState(false);
+    const [creating, setCreating] = useState(false);
+    const [error, setError]       = useState('');
 
     const canPreview = form.period_start && form.period_end && form.period_start <= form.period_end;
 
@@ -564,9 +538,10 @@ const NuevoCortePanel = ({ config, onCreated, onCancel }) => {
                 {preview && (
                     <>
                         <p className="corte-preview-title">
-                            Preview — {preview.sellers.length} vendedor{preview.sellers.length !== 1 ? 'es' : ''} encontrado{preview.sellers.length !== 1 ? 's' : ''}
+                            Preview — {preview.sellers.length} usuario{preview.sellers.length !== 1 ? 's' : ''} encontrado{preview.sellers.length !== 1 ? 's' : ''}
+                            {' · '}Total a pagar: <strong>{fmtMoney(preview.total_pay)}</strong>
                         </p>
-                        <SellerTable
+                        <UnifiedUserTable
                             sellers={preview.sellers}
                             royale_pct={config.royale_pct}
                             seller_pct={config.seller_pct}
@@ -595,11 +570,11 @@ const NuevoCortePanel = ({ config, onCreated, onCancel }) => {
     );
 };
 
-// ─── Vista del vendedor ───────────────────────────────────────────────────
-const SellerView = ({ user }) => {
-    const [summary, setSummary]     = useState(null);
-    const [cortes, setCortes]       = useState([]);
-    const [loading, setLoading]     = useState(true);
+// ─── Vista del vendedor / repartidor ─────────────────────────────────────
+const SellerView = () => {
+    const [summary, setSummary] = useState(null);
+    const [cortes, setCortes]   = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         Promise.all([
@@ -661,13 +636,13 @@ export const Cortes = () => {
     const { user } = useAuth();
     const isAdmin  = user?.roles?.includes(1) || user?.rol == 1;
 
-    const [config, setConfig]                   = useState({ royale_pct: 50, seller_pct: 50 });
-    const [deliveryConfig, setDeliveryConfig]   = useState({ fee_per_order: 5, min_daily_fee: 8 });
-    const [cortes, setCortes]                   = useState([]);
-    const [loading, setLoading]                 = useState(true);
-    const [showNewCorte, setShowNew]            = useState(false);
-    const [viewMode, setViewMode]               = useState('gestion'); // 'gestion' | 'personal' | 'delivery'
-    const [sellerSummary, setSellerSummary]     = useState(null);
+    const [config, setConfig]               = useState({ royale_pct: 50, seller_pct: 50 });
+    const [deliveryConfig, setDeliveryConfig] = useState({ fee_per_order: 5, min_daily_fee: 8 });
+    const [cortes, setCortes]               = useState([]);
+    const [loading, setLoading]             = useState(true);
+    const [showNewCorte, setShowNew]        = useState(false);
+    const [viewMode, setViewMode]           = useState('gestion'); // 'gestion' | 'personal'
+    const [sellerSummary, setSellerSummary] = useState(null);
 
     const loadAll = useCallback(async () => {
         setLoading(true);
@@ -732,7 +707,6 @@ export const Cortes = () => {
         } catch (e) { alert(e?.response?.data?.detail || 'Error'); }
     };
 
-    // Cortes donde el admin aparece como vendedor (filtrado por su ID)
     const myCortes = cortes
         .map(c => ({ ...c, sellers: c.sellers.filter(s => s.seller_id === user?.id) }))
         .filter(c => c.sellers.length > 0);
@@ -761,12 +735,6 @@ export const Cortes = () => {
                                 Gestión
                             </button>
                             <button
-                                className={`cortes-tab-btn${viewMode === 'delivery' ? ' active' : ''}`}
-                                onClick={() => { setViewMode('delivery'); setShowNew(false); }}
-                            >
-                                Delivery
-                            </button>
-                            <button
                                 className={`cortes-tab-btn${viewMode === 'personal' ? ' active' : ''}`}
                                 onClick={() => { setViewMode('personal'); setShowNew(false); }}
                             >
@@ -785,13 +753,16 @@ export const Cortes = () => {
                 )}
             </div>
 
-            {/* Vista vendedor */}
-            {!isAdmin && <SellerView user={user} />}
+            {/* Vista vendedor / repartidor */}
+            {!isAdmin && <SellerView />}
 
             {/* Vista admin — Gestión */}
             {isAdmin && viewMode === 'gestion' && (
                 <>
-                    <ConfigPanel config={config} onSave={handleSaveConfig} />
+                    <div className="corte-configs-row">
+                        <ConfigPanel config={config} onSave={handleSaveConfig} />
+                        <DeliveryConfigPanel config={deliveryConfig} onSave={handleSaveDeliveryConfig} />
+                    </div>
 
                     {showNewCorte && (
                         <NuevoCortePanel
@@ -824,14 +795,6 @@ export const Cortes = () => {
                 </>
             )}
 
-            {/* Vista admin — Delivery */}
-            {isAdmin && viewMode === 'delivery' && (
-                <>
-                    <DeliveryConfigPanel config={deliveryConfig} onSave={handleSaveDeliveryConfig} />
-                    <DeliveryPreviewPanel />
-                </>
-            )}
-
             {/* Vista admin — Mis Ganancias */}
             {isAdmin && viewMode === 'personal' && (
                 <>
@@ -861,7 +824,7 @@ export const Cortes = () => {
                         {loading ? (
                             <div className="cortes-loading">Cargando...</div>
                         ) : !myCortes.length ? (
-                            <div className="cortes-empty">No apareces como vendedor en ningún corte.</div>
+                            <div className="cortes-empty">No apareces en ningún corte.</div>
                         ) : (
                             myCortes.map(c => (
                                 <CorteCard
