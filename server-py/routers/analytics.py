@@ -9,6 +9,14 @@ from auth import verify_token
 router = APIRouter()
 
 
+def _sum_op_costs(tx: dict) -> float:
+    """Suma operational_costs[] con fallback a operational_cost (campo legado)."""
+    items = tx.get("operational_costs") or []
+    if items:
+        return sum(float(i.get("amount") or 0) for i in items)
+    return float(tx.get("operational_cost") or 0)
+
+
 def _parse_range(start: Optional[str], end: Optional[str]):
     now = datetime.now(timezone.utc)
     if start:
@@ -83,10 +91,11 @@ def get_summary(
     ingresos_ventas   = income_result[0]["ingresos_ventas"]   if income_result else 0.0
     ingresos_manuales = income_result[0]["ingresos_manuales"] if income_result else 0.0
 
-    # --- COGS: usa products_cost/operational_cost almacenados; fallback a cost de tipos ---
+    # --- COGS: usa products_cost/operational_costs almacenados; fallback a cost de tipos ---
     income_txs = list(db.transactions.find(
         _income_match(start_dt, end_dt),
-        {"products_cost": 1, "operational_cost": 1, "productsTypes": 1, "quantities": 1},
+        {"products_cost": 1, "operational_cost": 1,
+         "operational_costs": 1, "productsTypes": 1, "quantities": 1},
     ))
     cogs = 0.0
     needs_type_lookup = []
@@ -99,8 +108,7 @@ def get_summary(
                     needs_type_lookup.append((ObjectId(pt), int(qty or 1)))
                 except Exception:
                     pass
-        if tx.get("operational_cost"):
-            cogs += tx["operational_cost"]
+        cogs += _sum_op_costs(tx)
     if needs_type_lookup:
         type_ids = list({str(oid): oid for oid, _ in needs_type_lookup}.values())
         types_cost = {
@@ -172,7 +180,8 @@ def get_trends(
     ]
     expense_by_period = {r["_id"]: r["salidas"] for r in db.transactions.aggregate(expense_pipe)}
 
-    # COGS de ingresos (products_cost + operational_cost) por período
+    # COGS de ingresos (products_cost + operational_costs[]) por período
+    # operational_costs[] tiene prioridad sobre el campo legado operational_cost
     cogs_pipe = [
         {"$match": _income_match(start_dt, end_dt)},
         {
@@ -182,7 +191,19 @@ def get_trends(
                     "$sum": {
                         "$add": [
                             {"$ifNull": ["$products_cost", 0]},
-                            {"$ifNull": ["$operational_cost", 0]},
+                            {
+                                "$cond": {
+                                    "if": {"$gt": [{"$size": {"$ifNull": ["$operational_costs", []]}}, 0]},
+                                    "then": {
+                                        "$reduce": {
+                                            "input": {"$ifNull": ["$operational_costs", []]},
+                                            "initialValue": 0,
+                                            "in": {"$add": ["$$value", {"$ifNull": ["$$this.amount", 0]}]},
+                                        }
+                                    },
+                                    "else": {"$ifNull": ["$operational_cost", 0]},
+                                }
+                            },
                         ]
                     }
                 },

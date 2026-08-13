@@ -12,7 +12,21 @@ from helpers import serialize_doc, to_object_id
 router = APIRouter()
 
 _STATUS_ORDER = {"pending": 0, "delivered": 1, "cancelled": 2}
-_PANAMA_TZ = timezone(timedelta(hours=-5))
+_PANAMA_TZ    = timezone(timedelta(hours=-5))
+
+_DELIVERY_CONFIG_ID  = "delivery_config"
+_DEF_DELIVERY_FEE    = 5.0
+_DEF_DELIVERY_MIN    = 8.0
+
+
+def _get_delivery_cfg(db) -> dict:
+    cfg = db.config.find_one({"_id": _DELIVERY_CONFIG_ID})
+    if not cfg:
+        return {"fee_per_order": _DEF_DELIVERY_FEE, "min_daily_fee": _DEF_DELIVERY_MIN}
+    return {
+        "fee_per_order": float(cfg.get("fee_per_order", _DEF_DELIVERY_FEE)),
+        "min_daily_fee": float(cfg.get("min_daily_fee", _DEF_DELIVERY_MIN)),
+    }
 
 
 def _panama_date(dt) -> str:
@@ -217,4 +231,91 @@ def update_delivery_status(tx_id: str, body: DeliveryStatusBody, token: dict = D
     result = db.transactions.update_one({"_id": oid}, {"$set": updates})
     if result.matched_count == 0:
         return JSONResponse(status_code=404, content={"message": "Transacción no encontrada"})
+
+    # ── Auto-gasto de delivery al marcar como entregado ──────────────────────
+    if body.delivery_status == "delivered":
+        assigned_id   = existing.get("delivery_assigned_to")
+        assigned_name = existing.get("delivery_assigned_name", "")
+
+        if assigned_id:
+            try:
+                assigned_oid  = ObjectId(str(assigned_id))
+                assigned_str  = str(assigned_oid)
+
+                # Inicio y fin del día UTC actual
+                day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+                day_end   = now.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+                # Transacciones del mismo repartidor ya entregadas hoy (excluye la actual)
+                delivered_today = list(db.transactions.find(
+                    {
+                        "_id":                 {"$ne": oid},
+                        "delivery_assigned_to": assigned_oid,
+                        "delivery_status":     "delivered",
+                        "delivered_at":        {"$gte": day_start, "$lte": day_end},
+                    },
+                    {"_id": 1, "operational_costs": 1},
+                ))
+
+                cfg           = _get_delivery_cfg(db)
+                fee_per_order = cfg["fee_per_order"]
+                min_daily_fee = cfg["min_daily_fee"]
+
+                count = len(delivered_today)
+                if count == 0:
+                    amount = min_daily_fee          # Primera entrega del día
+                elif count == 1:
+                    amount = fee_per_order          # Segunda entrega → ajusta la primera retroactivamente
+                    # Actualizar el primer ítem de delivery de la primera transacción del día
+                    first_tx = delivered_today[0]
+                    new_costs = []
+                    for item in (first_tx.get("operational_costs") or []):
+                        if (item.get("type_key") == "delivery"
+                                and str(item.get("responsible_id", "")) == assigned_str):
+                            item = {**item, "amount": fee_per_order}
+                        new_costs.append(item)
+                    db.transactions.update_one(
+                        {"_id": first_tx["_id"]},
+                        {"$set": {"operational_costs": new_costs, "updatedAt": now}},
+                    )
+                else:
+                    amount = fee_per_order          # Tercera entrega en adelante
+
+                # Verificar si ya existe un ítem delivery para este usuario en esta transacción
+                current_costs = db.transactions.find_one(
+                    {"_id": oid}, {"operational_costs": 1}
+                ).get("operational_costs") or []
+
+                new_item = {
+                    "amount":           amount,
+                    "type_key":         "delivery",
+                    "type_label":       "Entrega del Producto",
+                    "responsible_id":   assigned_str,
+                    "responsible_name": assigned_name,
+                }
+
+                # Reemplazar ítem existente de delivery o agregar uno nuevo
+                has_delivery = any(
+                    i.get("type_key") == "delivery"
+                    and str(i.get("responsible_id", "")) == assigned_str
+                    for i in current_costs
+                )
+                if has_delivery:
+                    updated_costs = [
+                        ({**i, "amount": amount} if (
+                            i.get("type_key") == "delivery"
+                            and str(i.get("responsible_id", "")) == assigned_str
+                        ) else i)
+                        for i in current_costs
+                    ]
+                else:
+                    updated_costs = current_costs + [new_item]
+
+                db.transactions.update_one(
+                    {"_id": oid},
+                    {"$set": {"operational_costs": updated_costs, "updatedAt": now}},
+                )
+            except Exception:
+                pass  # No bloquear el cambio de estado si falla el cálculo
+
     return {"success": True}

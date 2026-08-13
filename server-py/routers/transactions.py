@@ -25,6 +25,14 @@ LABELS_INGRESO = ["Venta Directa", "Abono", "Devolución recibida", "Otro ingres
 LABELS_SALIDA = ["Costo del Producto", "Gastos Operativos", "Merma", "Publicidad y Marketing", "Envíos y Logística", "Devolución emitida", "Pago de Corte", "Otro gasto"]
 
 
+class OperationalCostItem(BaseModel):
+    amount: float
+    type_key: str
+    type_label: str
+    responsible_id: Optional[str] = None   # ObjectId del usuario interno; None = externo
+    responsible_name: str                   # nombre del usuario o del servicio externo
+
+
 class TransactionUpdateBody(BaseModel):
     payment_method: Optional[str] = None
     delivery_method: Optional[str] = None
@@ -35,6 +43,7 @@ class TransactionUpdateBody(BaseModel):
     status: Optional[int] = None
     omitted: Optional[bool] = None         # True = excluir de estadísticas
     operational_cost: Optional[float] = None
+    operational_costs: Optional[List[OperationalCostItem]] = None  # lista estructurada
     products_cost: Optional[float] = None
     products_prices: Optional[List[float]] = None
     total: Optional[float] = None
@@ -68,6 +77,7 @@ class TransactionManualBody(BaseModel):
     created_at: Optional[str] = None       # ISO date override (YYYY-MM-DD)
     lot_numbers: Optional[List[str]] = []
     delivery_date: Optional[str] = None    # YYYY-MM-DD para aparecer en Consolidación
+    operational_costs: Optional[List[OperationalCostItem]] = []
 
 
 def _populate_transaction(doc: dict, db, include_products: bool = False) -> dict:
@@ -343,6 +353,8 @@ def create_manual_transaction(body: TransactionManualBody, db=Depends(get_db), _
             doc["seller_id_fk"] = ObjectId(body.seller_id_fk)
         except Exception:
             pass
+    if body.operational_costs:
+        doc["operational_costs"] = [item.model_dump() for item in body.operational_costs]
     result = db.transactions.insert_one(doc)
     doc["_id"] = result.inserted_id
     return serialize_doc(doc)
@@ -362,6 +374,8 @@ def update_transaction(transaction_id: str, body: TransactionUpdateBody, db=Depe
         updates["omitted"] = body.omitted
     if body.operational_cost is not None:
         updates["operational_cost"] = body.operational_cost
+    if body.operational_costs is not None:
+        updates["operational_costs"] = [item.model_dump() for item in body.operational_costs]
     if body.products_cost is not None:
         updates["products_cost"] = body.products_cost
     if body.products_prices is not None:

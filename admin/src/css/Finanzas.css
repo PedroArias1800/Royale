@@ -1133,3 +1133,105 @@
     .period-presets { gap: 4px; }
     .period-btn { padding: 5px 10px; font-size: 0.78rem; }
 }
+
+/* ── Gastos Operacionales — fila de edición en ProcesarModal ── */
+.op-cost-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    background: rgba(214, 10, 95, 0.04);
+    border: 1px solid rgba(214, 10, 95, 0.15);
+    border-radius: 7px;
+    margin-bottom: 6px;
+}
+
+.op-cost-type {
+    flex: 2;
+    min-width: 150px;
+    background: #1a1a1f;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: #ede8eb;
+    padding: 5px 8px;
+    font-size: 0.82rem;
+}
+
+.op-cost-resp {
+    flex: 2;
+    min-width: 130px;
+    background: #1a1a1f;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    color: #ede8eb;
+    padding: 5px 8px;
+    font-size: 0.82rem;
+}
+
+.op-cost-amount {
+    width: 80px;
+    flex-shrink: 0;
+    background: #1a1a1f;
+    border: 1px solid rgba(253, 208, 94, 0.3);
+    border-radius: 5px;
+    color: #ede8eb;
+    padding: 5px 8px;
+    font-size: 0.82rem;
+    text-align: right;
+}
+
+.op-cost-amount:focus { outline: none; border-color: var(--color-dorado); }
+.op-cost-type:focus,
+.op-cost-resp:focus   { outline: none; border-color: rgba(253, 208, 94, 0.5); }
+
+/* ── Gastos Operacionales — tabla de desglose en VerDetallesModal ── */
+.op-cost-desglose {
+    border: 1px solid rgba(214, 10, 95, 0.2);
+    border-radius: 7px;
+    overflow: hidden;
+    font-size: 0.82rem;
+}
+
+.op-cost-desglose-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(214, 10, 95, 0.08);
+    color: rgba(237, 232, 235, 0.45);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.op-cost-desglose-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    padding: 7px 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    color: rgba(237, 232, 235, 0.75);
+    align-items: center;
+}
+
+.op-cost-desglose-row span:last-child {
+    min-width: 70px;
+}
+
+.op-cost-desglose-total {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 8px;
+    padding: 8px 12px;
+    border-top: 1px solid rgba(214, 10, 95, 0.25);
+    background: rgba(214, 10, 95, 0.06);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: rgba(237, 232, 235, 0.65);
+    align-items: center;
+}
+
+.op-cost-desglose-total span:last-child {
+    min-width: 70px;
+}

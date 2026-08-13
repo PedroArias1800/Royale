@@ -6,6 +6,7 @@ import {
     getTypeByParfumId,
     getAllUsersRequest,
 } from '../../api/Admin.api.js';
+import { getOpCostTypesRequest } from '../../api/Cortes.api.js';
 
 const LABELS = {
     ingreso: ['Venta Directa', 'Abono', 'Devolución recibida', 'Otro ingreso'],
@@ -44,11 +45,17 @@ const canalCell = (t, isPending = false) => {
     return isPending ? 'Vendedor — Por seleccionar' : 'Vendedor';
 };
 
+const getOpCost = (t) => {
+    if (t.operational_costs?.length)
+        return t.operational_costs.reduce((s, i) => s + (i.amount || 0), 0);
+    return t.operational_cost ?? 0;
+};
+
 const getSalida = (t) => {
-    const pc = t.products_cost ?? null;
-    const oc = t.operational_cost ?? null;
-    if (pc === null && oc === null) return null;
-    return (pc || 0) + (oc || 0);
+    const pc    = t.products_cost ?? null;
+    const hasOc = t.operational_costs?.length || t.operational_cost != null;
+    if (pc === null && !hasOc) return null;
+    return (pc || 0) + getOpCost(t);
 };
 
 const sortByDate = (arr) =>
@@ -406,6 +413,8 @@ const isFinalized = (t) =>
     (t.createdAt && new Date(t.createdAt) < FINALIZADAS_CUTOFF);
 
 // ─── Modal de procesado con precios y costos editables por producto ───────────
+const EMPTY_OP_COST = { amount: '', type_key: '', type_label: '', responsible_id: null, responsible_name: '' };
+
 const ProcesarModal = ({ tx, onClose, onSave }) => {
     const [form, setForm] = useState({
         fin_type:              tx.fin_type || 'ingreso',
@@ -414,13 +423,20 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
         channel:               tx.channel || '',
         label:                 tx.label || LABELS.ingreso[0],
         description:           tx.description || '',
-        operational_cost:      tx.operational_cost != null ? String(tx.operational_cost) : '',
         seller_id_fk:          tx.seller_id_fk || '',
         lot_numbers_str:       (tx.lot_numbers || []).join(', '),
         delivery_assigned_to:  tx.delivery_assigned_to || '',
         status: 2,
     });
     const [users, setUsers] = useState([]);
+    const [opCosts, setOpCosts] = useState(
+        tx.operational_costs?.length
+            ? tx.operational_costs.map(i => ({ ...i, amount: String(i.amount) }))
+            : tx.operational_cost != null
+                ? [{ ...EMPTY_OP_COST, amount: String(tx.operational_cost), type_key: 'other', type_label: 'Gasto Operativo', responsible_name: 'Sin especificar' }]
+                : []
+    );
+    const [opCostConfig, setOpCostConfig] = useState({ types: [], services: [] });
     const [prices, setPrices]           = useState([]);
     const [priceEditable, setPriceEditable] = useState([]);
     const [pricesTouched, setPricesTouched] = useState(false);
@@ -441,6 +457,7 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
 
     useEffect(() => {
         getAllUsersRequest().then(r => setUsers(r.data?.data || r.data || [])).catch(() => {});
+        getOpCostTypesRequest().then(r => setOpCostConfig(r.data || { types: [], services: [] })).catch(() => {});
     }, []);
 
     // Carga precio y costo desde la BD para cada producto
@@ -503,8 +520,8 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const payload = { ...form };
-        if (payload.operational_cost !== '') payload.operational_cost = parseFloat(payload.operational_cost);
-        else delete payload.operational_cost;
+        delete payload.lot_numbers_str;
+        payload.lot_numbers = (form.lot_numbers_str || '').split(',').map(s => s.trim()).filter(Boolean);
         if (!payload.seller_id_fk) delete payload.seller_id_fk;
         if (!payload.delivery_assigned_to) {
             delete payload.delivery_assigned_to;
@@ -512,9 +529,15 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
             const assignedUser = users.find(u => (u.id || u._id) === payload.delivery_assigned_to);
             if (assignedUser) payload.delivery_assigned_name = `${assignedUser.firstname} ${assignedUser.lastname}`;
         }
-        // Convert lot_numbers string to array
-        payload.lot_numbers = (payload.lot_numbers_str || '').split(',').map(s => s.trim()).filter(Boolean);
-        delete payload.lot_numbers_str;
+        // Gastos operacionales estructurados
+        const validCosts = opCosts.filter(c => c.type_key && c.responsible_name && parseFloat(c.amount) > 0);
+        payload.operational_costs = validCosts.map(c => ({
+            amount:           parseFloat(c.amount),
+            type_key:         c.type_key,
+            type_label:       c.type_label,
+            responsible_id:   c.responsible_id || null,
+            responsible_name: c.responsible_name,
+        }));
         if (totalProductsCost > 0) payload.products_cost = parseFloat(totalProductsCost.toFixed(2));
         if (parsedProducts.length > 0) {
             payload.products_prices = prices.map(p => parseFloat(p) || 0);
@@ -655,12 +678,100 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
                                 users={users} />
                         </div>
                     )}
-                    <div className="mov-form-row">
-                        <label>Gasto Operativo ($)
-                            <input type="number" name="operational_cost" value={form.operational_cost}
-                                onChange={handleChange} min="0" step="0.01" placeholder="0.00" />
-                        </label>
+                    {/* ── Gastos Operacionales estructurados ── */}
+                    <div className="mov-form-section-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        Gastos Operacionales
+                        <button type="button" className="btn-add-product"
+                            onClick={() => setOpCosts(prev => [...prev, { ...EMPTY_OP_COST }])}>
+                            + Añadir Gasto
+                        </button>
                     </div>
+                    {opCosts.length === 0 && (
+                        <p style={{ fontSize: '0.78rem', color: 'rgba(237,232,235,0.4)', margin: '4px 0 8px' }}>
+                            Sin gastos operacionales registrados
+                        </p>
+                    )}
+                    {opCosts.map((item, idx) => {
+                        const typeInfo  = opCostConfig.types.find(t => t.key === item.type_key);
+                        const mode      = typeInfo?.responsible_mode || '';
+                        const adminUsers      = users.filter(u => (u.roles || [u.rol]).includes(1));
+                        const deliveryUsers   = users.filter(u => {
+                            const r = u.roles || [u.rol];
+                            return r.includes(1) || r.includes(3);
+                        });
+
+                        const updateItem = (patch) =>
+                            setOpCosts(prev => prev.map((c, i) => i === idx ? { ...c, ...patch } : c));
+
+                        const onTypeChange = (e) => {
+                            const key  = e.target.value;
+                            const info = opCostConfig.types.find(t => t.key === key);
+                            updateItem({ type_key: key, type_label: info?.label || key, responsible_id: null, responsible_name: '' });
+                        };
+
+                        const onResponsibleChange = (e) => {
+                            const val = e.target.value;
+                            if (mode === 'external') {
+                                updateItem({ responsible_id: null, responsible_name: val });
+                            } else {
+                                const u = (mode === 'admin' ? adminUsers : deliveryUsers)
+                                    .find(u => (u.id || u._id) === val);
+                                updateItem({
+                                    responsible_id:   val,
+                                    responsible_name: u ? `${u.firstname} ${u.lastname}` : val,
+                                });
+                            }
+                        };
+
+                        return (
+                            <div key={idx} className="op-cost-row">
+                                <select value={item.type_key} onChange={onTypeChange} className="op-cost-type">
+                                    <option value="">Tipo de Gasto</option>
+                                    {opCostConfig.types.map(t => (
+                                        <option key={t.key} value={t.key}>{t.label}</option>
+                                    ))}
+                                </select>
+
+                                {mode === 'external' && (
+                                    <select value={item.responsible_name} onChange={onResponsibleChange} className="op-cost-resp">
+                                        <option value="">Servicio</option>
+                                        {opCostConfig.services.map(s => (
+                                            <option key={s} value={s}>{s}</option>
+                                        ))}
+                                    </select>
+                                )}
+                                {(mode === 'admin' || mode === 'admin_delivery') && (
+                                    <select value={item.responsible_id || ''} onChange={onResponsibleChange} className="op-cost-resp">
+                                        <option value="">Responsable</option>
+                                        {(mode === 'admin' ? adminUsers : deliveryUsers).map(u => (
+                                            <option key={u.id || u._id} value={u.id || u._id}>
+                                                {u.firstname} {u.lastname}
+                                            </option>
+                                        ))}
+                                    </select>
+                                )}
+                                {!mode && (
+                                    <input className="op-cost-resp" placeholder="Responsable" value={item.responsible_name}
+                                        onChange={e => updateItem({ responsible_name: e.target.value })} />
+                                )}
+
+                                <input type="number" min="0" step="0.01" placeholder="Monto"
+                                    value={item.amount}
+                                    onChange={e => updateItem({ amount: e.target.value })}
+                                    className="op-cost-amount" />
+
+                                <button type="button" className="btn-remove-product"
+                                    onClick={() => setOpCosts(prev => prev.filter((_, i) => i !== idx))}>✕</button>
+                            </div>
+                        );
+                    })}
+                    {opCosts.length > 0 && (
+                        <p className="mov-auto-total" style={{ color: '#d60a5f' }}>
+                            Total Gastos Op.: <strong>
+                                ${opCosts.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0).toFixed(2)}
+                            </strong>
+                        </p>
+                    )}
                     <div className="mov-form-row">
                         <label>N° de Lote (separados por coma)
                             <input
@@ -869,11 +980,47 @@ const VerDetallesModal = ({ tx, onClose }) => {
                             style={{ color: '#2ecc71', fontWeight: 600 }} />
                         <RO label="Costo Productos ($)"
                             value={tx.products_cost != null ? tx.products_cost.toFixed(2) : null} />
-                        <RO label="Gasto Operativo ($)"
-                            value={tx.operational_cost != null ? tx.operational_cost.toFixed(2) : null} />
                         <RO label="Total Salida ($)" value={salida != null ? salida.toFixed(2) : null}
                             style={{ color: salida != null ? '#d60a5f' : undefined, fontWeight: salida != null ? 600 : 400 }} />
                     </div>
+
+                    {/* Desglose de Gastos Operacionales */}
+                    {tx.operational_costs?.length > 0 ? (
+                        <div className="op-cost-desglose">
+                            <div className="op-cost-desglose-header">
+                                <span>Tipo</span>
+                                <span>Responsable</span>
+                                <span style={{ textAlign: 'right' }}>Monto</span>
+                            </div>
+                            {tx.operational_costs.map((item, i) => (
+                                <div key={i} className="op-cost-desglose-row">
+                                    <span>{item.type_label || item.type_key}</span>
+                                    <span>{item.responsible_name}</span>
+                                    <span style={{ textAlign: 'right', color: '#d60a5f' }}>
+                                        ${Number(item.amount).toFixed(2)}
+                                    </span>
+                                </div>
+                            ))}
+                            <div className="op-cost-desglose-total">
+                                <span>Total Gasto Operacional</span>
+                                <span />
+                                <span style={{ textAlign: 'right', color: '#d60a5f', fontWeight: 700 }}>
+                                    ${tx.operational_costs.reduce((s, i) => s + i.amount, 0).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+                    ) : tx.operational_cost != null ? (
+                        <div className="op-cost-desglose">
+                            <div className="op-cost-desglose-row">
+                                <span>Gasto Operativo</span>
+                                <span>—</span>
+                                <span style={{ textAlign: 'right', color: '#d60a5f' }}>
+                                    ${Number(tx.operational_cost).toFixed(2)}
+                                </span>
+                            </div>
+                        </div>
+                    ) : null}
+
                     {tx.description && (
                         <div className="mov-form-row">
                             <RO label="Descripción" value={tx.description} />

@@ -186,6 +186,13 @@ def yappy_checkout(body: YappyCheckoutBody):
         "express_delivery": body.express_delivery,
         "express_fee":     body.express_fee,
         "yappy_fee":       yappy_commission,
+        "operational_costs": [{
+            "amount":           yappy_commission,
+            "type_key":         "payment_fee",
+            "type_label":       "Cargo de Método de Pago",
+            "responsible_id":   None,
+            "responsible_name": "Yappy",
+        }],
         "order_number":    order_number,
         "delivery_date":   delivery_date,
         "delivery_status": "pending",

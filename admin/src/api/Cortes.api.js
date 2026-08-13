@@ -26,3 +26,18 @@ export const markUnpaidRequest = (corteId, sellerId) =>
 
 export const getSellerSummaryRequest = () =>
     axios.get('/api/cortes/seller/summary');
+
+export const getOpCostTypesRequest = () =>
+    axios.get('/api/cortes/op-cost-types');
+
+export const putOpCostTypesRequest = (data) =>
+    axios.put('/api/cortes/op-cost-types', data);
+
+export const getDeliveryConfigRequest = () =>
+    axios.get('/api/cortes/delivery-config');
+
+export const putDeliveryConfigRequest = (data) =>
+    axios.put('/api/cortes/delivery-config', data);
+
+export const getDeliveryPreviewRequest = (start, end) =>
+    axios.get(`/api/cortes/delivery-preview?start=${start}&end=${end}`);

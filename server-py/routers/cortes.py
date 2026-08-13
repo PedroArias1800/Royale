@@ -14,6 +14,21 @@ CONFIG_ID = "corte_split"
 _DEF_ROYALE = 50.0
 _DEF_SELLER = 50.0
 
+DELIVERY_CONFIG_ID        = "delivery_config"
+_DEF_DELIVERY_FEE         = 5.0
+_DEF_DELIVERY_MIN         = 8.0
+
+OP_COST_TYPES_ID          = "op_cost_types"
+OP_COST_SERVICES_ID       = "op_cost_external_services"
+
+_DEF_OP_COST_TYPES = [
+    {"key": "payment_fee",    "label": "Cargo de Método de Pago", "responsible_mode": "external"},
+    {"key": "product_search", "label": "Búsqueda del Producto",   "responsible_mode": "admin"},
+    {"key": "delivery",       "label": "Entrega del Producto",    "responsible_mode": "admin_delivery"},
+    {"key": "packaging",      "label": "Costo de Empaque",        "responsible_mode": "admin"},
+]
+_DEF_EXTERNAL_SERVICES = ["Yappy", "Wompi", "Otro"]
+
 
 # ─── Helpers internos ────────────────────────────────────────────────────────
 
@@ -61,11 +76,38 @@ def _seller_tx_match(start_dt: datetime, end_dt: datetime) -> dict:
     }
 
 
+def _sum_op_costs(tx: dict) -> float:
+    """Suma operational_costs[] con fallback a operational_cost (campo legado)."""
+    items = tx.get("operational_costs") or []
+    if items:
+        return sum(float(i.get("amount") or 0) for i in items)
+    return float(tx.get("operational_cost") or 0)
+
+
+def _get_delivery_config(db) -> dict:
+    cfg = db.config.find_one({"_id": DELIVERY_CONFIG_ID})
+    if not cfg:
+        return {"fee_per_order": _DEF_DELIVERY_FEE, "min_daily_fee": _DEF_DELIVERY_MIN}
+    return {
+        "fee_per_order": float(cfg.get("fee_per_order", _DEF_DELIVERY_FEE)),
+        "min_daily_fee": float(cfg.get("min_daily_fee", _DEF_DELIVERY_MIN)),
+    }
+
+
+def _get_op_cost_types(db) -> dict:
+    types_doc    = db.config.find_one({"_id": OP_COST_TYPES_ID})
+    services_doc = db.config.find_one({"_id": OP_COST_SERVICES_ID})
+    return {
+        "types":    types_doc["types"]    if types_doc    else _DEF_OP_COST_TYPES,
+        "services": services_doc["services"] if services_doc else _DEF_EXTERNAL_SERVICES,
+    }
+
+
 def _tx_utility(tx: dict, cost_cache: dict, db) -> tuple[float, float]:
     """Devuelve (utilidad, cogs) de una transacción."""
     total = float(tx.get("total") or 0)
     pc = tx.get("products_cost")
-    oc = float(tx.get("operational_cost") or 0)
+    oc = _sum_op_costs(tx)
 
     if pc is not None:
         cogs = float(pc) + oc
@@ -88,8 +130,8 @@ def _build_preview(start_dt: datetime, end_dt: datetime, db, config: dict) -> li
     """Calcula el breakdown por vendedor sin persistir."""
     txs = list(db.transactions.find(
         _seller_tx_match(start_dt, end_dt),
-        {"seller_id_fk": 1, "total": 1, "products_cost": 1,
-         "operational_cost": 1, "productsTypes": 1, "quantities": 1},
+        {"seller_id_fk": 1, "total": 1, "products_cost": 1, "operational_cost": 1,
+         "operational_costs": 1, "productsTypes": 1, "quantities": 1},
     ))
 
     cost_cache: dict = {}
@@ -192,6 +234,139 @@ def update_config(body: ConfigBody, db=Depends(get_db), payload: dict = Depends(
         upsert=True,
     )
     return {"royale_pct": body.royale_pct, "seller_pct": body.seller_pct}
+
+
+# ─── Delivery config endpoints ───────────────────────────────────────────────
+
+@router.get("/api/cortes/delivery-config")
+def get_delivery_config(db=Depends(get_db), payload: dict = Depends(verify_token)):
+    return _get_delivery_config(db)
+
+
+class DeliveryConfigBody(BaseModel):
+    fee_per_order: float
+    min_daily_fee: float
+
+
+@router.put("/api/cortes/delivery-config")
+def update_delivery_config(
+    body: DeliveryConfigBody,
+    db=Depends(get_db),
+    payload: dict = Depends(verify_token),
+):
+    _require_admin(payload, db)
+    if body.fee_per_order <= 0 or body.min_daily_fee <= 0:
+        raise HTTPException(status_code=400, detail="Los montos deben ser positivos")
+    db.config.update_one(
+        {"_id": DELIVERY_CONFIG_ID},
+        {"$set": {
+            "fee_per_order": body.fee_per_order,
+            "min_daily_fee": body.min_daily_fee,
+            "updatedAt":     datetime.now(timezone.utc),
+        }},
+        upsert=True,
+    )
+    return {"fee_per_order": body.fee_per_order, "min_daily_fee": body.min_daily_fee}
+
+
+# ─── Op-cost-types config endpoints ──────────────────────────────────────────
+
+@router.get("/api/cortes/op-cost-types")
+def get_op_cost_types(db=Depends(get_db), payload: dict = Depends(verify_token)):
+    return _get_op_cost_types(db)
+
+
+class OpCostTypesBody(BaseModel):
+    types:    list
+    services: list
+
+
+@router.put("/api/cortes/op-cost-types")
+def update_op_cost_types(
+    body: OpCostTypesBody,
+    db=Depends(get_db),
+    payload: dict = Depends(verify_token),
+):
+    _require_admin(payload, db)
+    db.config.update_one(
+        {"_id": OP_COST_TYPES_ID},
+        {"$set": {"types": body.types, "updatedAt": datetime.now(timezone.utc)}},
+        upsert=True,
+    )
+    db.config.update_one(
+        {"_id": OP_COST_SERVICES_ID},
+        {"$set": {"services": body.services, "updatedAt": datetime.now(timezone.utc)}},
+        upsert=True,
+    )
+    return {"types": body.types, "services": body.services}
+
+
+# ─── Delivery preview ────────────────────────────────────────────────────────
+
+@router.get("/api/cortes/delivery-preview")
+def delivery_preview(
+    start: str = Query(...),
+    end:   str = Query(...),
+    db=Depends(get_db),
+    payload: dict = Depends(verify_token),
+):
+    _require_admin(payload, db)
+    start_dt = _parse_dt(start)
+    end_dt   = _parse_dt(end)
+
+    txs = list(db.transactions.find(
+        {
+            "delivery_status": "delivered",
+            "delivered_at": {"$gte": start_dt, "$lte": end_dt},
+            "operational_costs": {"$exists": True, "$ne": []},
+        },
+        {"delivery_assigned_to": 1, "delivery_assigned_name": 1,
+         "operational_costs": 1, "order_number": 1, "delivered_at": 1, "total": 1},
+    ))
+
+    delivery_map: dict = {}
+
+    for tx in txs:
+        assigned_id = str(tx.get("delivery_assigned_to", ""))
+        if not assigned_id:
+            continue
+
+        delivery_items = [
+            item for item in (tx.get("operational_costs") or [])
+            if item.get("type_key") == "delivery"
+            and str(item.get("responsible_id", "")) == assigned_id
+        ]
+        if not delivery_items:
+            continue
+
+        tx_total = sum(float(i.get("amount") or 0) for i in delivery_items)
+
+        if assigned_id not in delivery_map:
+            delivery_map[assigned_id] = {
+                "delivery_user_id":   assigned_id,
+                "delivery_user_name": tx.get("delivery_assigned_name", "Desconocido"),
+                "total_pay":          0.0,
+                "deliveries":         [],
+            }
+
+        delivery_map[assigned_id]["total_pay"] += tx_total
+        delivery_map[assigned_id]["deliveries"].append({
+            "tx_id":        str(tx["_id"]),
+            "order_number": tx.get("order_number", ""),
+            "delivered_at": tx["delivered_at"].isoformat() if tx.get("delivered_at") else None,
+            "amount":       round(tx_total, 2),
+        })
+
+    result = []
+    for data in delivery_map.values():
+        data["total_pay"]   = round(data["total_pay"], 2)
+        data["delivery_count"] = len(data["deliveries"])
+        result.append(data)
+
+    return {
+        "deliveries": sorted(result, key=lambda x: x["total_pay"], reverse=True),
+        "total_pay":  round(sum(d["total_pay"] for d in result), 2),
+    }
 
 
 # ─── Preview (sin persistir) ─────────────────────────────────────────────────

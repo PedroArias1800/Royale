@@ -11,6 +11,9 @@ import {
     markPaidRequest,
     markUnpaidRequest,
     getSellerSummaryRequest,
+    getDeliveryConfigRequest,
+    putDeliveryConfigRequest,
+    getDeliveryPreviewRequest,
 } from '../api/Cortes.api.js';
 import '../css/Cortes.css';
 
@@ -276,6 +279,185 @@ const ConfigPanel = ({ config, onSave }) => {
     );
 };
 
+// ─── Panel configuración Delivery ────────────────────────────────────────
+const DeliveryConfigPanel = ({ config, onSave }) => {
+    const [edit, setEdit]         = useState(false);
+    const [fee, setFee]           = useState(String(config.fee_per_order));
+    const [minFee, setMinFee]     = useState(String(config.min_daily_fee));
+    const [error, setError]       = useState('');
+    const [saving, setSaving]     = useState(false);
+
+    useEffect(() => {
+        setFee(String(config.fee_per_order));
+        setMinFee(String(config.min_daily_fee));
+    }, [config]);
+
+    const handleSave = async () => {
+        const f = parseFloat(fee);
+        const m = parseFloat(minFee);
+        if (!f || !m || f <= 0 || m <= 0) {
+            setError('Ambos montos deben ser mayores a 0');
+            return;
+        }
+        setSaving(true);
+        try {
+            await onSave({ fee_per_order: f, min_daily_fee: m });
+            setEdit(false);
+            setError('');
+        } catch (e) {
+            setError(e?.response?.data?.detail || 'Error al guardar');
+        }
+        setSaving(false);
+    };
+
+    return (
+        <div className="corte-card">
+            <p className="corte-card-title">🚚 Configuración Delivery</p>
+            {!edit ? (
+                <div className="corte-config-panel">
+                    <div className="corte-config-pcts">
+                        <div className="corte-pct-badge">
+                            <span className="pct-value">{fmtMoney(config.fee_per_order)}</span>
+                            <span className="pct-label">Por pedido</span>
+                        </div>
+                        <div className="corte-pct-badge royale">
+                            <span className="pct-value">{fmtMoney(config.min_daily_fee)}</span>
+                            <span className="pct-label">Mínimo diario</span>
+                        </div>
+                    </div>
+                    <button className="btn-corte-ghost" onClick={() => setEdit(true)}>
+                        ✏ Editar tarifas
+                    </button>
+                    <span className="corte-config-note">
+                        1 entrega/día = mínimo diario. 2+ entregas = tarifa por pedido c/u.
+                    </span>
+                </div>
+            ) : (
+                <div className="corte-config-panel" style={{ flexDirection: 'column', gap: 12, alignItems: 'flex-start' }}>
+                    <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+                        <div className="corte-config-field">
+                            <label>Por pedido ($)</label>
+                            <input type="number" min="0.01" step="0.5"
+                                value={fee} onChange={e => { setFee(e.target.value); setError(''); }}
+                                className="corte-config-input" />
+                        </div>
+                        <div className="corte-config-field">
+                            <label>Mínimo diario ($)</label>
+                            <input type="number" min="0.01" step="0.5"
+                                value={minFee} onChange={e => { setMinFee(e.target.value); setError(''); }}
+                                className="corte-config-input" />
+                        </div>
+                    </div>
+                    {error && <span className="corte-error">{error}</span>}
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <button className="btn-corte-primary" onClick={handleSave} disabled={saving}>
+                            {saving ? 'Guardando...' : 'Guardar'}
+                        </button>
+                        <button className="btn-corte-ghost" onClick={() => { setEdit(false); setError(''); }}>
+                            Cancelar
+                        </button>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// ─── Preview Corte Delivery ───────────────────────────────────────────────
+const DeliveryPreviewPanel = () => {
+    const [form, setForm]       = useState({ start: '', end: todayISO() });
+    const [data, setData]       = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError]     = useState('');
+
+    const canFetch = form.start && form.end && form.start <= form.end;
+
+    const handleFetch = async () => {
+        if (!canFetch) return;
+        setLoading(true);
+        setError('');
+        try {
+            const res = await getDeliveryPreviewRequest(
+                `${form.start}T00:00:00-05:00`,
+                `${form.end}T23:59:59-05:00`,
+            );
+            setData(res.data);
+        } catch (e) {
+            setError(e?.response?.data?.detail || 'Error al cargar datos');
+        }
+        setLoading(false);
+    };
+
+    return (
+        <div className="corte-card">
+            <p className="corte-card-title">📦 Corte de Delivery</p>
+            <div className="corte-nuevo-form">
+                <div className="corte-form-row">
+                    <div className="corte-form-field">
+                        <label>Desde</label>
+                        <input type="date" value={form.start} max={form.end || todayISO()}
+                            onChange={e => { setForm(f => ({ ...f, start: e.target.value })); setData(null); }} />
+                    </div>
+                    <div className="corte-form-field">
+                        <label>Hasta</label>
+                        <input type="date" value={form.end} max={todayISO()}
+                            onChange={e => { setForm(f => ({ ...f, end: e.target.value })); setData(null); }} />
+                    </div>
+                </div>
+                <div className="corte-form-actions">
+                    <button className="btn-corte-secondary" onClick={handleFetch}
+                        disabled={!canFetch || loading}>
+                        {loading ? 'Calculando...' : '🔍 Ver Corte Delivery'}
+                    </button>
+                </div>
+                {error && <span className="corte-error">{error}</span>}
+
+                {data && (
+                    <>
+                        <p className="corte-preview-title">
+                            {data.deliveries.length} repartidor{data.deliveries.length !== 1 ? 'es' : ''}
+                            {' — '}Total: <strong>{fmtMoney(data.total_pay)}</strong>
+                        </p>
+                        {!data.deliveries.length ? (
+                            <div className="corte-preview-empty">Sin entregas completadas en este período.</div>
+                        ) : (
+                            <div className="corte-preview-table-wrap">
+                                <table className="corte-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Repartidor</th>
+                                            <th style={{ textAlign: 'right' }}>Entregas</th>
+                                            <th style={{ textAlign: 'right' }}>Total a Pagar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data.deliveries.map((d, i) => (
+                                            <tr key={i}>
+                                                <td className="td-name">{d.delivery_user_name}</td>
+                                                <td className="td-money" style={{ textAlign: 'right', color: 'rgba(237,232,235,0.55)' }}>
+                                                    {d.delivery_count}
+                                                </td>
+                                                <td className="td-money td-seller-cut">{fmtMoney(d.total_pay)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td className="td-name">Total</td>
+                                            <td />
+                                            <td className="td-money td-seller-cut">{fmtMoney(data.total_pay)}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        )}
+                    </>
+                )}
+            </div>
+        </div>
+    );
+};
+
 // ─── Panel para crear un nuevo corte ─────────────────────────────────────
 const NuevoCortePanel = ({ config, onCreated, onCancel }) => {
     const [form, setForm] = useState({
@@ -479,24 +661,27 @@ export const Cortes = () => {
     const { user } = useAuth();
     const isAdmin  = user?.roles?.includes(1) || user?.rol == 1;
 
-    const [config, setConfig]           = useState({ royale_pct: 50, seller_pct: 50 });
-    const [cortes, setCortes]           = useState([]);
-    const [loading, setLoading]         = useState(true);
-    const [showNewCorte, setShowNew]    = useState(false);
-    const [viewMode, setViewMode]       = useState('gestion'); // 'gestion' | 'personal'
-    const [sellerSummary, setSellerSummary] = useState(null);
+    const [config, setConfig]                   = useState({ royale_pct: 50, seller_pct: 50 });
+    const [deliveryConfig, setDeliveryConfig]   = useState({ fee_per_order: 5, min_daily_fee: 8 });
+    const [cortes, setCortes]                   = useState([]);
+    const [loading, setLoading]                 = useState(true);
+    const [showNewCorte, setShowNew]            = useState(false);
+    const [viewMode, setViewMode]               = useState('gestion'); // 'gestion' | 'personal' | 'delivery'
+    const [sellerSummary, setSellerSummary]     = useState(null);
 
     const loadAll = useCallback(async () => {
         setLoading(true);
         try {
-            const [cortesRes, configRes, summaryRes] = await Promise.all([
+            const [cortesRes, configRes, summaryRes, deliveryCfgRes] = await Promise.all([
                 getCortesRequest(),
                 getCortesConfigRequest(),
                 getSellerSummaryRequest(),
+                getDeliveryConfigRequest(),
             ]);
             setCortes(cortesRes.data || []);
             setConfig(configRes.data);
             setSellerSummary(summaryRes.data);
+            setDeliveryConfig(deliveryCfgRes.data);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     }, []);
@@ -506,6 +691,11 @@ export const Cortes = () => {
     const handleSaveConfig = async (data) => {
         await putCortesConfigRequest(data);
         setConfig(data);
+    };
+
+    const handleSaveDeliveryConfig = async (data) => {
+        await putDeliveryConfigRequest(data);
+        setDeliveryConfig(data);
     };
 
     const handleCreated = () => {
@@ -571,6 +761,12 @@ export const Cortes = () => {
                                 Gestión
                             </button>
                             <button
+                                className={`cortes-tab-btn${viewMode === 'delivery' ? ' active' : ''}`}
+                                onClick={() => { setViewMode('delivery'); setShowNew(false); }}
+                            >
+                                Delivery
+                            </button>
+                            <button
                                 className={`cortes-tab-btn${viewMode === 'personal' ? ' active' : ''}`}
                                 onClick={() => { setViewMode('personal'); setShowNew(false); }}
                             >
@@ -625,6 +821,14 @@ export const Cortes = () => {
                             ))
                         )}
                     </div>
+                </>
+            )}
+
+            {/* Vista admin — Delivery */}
+            {isAdmin && viewMode === 'delivery' && (
+                <>
+                    <DeliveryConfigPanel config={deliveryConfig} onSave={handleSaveDeliveryConfig} />
+                    <DeliveryPreviewPanel />
                 </>
             )}
 
