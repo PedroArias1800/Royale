@@ -1,6 +1,7 @@
-import { useState, useEffect, useContext, useCallback } from "react";
+import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import { ParfumContext } from "../context/ParfumContext";
-import { getDeliveryOptionsRequest, postResolveDeliveryRequest, postYappyCheckoutRequest } from "../api/Cart.api";
+import { getDeliveryOptionsRequest, postResolveDeliveryRequest, postYappyCheckoutRequest, postWompiCheckoutRequest } from "../api/Cart.api";
 
 const PROVINCES = [
     'Bocas del Toro','Chiriquí','Coclé','Colón','Darién',
@@ -33,7 +34,8 @@ const METRO_LINES = {
 };
 
 export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
-  const { openModal } = useContext(ParfumContext);
+  const { openModal, channelSource } = useContext(ParfumContext);
+  const navigate = useNavigate();
 
   const [isVisible, setIsVisible]   = useState(isOpen);
   const [deliveryConfig, setDeliveryConfig] = useState(null);
@@ -52,13 +54,23 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
   // Metro state
   const [metroLine, setMetroLine]       = useState('Línea 1');
   const [metroStation, setMetroStation] = useState('');
-  const [yappyLoading, setYappyLoading] = useState(false);
-  const [yappyError, setYappyError]     = useState('');
+
+  // Express delivery
+  const [expressDelivery, setExpressDelivery] = useState(false);
+
+  // Newsletter
+  const [newsletter, setNewsletter] = useState(false);
+
+  const [yappyLoading, setYappyLoading]   = useState(false);
+  const [yappyError, setYappyError]       = useState('');
+  const [wompiLoading, setWompiLoading]   = useState(false);
+  const [wompiError, setWompiError]       = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setIsVisible(true);
       setYappyError('');
+      setWompiError('');
       setLoadingConfig(true);
       getDeliveryOptionsRequest()
         .then(res => setDeliveryConfig(res.data || null))
@@ -95,8 +107,19 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
   const gratisThreshold = deliveryConfig?.gratis?.price ?? null;
   const isFreeOrder     = gratisThreshold !== null && cartNet >= gratisThreshold;
 
-  // Compute delivery fee for selected method
-  const getDeliveryFee = () => {
+  // Express delivery eligibility: Panama province or metro + after 10am Panama time
+  const EXPRESS_FEE = 10;
+  const isPanamaAfter10am = () => {
+    const now = new Date();
+    const panamaOffset = -5 * 60;
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    const panama = new Date(utc + panamaOffset * 60000);
+    return panama.getHours() >= 10;
+  };
+  const expressEligible = (province === 'Panamá' || method === 'metro') && isPanamaAfter10am();
+
+  // Compute base delivery fee (without express)
+  const getBaseDeliveryFee = () => {
     if (isFreeOrder) return 0;
     if (method === 'zona') {
       if (!resolvedZona || resolvedZona === 'notfound') return null;
@@ -110,8 +133,11 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
     return null;
   };
 
-  const deliveryFee    = getDeliveryFee();
-  const finalTotal     = deliveryFee !== null ? (cartNet + deliveryFee).toFixed(2) : null;
+  const baseDeliveryFee = getBaseDeliveryFee();
+  const expressActive   = expressDelivery && expressEligible;
+  // Express replaces zone price entirely — solo $10, no base + $10
+  const deliveryFee     = baseDeliveryFee !== null ? (expressActive ? EXPRESS_FEE : baseDeliveryFee) : null;
+  const finalTotal      = deliveryFee !== null ? (cartNet + deliveryFee).toFixed(2) : null;
 
   const getDeliveryLabel = () => {
     if (isFreeOrder) return 'Delivery Gratuito';
@@ -124,12 +150,16 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
-    data._deliveryLabel = getDeliveryLabel();
-    data._deliveryFee   = deliveryFee ?? 0;
+    data._deliveryLabel     = getDeliveryLabel();
+    data._deliveryFee       = deliveryFee ?? 0;
+    data.express_delivery   = expressActive;
+    data.express_fee        = expressActive ? EXPRESS_FEE : 0;
+    data.newsletter         = newsletter;
     onSubmit(data, {
-      label: getDeliveryLabel(),
-      price: deliveryFee ?? 0,
-      is_free: isFreeOrder || deliveryFee === 0,
+      label:       getDeliveryLabel(),
+      price:       deliveryFee ?? 0,
+      express_fee: expressActive ? EXPRESS_FEE : 0,
+      is_free:     isFreeOrder || deliveryFee === 0,
     });
   };
 
@@ -145,23 +175,119 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
     setYappyLoading(true);
     setYappyError('');
     try {
+      const totalConYappy = finalTotal ?? '0.00';
+
       const payload = {
         userName: data.name, phone: data.phone,
         direction: data.address || getDeliveryLabel(),
         email: data.email || '',
         subTotal, couponDiscount,
-        deliveryFee: deliveryFee ?? 0,
-        couponId:    cartData?.couponId || null,
-        deliveryLabel: getDeliveryLabel(),
-        products:      cartData?.productsId || [],
-        productsTypes: cartData?.typesId    || [],
-        quantities:    cartData?.quantities  || [],
+        deliveryFee:      deliveryFee ?? 0,
+        couponId:         cartData?.couponId || null,
+        deliveryLabel:    getDeliveryLabel(),
+        channel:          cartData?.channelSource || channelSource || 'Sitio Web',
+        products:         cartData?.productsId    || [],
+        productsTypes:    cartData?.typesId       || [],
+        quantities:       cartData?.quantities    || [],
+        products_prices:  cartData?.products_prices || [],
+        express_delivery: expressActive,
+        express_fee:      expressActive ? EXPRESS_FEE : 0,
+        newsletter,
       };
       const res = await postYappyCheckoutRequest(payload);
-      if (res.data?.yappyUrl) window.location.href = res.data.yappyUrl;
+      if (res.data?.token) {
+        onClose();
+
+        // Construir mensaje de email
+        const pd = cartData?.productDetails || [];
+        const urlBase = cartData?.URLFrontend || '';
+        const orderNumber = res.data.orderNumber || '';
+        let emailMsg = '';
+        if (orderNumber) emailMsg += `N° Pedido: ${orderNumber}\n\n`;
+        pd.forEach(item => {
+          emailMsg += `Producto: ${item.brand_name} ${item.title}\n`;
+          emailMsg += `Versión: ${item.version_name} - ${item.ml}ml\n`;
+          if (item.discPct) {
+            emailMsg += `Precio: $${Number(item.price).toFixed(2)} (descuento −${item.discPct}% aplicado)\n`;
+          } else {
+            emailMsg += `Precio: $${Number(item.price).toFixed(2)}\n`;
+          }
+          emailMsg += `Cantidad: ${item.quantity}\n`;
+          if (urlBase) emailMsg += `Enlace: ${urlBase}/parfum?id=${item.parfum_id}\n`;
+          emailMsg += '\n';
+        });
+        if (couponDiscount > 0) {
+          emailMsg += `Cupón aplicado: -$${couponDiscount.toFixed(2)}\n\n`;
+        }
+        const dlLabel = getDeliveryLabel();
+        if (dlLabel) {
+          emailMsg += `Delivery: ${dlLabel}`;
+          emailMsg += (isFreeOrder || deliveryFee === 0) ? ' (Gratis)\n\n' : ` — $${(deliveryFee || 0).toFixed(2)}\n\n`;
+        }
+        if (expressDelivery && expressEligible) {
+          emailMsg += `🚀 DELIVERY EXPRESS — $${EXPRESS_FEE.toFixed(2)} (entrega mismo día)\n\n`;
+        }
+        emailMsg += `Total: $${totalConYappy}\n\n`;
+        emailMsg += `Contacto del cliente:\n`;
+        emailMsg += `Teléfono: +507 ${data.phone}\n`;
+        if (data.email) emailMsg += `Correo: ${data.email}\n`;
+        emailMsg += `\nMétodo de pago: Yappy`;
+
+        navigate("/pago-yappy", {
+          state: {
+            orderId:      res.data.orderId,
+            orderNumber:  orderNumber,
+            token:        res.data.token,
+            documentName: res.data.documentName,
+            cdnUrl:       res.data.cdnUrl,
+            phone:        data.phone,
+            total:        totalConYappy,
+            emailMessage: emailMsg,
+            userName:     data.name,
+            userEmail:    data.email || '',
+            products:     cartData?.productDetails?.map(p => `${p.brand_name} ${p.title} ${p.ml}ml × ${p.quantity}`).join(', ') || '',
+          },
+        });
+      }
     } catch (err) {
       setYappyError(err.response?.data?.message || 'Error al conectar con Yappy. Usa el método por WhatsApp.');
     } finally { setYappyLoading(false); }
+  };
+
+  const handleWompi = async (e) => {
+    e.preventDefault();
+    const form = e.currentTarget.closest('form');
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    if (deliveryFee === null) { setWompiError('Selecciona una opción de delivery válida primero.'); return; }
+
+    const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    setWompiLoading(true);
+    setWompiError('');
+    try {
+      const payload = {
+        userName: data.name, phone: data.phone,
+        direction: data.address || getDeliveryLabel(),
+        email: data.email || '',
+        subTotal, couponDiscount,
+        deliveryFee:      deliveryFee ?? 0,
+        couponId:         cartData?.couponId || null,
+        deliveryLabel:    getDeliveryLabel(),
+        channel:          cartData?.channelSource || channelSource || 'Sitio Web',
+        products:         cartData?.productsId    || [],
+        productsTypes:    cartData?.typesId       || [],
+        quantities:       cartData?.quantities    || [],
+        products_prices:  cartData?.products_prices || [],
+        express_delivery: expressActive,
+        express_fee:      expressActive ? EXPRESS_FEE : 0,
+        newsletter,
+      };
+      const res = await postWompiCheckoutRequest(payload);
+      if (res.data?.wompiUrl) window.location.href = res.data.wompiUrl;
+    } catch (err) {
+      setWompiError(err.response?.data?.message || 'Error al conectar con Wompi. Usa el método por WhatsApp.');
+    } finally { setWompiLoading(false); }
   };
 
   const districts      = province ? (DISTRICTS[province] || []) : [];
@@ -280,9 +406,14 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
                           No hay precio configurado para esta zona. Contáctanos para coordinar.
                         </span>
                       )}
-                      {!resolving && resolvedZona && resolvedZona !== 'notfound' && !isFreeOrder && (
+                      {!resolving && resolvedZona && resolvedZona !== 'notfound' && !isFreeOrder && !expressActive && (
                         <span className="pm-zona-price--found">
                           Delivery a <strong>{resolvedZona.label}</strong>: <strong>${Number(resolvedZona.price).toFixed(2)}</strong>
+                        </span>
+                      )}
+                      {!resolving && resolvedZona && resolvedZona !== 'notfound' && !isFreeOrder && expressActive && (
+                        <span style={{ color: '#fdd05e', fontWeight: 'bold', fontSize: '0.88rem' }}>
+                          🚀 Delivery Express seleccionado
                         </span>
                       )}
                       {isFreeOrder && <span className="pm-zona-price--free">Entrega gratuita ✓</span>}
@@ -328,6 +459,36 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
                   {isFreeOrder && <span className="pm-zona-price--free">Entrega gratuita ✓</span>}
                 </div>
               )}
+
+              {/* ── Express Delivery ── */}
+              {(method === 'metro' || province === 'Panamá') && (
+                <div style={{ marginTop: '12px', padding: '12px 14px', background: 'rgba(253,208,94,0.04)', border: `1px solid ${expressEligible ? 'rgba(253,208,94,0.3)' : 'rgba(253,208,94,0.1)'}`, borderRadius: '2px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '10px' }}>
+                    <input
+                      type="checkbox"
+                      id="express_delivery"
+                      checked={expressDelivery}
+                      disabled={!expressEligible}
+                      onChange={e => setExpressDelivery(e.target.checked)}
+                      style={{ marginTop: '3px', accentColor: '#fdd05e', cursor: expressEligible ? 'pointer' : 'not-allowed' }}
+                    />
+                    <label htmlFor="express_delivery" style={{ cursor: expressEligible ? 'pointer' : 'not-allowed', flex: 1 }}>
+                      <span style={{ color: expressEligible ? '#fdd05e' : 'rgba(253,208,94,0.4)', fontWeight: 'bold', fontSize: '0.88rem' }}>
+                        🚀 Delivery Express — +${EXPRESS_FEE.toFixed(2)}
+                      </span>
+                      {expressEligible ? (
+                        <p style={{ margin: '2px 0 0', fontSize: '0.77rem', color: 'rgba(237,232,235,0.55)', lineHeight: 1.4 }}>
+                          Entrega el mismo día. Disponible de lunes a sábado entre 10:00 am y 8:00 pm.
+                        </p>
+                      ) : (
+                        <p style={{ margin: '2px 0 0', fontSize: '0.77rem', color: 'rgba(237,232,235,0.35)', lineHeight: 1.4 }}>
+                          Disponible después de las 10:00 am para Provincia de Panamá y estaciones de Metro.
+                        </p>
+                      )}
+                    </label>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
@@ -344,12 +505,18 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
               {couponDiscount > 0 && (
                 <><span>Cupón</span><span className="pm-saving">−${couponDiscount.toFixed(2)}</span></>
               )}
-              <span>Delivery</span>
-              <span>
-                {isFreeOrder || deliveryFee === 0
-                  ? <em className="pm-free">Gratis</em>
-                  : `$${deliveryFee.toFixed(2)}`}
-              </span>
+              {expressActive ? (
+                <><span>🚀 Express</span><span>${EXPRESS_FEE.toFixed(2)}</span></>
+              ) : (
+                <>
+                  <span>Delivery</span>
+                  <span>
+                    {isFreeOrder || deliveryFee === 0
+                      ? <em className="pm-free">Gratis</em>
+                      : `$${(deliveryFee || 0).toFixed(2)}`}
+                  </span>
+                </>
+              )}
               <span className="pm-total-label">Total</span>
               <span className="pm-total-amount">${finalTotal}</span>
             </div>
@@ -368,19 +535,69 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
               Acepto la <button type="button" onClick={e => { e.preventDefault(); openModal('privacy'); }}>Política de Privacidad</button>
             </label>
           </div>
+          <div className="form-group2 inputsChecks">
+            <input type="checkbox" id="newsletter" checked={newsletter} onChange={e => setNewsletter(e.target.checked)} />
+            <label htmlFor="newsletter" style={{ color: 'rgba(237,232,235,0.65)', fontSize: '0.85rem' }}>
+              Quiero recibir ofertas y novedades de Royale Panama por correo
+            </label>
+          </div>
 
           {/* ── Métodos de pago ── */}
-          {yappyError && <p className="pm-yappy-error">{yappyError}</p>}
+          {(yappyError || wompiError) && (
+            <p className="pm-yappy-error">{yappyError || wompiError}</p>
+          )}
           <div className="pm-payment-methods">
             <p className="pm-section-label">Método de Pago</p>
             <div className="pm-methods-row">
-              {/* btn-yappy oculto temporalmente — pendiente activación del comercio con Yappy */}
-              <button type="submit" className="pagar">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{verticalAlign:'middle',marginRight:'6px'}}>
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
-                WhatsApp
-              </button>
+              {/* ── WhatsApp ── */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', flex: 1 }}>
+                <button type="submit" className="pagar" style={{ width: '100%' }}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{verticalAlign:'middle',marginRight:'6px'}}>
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                  </svg>
+                  WhatsApp
+                </button>
+              </div>
+
+              {/* ── Yappy ── */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', flex: 1 }}>
+                <button
+                  type="button"
+                  className="pm-yappy-btn pm-yappy-sky"
+                  onClick={handleYappy}
+                  disabled={yappyLoading}
+                  style={{ width: '100%' }}
+                >
+                  {yappyLoading ? 'Procesando…' : (
+                    <span className="pm-yappy-logo">
+                      <span className="pm-yappy-pagar">Pagar con</span>
+                      <svg className="pm-yappy-svg" viewBox="0 0 44 28" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                        <circle cx="14" cy="14" r="14" fill="#1BAEE8"/>
+                        <circle cx="30" cy="14" r="14" fill="#FF6B35"/>
+                      </svg>
+                      <span className="pm-yappy-brand">yappy</span>
+                    </span>
+                  )}
+                </button>
+              </div>
+
+              {/* ── Tarjeta (en mantenimiento) ── */}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px', flex: 1 }}>
+                <button
+                  type="button"
+                  className="pm-yappy-btn pm-yappy-sky"
+                  disabled
+                  style={{ opacity: 0.4, cursor: 'not-allowed', width: '100%', filter: 'grayscale(1)' }}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style={{verticalAlign:'middle',marginRight:'6px'}}>
+                    <path d="M20 4H4c-1.11 0-2 .89-2 2v12c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/>
+                  </svg>
+                  Tarjeta de Crédito
+                </button>
+                <p style={{ margin: 0, fontSize: '0.68rem', color: 'rgba(237,232,235,0.35)', textAlign: 'center' }}>
+                  ⚙️ En mantenimiento
+                </p>
+              </div>
             </div>
           </div>
 

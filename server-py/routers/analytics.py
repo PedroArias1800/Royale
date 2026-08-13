@@ -40,13 +40,14 @@ def _income_match(start_dt, end_dt):
     }
 
 
-# Transacciones de salida manuales
+# Transacciones de salida manuales (active: False = revertidas por Día de Corte, excluidas)
 def _expense_match(start_dt, end_dt):
     return {
         "createdAt": {"$gte": start_dt, "$lte": end_dt},
         "fin_type": "salida",
         "is_manual": True,
         "omitted": {"$ne": True},
+        "active": {"$ne": False},
     }
 
 
@@ -191,12 +192,13 @@ def get_trends(
     cogs_by_period = {r["_id"]: r["cogs"] for r in db.transactions.aggregate(cogs_pipe)}
 
     all_periods = sorted(set(list(income_by_period) + list(expense_by_period) + list(cogs_by_period)))
-    return [
+
+    rows = [
         {
-            "period": p,
+            "period":   p,
             "ingresos": round(income_by_period.get(p, 0), 2),
-            "salidas": round(expense_by_period.get(p, 0) + cogs_by_period.get(p, 0), 2),
-            "balance": round(
+            "salidas":  round(expense_by_period.get(p, 0) + cogs_by_period.get(p, 0), 2),
+            "balance":  round(
                 income_by_period.get(p, 0)
                 - expense_by_period.get(p, 0)
                 - cogs_by_period.get(p, 0),
@@ -205,6 +207,14 @@ def get_trends(
         }
         for p in all_periods
     ]
+
+    # Balance acumulado: suma continua de la utilidad período a período
+    running = 0.0
+    for row in rows:
+        running = round(running + row["balance"], 2)
+        row["balance"] = running
+
+    return rows
 
 
 @router.get("/api/analytics/breakdown")

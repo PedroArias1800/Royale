@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from typing import Optional
 
 from database import get_db
 from auth import verify_token
@@ -15,6 +16,7 @@ class CouponBody(BaseModel):
     percentage: float
     productsThatApply: int
     status: int
+    max_uses: Optional[int] = None
 
 
 class FilterBody(BaseModel):
@@ -66,6 +68,7 @@ def create_coupon(body: CouponBody, _: dict = Depends(verify_token)):
     doc = {
         "title": body.title, "code": body.code, "percentage": body.percentage,
         "productsThatApply": body.productsThatApply, "status": body.status,
+        "max_uses": body.max_uses, "uses_count": 0,
         "createdAt": now, "updatedAt": now,
     }
     result = db.coupons.insert_one(doc)
@@ -77,13 +80,14 @@ def create_coupon(body: CouponBody, _: dict = Depends(verify_token)):
 def update_coupon(id: str, body: CouponBody, _: dict = Depends(verify_token)):
     db = get_db()
     from datetime import datetime, timezone
-    update = {
-        "$set": {
-            "title": body.title, "code": body.code, "percentage": body.percentage,
-            "productsThatApply": body.productsThatApply, "status": body.status,
-            "updatedAt": datetime.now(timezone.utc),
-        }
+    set_fields: dict = {
+        "title": body.title, "code": body.code, "percentage": body.percentage,
+        "productsThatApply": body.productsThatApply, "status": body.status,
+        "updatedAt": datetime.now(timezone.utc),
     }
+    if body.max_uses is not None:
+        set_fields["max_uses"] = body.max_uses
+    update = {"$set": set_fields}
     doc = db.coupons.find_one_and_update({"_id": to_object_id(id)}, update, return_document=True)
     if not doc:
         return JSONResponse(status_code=404, content={"message": "Coupon not Found"})

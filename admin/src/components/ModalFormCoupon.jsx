@@ -17,6 +17,8 @@ export const ModalFormCoupon = ({ modalData }) => {
 
     const convertType = (name, value) => {
         const integerFields = ['status', 'productsThatApply'];
+        const intOrNullFields = ['max_uses'];
+        if (intOrNullFields.includes(name)) return value === '' ? null : parseInt(value, 10);
         return integerFields.includes(name) ? parseInt(value, 10) : value;
     };
 
@@ -108,7 +110,20 @@ export const ModalFormCoupon = ({ modalData }) => {
                         <option value="2">Caballeros</option>
                     </select>
                 </label>
+                <label htmlFor="max_uses">
+                    <p>Límite de Usos <span style={{fontSize:'0.75rem',opacity:0.6}}>(vacío = ilimitado)</span></p>
+                    <input type="number" name="max_uses" id="max_uses" min="1"
+                        value={modalData?.max_uses ?? ''} onChange={handleInputChange} placeholder="Ej: 1" />
+                </label>
             </div>
+            {isUpdate && (
+                <div className='form-group3'>
+                    <label style={{opacity:0.6,pointerEvents:'none'}}>
+                        <p>Usos registrados</p>
+                        <input type="text" readOnly value={modalData?.uses_count ?? 0} style={{background:'rgba(255,255,255,0.04)'}} />
+                    </label>
+                </div>
+            )}
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
                 {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
                 <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />

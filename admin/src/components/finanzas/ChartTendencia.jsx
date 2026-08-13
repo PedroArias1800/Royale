@@ -30,14 +30,30 @@ function formatPeriodLabel(p) {
 
 const CustomTooltip = ({ active, payload, label }) => {
     if (!active || !payload?.length) return null;
+
+    const ingEntry = payload.find(p => p.dataKey === 'ingresos');
+    const salEntry = payload.find(p => p.dataKey === 'salidas');
+    const ingresos = ingEntry?.value ?? 0;
+    const salidas  = salEntry?.value  ?? 0;
+    // Balance del período = ingresos - salidas (consistente con los otros dos valores del tooltip)
+    const balance  = ingresos - salidas;
+
     return (
         <div className="chart-tooltip">
             <p className="ct-label">{formatPeriodLabel(label)}</p>
-            {payload.map((p) => (
-                <p key={p.name} style={{ color: p.color }}>
-                    {p.name}: ${Number(p.value).toFixed(2)}
+            {ingEntry && (
+                <p style={{ color: ingEntry.color }}>
+                    Ingresos: ${Number(ingresos).toFixed(2)}
                 </p>
-            ))}
+            )}
+            {salEntry && (
+                <p style={{ color: salEntry.color }}>
+                    Salidas: ${Number(salidas).toFixed(2)}
+                </p>
+            )}
+            <p style={{ color: '#fdd05e' }}>
+                Balance: ${Number(balance).toFixed(2)}
+            </p>
         </div>
     );
 };

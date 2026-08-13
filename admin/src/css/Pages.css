@@ -56,6 +56,18 @@
     width: 100%;
 }
 
+.adminLinksTitle {
+    grid-column: 1 / -1;
+    margin: 8px 0 2px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(253, 208, 94, 0.55);
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(253, 208, 94, 0.12);
+}
+
 .adminLinks a {
     display: flex;
     align-items: center;
@@ -85,6 +97,92 @@
 /* ═══════════════════════════════════════
    DATA PAGE (tabla CRUD)
 ═══════════════════════════════════════ */
+
+/* Contenedor raíz de todas las rutas /data — mismas propiedades que .finanzas-page */
+.dataContent {
+    padding: 24px 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: #1a1a1f;
+    min-height: calc(100vh - 56px);
+    color: #ede8eb;
+}
+
+/* El pageHeader dentro de dataContent ya tiene el padding externo cubierto */
+.dataContent .pageHeader {
+    padding: 4px 0;
+    width: auto;
+}
+
+/* Fila única título + buscador para el módulo de Transacciones (id==7) */
+.pageHeader-consulta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 6px 0 2px;
+}
+
+.pageHeader-consulta-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Título de la sección de gestión de transacciones */
+.tx-gestion {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tx-gestion-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--color-dorado);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Fila de tabs + buscador — misma línea vertical */
+.tx-tab-filters {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(253, 208, 94, 0.12);
+    flex-wrap: wrap;
+}
+
+.tx-tabs-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.tx-tab-btn {
+    padding: 5px 16px;
+    font-size: 0.78rem;
+    border: 1px solid rgba(253, 208, 94, 0.25);
+    background: transparent;
+    color: rgba(237, 232, 235, 0.55);
+    border-radius: 2px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+}
+
+.tx-tab-btn.active {
+    border-color: #fdd05e;
+    background: rgba(253, 208, 94, 0.12);
+    color: #fdd05e;
+}
+
 .pageHeader {
     padding: 12px 16px 8px;
     width: 100%;
@@ -390,6 +488,7 @@
     justify-content: center;
     gap: 6px;
     padding: 20px 16px 28px;
+    width: 100%;
 }
 
 .admin-pag-pages {
@@ -511,6 +610,29 @@
 
     .pages button {
         margin: 0 2px;
+    }
+
+    .dataContent {
+        padding: 16px 12px;
+        gap: 16px;
+    }
+
+    .pageHeader-consulta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .pageHeader-consulta .formFilter {
+        width: 100%;
+    }
+
+    .pageHeader-consulta .inputFilter {
+        width: 100%;
+    }
+
+    .tx-tab-filters {
+        flex-wrap: wrap;
     }
 
     .dataTable th {

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { postUsersRequest, putUsersRequest } from '../api/User.api.js';
+import { postManualTransactionRequest, deleteManualTransactionRequest } from '../api/Transaction.api.js';
 import { useAuth } from '../context/AuthProvider.jsx';
-import { getAllParfumsRequest, getTypeByParfumId, getUsersByRoleSeller } from '../api/Admin.api';
+import { getAllParfumsRequest, getTypeByParfumId, getUsersByRoleSeller, getAllUsersRequest } from '../api/Admin.api';
 import { getAllCouponsRequest } from '../api/Admin.api';
 import { ConfirmDeleteButton } from './ConfirmDeleteButton';
 import { putTransactionRequest } from '../api/Transaction.api.js';
@@ -19,6 +19,7 @@ export const ModalFormTransaction = ({ modalData }) => {
     const [datosTabla, setDatosTabla] = useState([]);
     const [sellers, setSellers] = useState([]);
     const [sellType, setSellType] = useState([]);
+    const [deliveryUsers, setDeliveryUsers] = useState([]);
     const [datosTransaccion, setDatosTransaccion] = useState({
         "totalQuantity": 0,
         "subTotal": 0.00,
@@ -45,6 +46,15 @@ export const ModalFormTransaction = ({ modalData }) => {
         loadParfum();
         loadCoupon();
         loadSellers();
+        if (isUpdate) {
+            getAllUsersRequest().then(r => {
+                const all = r.data?.data || r.data || [];
+                setDeliveryUsers(all.filter(u => {
+                    const roles = u.roles || [u.rol];
+                    return roles.includes(1) || roles.includes(3);
+                }));
+            }).catch(() => {});
+        }
     }, []);
 
     useEffect(() => {
@@ -59,6 +69,50 @@ export const ModalFormTransaction = ({ modalData }) => {
             setSellType([])
         }
     },[modalData?.parfum_id_fk?._id, modalData?.parfum_id_fk])
+
+    // Pre-popular tabla de productos al editar una transacción existente
+    useEffect(() => {
+        if (!isUpdate || !modalData?._id) return;
+        const products  = modalData.products      || [];
+        const typeIds   = modalData.productsTypes || [];
+        const qtys      = modalData.quantities    || [];
+        const prices    = modalData.products_prices || [];
+
+        if (!products.length) return;
+
+        const tabla = products.map((p, i) => {
+            const displayName = p.split('=')[1] || p;
+            const mlMatch = displayName.match(/\b(\d+\s*ml)\b/i);
+            const mlStr   = mlMatch ? mlMatch[0] : '';
+            const perfumeName = mlStr
+                ? displayName.replace(mlStr, '').trim().replace(/\s*-?\s*$/, '')
+                : displayName;
+            return {
+                productsTitle:      perfumeName || displayName,
+                productsTypesTitle: mlStr || typeIds[i] || '—',
+                quantities:         qtys[i]   ?? 1,
+                price:              prices[i] ?? 0,
+            };
+        });
+
+        const resumen = products.map((p, i) => ({
+            products:     p.split('=')[0],
+            productsTypes: typeIds[i],
+            quantities:   qtys[i]   ?? 1,
+            price:        prices[i] ?? 0,
+        }));
+
+        const totalQty  = qtys.reduce((s, q) => s + (q ?? 0), 0);
+        const subTotal  = products.reduce((s, _, i) => s + ((prices[i] ?? 0) * (qtys[i] ?? 0)), 0);
+
+        setDatosTabla(tabla);
+        setDatosResumen(resumen);
+        setDatosTransaccion({
+            totalQuantity: totalQty,
+            subTotal:      parseFloat(subTotal.toFixed(2)),
+            total:         parseFloat(subTotal.toFixed(2)),
+        });
+    }, [modalData?._id]);
 
     const handleInputChange = async (e) => {
         const { name, value } = e.target;
@@ -134,18 +188,45 @@ export const ModalFormTransaction = ({ modalData }) => {
                     label: modalData.label || null,
                     description: modalData.description || null,
                     status: modalData.status,
+                    lot_numbers: modalData.lot_numbers || [],
+                    ...(modalData.delivery_assigned_to ? (() => {
+                        const u = deliveryUsers.find(u => (u.id || u._id) === modalData.delivery_assigned_to);
+                        return {
+                            delivery_assigned_to: modalData.delivery_assigned_to,
+                            ...(u ? { delivery_assigned_name: `${u.firstname} ${u.lastname}` } : {}),
+                        };
+                    })() : {}),
+                    ...(modalData.delivery_date ? { delivery_date: modalData.delivery_date } : {}),
                 });
                 if (res.status == 200){
                     showAlert('Datos actualizados con éxito', 1);
-                    cargarDataTables(6)
+                    cargarDataTables(7)
                     closeModal()
                 }
             } else {
-                const res = await postUsersRequest(modalData);
+                const payload = {
+                    fin_type: 'ingreso',
+                    label: modalData.label || 'Venta Directa',
+                    total: parseFloat(datosTransaccion.total) || 0,
+                    subTotal: parseFloat(datosTransaccion.subTotal) || 0,
+                    userName: modalData.userName || '',
+                    phone: modalData.phone || '',
+                    direction: modalData.direction || '',
+                    email: modalData.email || '',
+                    payment_method: modalData.payment_method || '',
+                    delivery_method: modalData.delivery_method || '',
+                    channel: modalData.channel || '',
+                    status: modalData.status ?? 1,
+                    seller_id_fk: modalData.seller_id_fk || null,
+                    products: datosResumen.map(d => d.products),
+                    productsTypes: datosResumen.map(d => d.productsTypes),
+                    quantities: datosResumen.map(d => d.quantities),
+                };
+                const res = await postManualTransactionRequest(payload);
                 if (res.status == 200){
-                    showAlert('Datos creados con éxito', 1);
-                    cargarDataTables(6)
-                    closeModal()
+                    showAlert('Transacción creada con éxito', 1);
+                    cargarDataTables(7);
+                    closeModal();
                 }
             }
             setModalData(null);
@@ -156,23 +237,20 @@ export const ModalFormTransaction = ({ modalData }) => {
     };
 
     const deleteDatos = async () => {
-        // try {
-        //     const res = await deleteVersionsRequest(modalData?._id);
-        //     if (res.status == 200){
-        //         showAlert('Datos eliminados con éxito', 1);
-        //     } else if (res.status == 202) {
-        //         showAlert(res.data.message);
-        //     } else {
-        //         showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
-        //     }
-        // } catch (error) {
-        //     console.error('Error al eliminar los datos:', error);
-        //     showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
-        // }
-        
-        closeModal()
+        try {
+            const res = await deleteManualTransactionRequest(modalData?._id);
+            if (res.status === 200) {
+                showAlert('Transacción eliminada con éxito', 1);
+            } else {
+                showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
+            }
+        } catch (error) {
+            console.error('Error al eliminar la transacción:', error);
+            showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
+        }
+        closeModal();
         setModalData(null);
-        cargarDataTables(6)
+        cargarDataTables(7);
     }
 
     if (!modalData) {
@@ -201,7 +279,7 @@ export const ModalFormTransaction = ({ modalData }) => {
         }])
 
         setDatosResumen([...datosResumen, {
-            products: modalData?.parfum_id_fk,
+            products: `${modalData?.parfum_id_fk}=${modalData?.parfum_id_fkText}`,
             productsTypes: modalData?.parfum_type_id_fk,
             quantities: modalData?.quantityTemp,
             price: modalData?.sellType
@@ -259,7 +337,7 @@ export const ModalFormTransaction = ({ modalData }) => {
                         id="parfum_id_fk"
                         value={modalData?.parfum_id_fk?._id !== undefined ? modalData?.parfum_id_fk?._id : modalData?.parfum_id_fk !== undefined ? modalData?.parfum_id_fk : ''}
                         onChange={handleInputChangeSelect}
-                        required={true}
+                        required={!isUpdate && datosTabla.length === 0}
                     >
                         <option value="" disabled>Selecciona una opción</option>
                         {parfums.map((parfum) => (
@@ -276,7 +354,7 @@ export const ModalFormTransaction = ({ modalData }) => {
                         id="parfum_type_id_fk"
                         value={modalData?.parfum_type_id_fk?._id !== undefined ? modalData?.parfum_type_id_fk?._id : modalData?.parfum_type_id_fk !== undefined ? modalData?.parfum_type_id_fk : ''}
                         onChange={handleInputChangeSelect}
-                        required={true}
+                        required={!isUpdate && datosTabla.length === 0}
                     >
                         <option value="" disabled>Selecciona una opción</option>
                         {types.map((type) => (
@@ -290,11 +368,11 @@ export const ModalFormTransaction = ({ modalData }) => {
             <div className="form-group3">
                 <label htmlFor="quantityTemp">
                     <p>Cantidad de Perfumes</p>
-                    <input type="number" name="quantityTemp" id="quantityTemp" value={modalData?.quantityTemp || ''} onChange={handleInputChange} required={true} />
+                    <input type="number" name="quantityTemp" id="quantityTemp" value={modalData?.quantityTemp || ''} onChange={handleInputChange} required={!isUpdate && datosTabla.length === 0} />
                 </label>
                 <label htmlFor="sellType">
                     <p>Tipo de Venta</p>
-                    <select name="sellType" id="sellType" value={modalData?.sellType || ''} onChange={handleInputChange} required={true}>
+                    <select name="sellType" id="sellType" value={modalData?.sellType || ''} onChange={handleInputChange} required={!isUpdate && datosTabla.length === 0}>
                         <option value="" disabled>Selecciona una opción</option>
                         {sellType.map((sell, id) => (
                             <option key={id} value={sell.price}>
@@ -404,6 +482,52 @@ export const ModalFormTransaction = ({ modalData }) => {
             </div>
             {isUpdate && (
                 <>
+                    <h3>Número de Lote</h3><hr></hr>
+                    <div className="form-group3">
+                        <label htmlFor="lot_numbers_str">
+                            <p>N° de Lote (separados por coma)</p>
+                            <input
+                                type="text"
+                                name="lot_numbers_str"
+                                id="lot_numbers_str"
+                                value={(modalData?.lot_numbers || []).join(', ')}
+                                onChange={e => setModalData(prev => ({
+                                    ...prev,
+                                    lot_numbers: e.target.value.split(',').map(s => s.trim()).filter(Boolean),
+                                }))}
+                                placeholder="Ej: L2024-01, L2024-02"
+                            />
+                        </label>
+                    </div>
+                    <h3>Delivery</h3><hr></hr>
+                    <div className="form-group3">
+                        <label htmlFor="delivery_assigned_to">
+                            <p>Asignar a (Delivery)</p>
+                            <select
+                                name="delivery_assigned_to"
+                                id="delivery_assigned_to"
+                                value={modalData?.delivery_assigned_to || ''}
+                                onChange={handleInputChange}
+                            >
+                                <option value="">Sin asignar</option>
+                                {deliveryUsers.map(u => (
+                                    <option key={u.id || u._id} value={u.id || u._id}>
+                                        {u.firstname} {u.lastname}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label htmlFor="delivery_date">
+                            <p>Fecha de Entrega</p>
+                            <input
+                                type="date"
+                                name="delivery_date"
+                                id="delivery_date"
+                                value={modalData?.delivery_date || ''}
+                                onChange={handleInputChange}
+                            />
+                        </label>
+                    </div>
                     <h3>Canales y Métodos</h3><hr></hr>
                     <div className="form-group3">
                         <label htmlFor="label">

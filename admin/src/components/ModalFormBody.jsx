@@ -59,11 +59,10 @@ export const ModalFormBody = ({ modalData }) => {
 
         const formData = new FormData();
         for (const key in modalData) {
-            if (key == 'imgPreview'){
-                formData.append('img', modalData[key]);
-            } else if (key == 'img2Preview'){
-                formData.append('img2', modalData[key]);
-            } else if (key == 'parfum_id_fk' && typeof modalData[key] === 'object'){
+            if (key === 'img1Preview' || key === 'img2Preview' || key === 'imgPreview') {
+                // skip blob preview URLs — they must not be appended as form fields
+                continue;
+            } else if (key === 'parfum_id_fk' && typeof modalData[key] === 'object') {
                 formData.append('parfum_id_fk', (modalData[key]._id || modalData[key]));
             } else {
                 formData.append(key, modalData[key]);

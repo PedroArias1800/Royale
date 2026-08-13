@@ -30,6 +30,12 @@ export const Admin = () => {
     //   return <p>Cargando...</p>;
     // }
 
+  const roles = user.roles || [user.rol];
+  const isAdmin    = roles.includes(1);
+  const isSeller   = roles.includes(2);
+  const isDelivery = roles.includes(3);
+  const isNonAdmin = !isAdmin;
+
   return (
     <div className='pageAdmin'>
         <section className='infoAdmin'>
@@ -40,37 +46,41 @@ export const Admin = () => {
           </h3>
         </section>
         <div className='adminLinks'>
-            <Link to="/data?id=1">Perfumes</Link>
-            <Link to="/data?id=2">Tipos de Perfumes</Link>
-            <Link to="/data?id=3">Marcas</Link>
-            <Link to="/data?id=4">Versiones</Link>
-            {
-              user.rol == 1 && (
-                <>
-                  <Link to="/data?id=5">Fondos de Inicio</Link>
-                </>
-              )
-            }
-            <Link to="/data?id=8">Promociones</Link>
-            <Link to="/data?id=9">Cupones</Link>
-            {
-              user.rol == 1 && (
-                <>
-                  <Link to="/data?id=6">Usuarios</Link>
-                  <Link to="/data?id=7">Transacciones</Link>
-                  <Link to="/data?id=10">Proveedores</Link>
-                  <Link to="/finanzas">Finanzas</Link>
-                  <Link to="/delivery">Delivery</Link>
-                  <Link to="/descuentos">Descuentos</Link>
-                  <Link to="/cortes">Días de Corte</Link>
-                </>
-              )
-            }
-            {
-              user.rol == 2 && (
+            {/* ── Sección Admin ── */}
+            {isAdmin && (
+              <>
+                <p className='adminLinksTitle'>Administración</p>
+                <Link to="/consolidacion">Consolidación</Link>
+                <Link to="/cortes">Días de Corte</Link>
+                <Link to="/delivery">Delivery</Link>
+                <Link to="/descuentos">Descuentos</Link>
+                <Link to="/finanzas">Finanzas</Link>
+                <Link to="/data?id=5">Fondos de Inicio</Link>
+                <Link to="/data?id=10">Proveedores</Link>
+                <Link to="/suscriptores">Suscriptores</Link>
+                <Link to="/data?id=7">Transacciones</Link>
+                <Link to="/data?id=6">Usuarios</Link>
+              </>
+            )}
+            {/* ── Sección Catálogo ── */}
+            {(isAdmin || isSeller) && (
+              <>
+                <p className='adminLinksTitle'>Catálogo</p>
+                <Link to="/data?id=9">Cupones</Link>
+                <Link to="/data?id=3">Marcas</Link>
+                <Link to="/data?id=1">Perfumes</Link>
+                <Link to="/data?id=8">Promociones</Link>
+                <Link to="/data?id=2">Tipos de Perfumes</Link>
+                <Link to="/data?id=4">Versiones</Link>
+              </>
+            )}
+            {/* ── No-admin: módulos según roles sin duplicar ── */}
+            {isNonAdmin && (isSeller || isDelivery) && (
+              <>
+                {isDelivery && <Link to="/consolidacion">Consolidación</Link>}
                 <Link to="/cortes">Mis Ganancias</Link>
-              )
-            }
+              </>
+            )}
         </div>
     </div>
   )

@@ -1,6 +1,39 @@
 import math
 from bson import ObjectId
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+
+def generate_order_number(db) -> str:
+    panama_now = datetime.now(timezone(timedelta(hours=-5)))
+    date_str = panama_now.strftime("%Y%m%d")
+    prefix = f"RYL-{date_str}-"
+    count = db.transactions.count_documents({"order_number": {"$regex": f"^{prefix}"}})
+    return f"{prefix}{str(count + 1).zfill(4)}"
+
+
+def mark_coupon_used(db, coupon_id) -> None:
+    if not coupon_id:
+        return
+    try:
+        oid = ObjectId(str(coupon_id))
+    except Exception:
+        return
+    coupon = db.coupons.find_one({"_id": oid})
+    if not coupon:
+        return
+    max_uses = coupon.get("max_uses")
+    uses_count = coupon.get("uses_count", 0) + 1
+    update_op: dict = {"$inc": {"uses_count": 1}}
+    if max_uses is not None and uses_count >= max_uses:
+        update_op["$set"] = {"status": 0, "updatedAt": datetime.now(timezone.utc)}
+    db.coupons.update_one({"_id": oid}, update_op)
+
+
+def compute_delivery_date(express: bool) -> str:
+    panama_now = datetime.now(timezone(timedelta(hours=-5)))
+    if express and panama_now.hour >= 10:
+        return panama_now.strftime("%Y-%m-%d")
+    return (panama_now + timedelta(days=1)).strftime("%Y-%m-%d")
 
 
 def serialize_doc(doc: dict | None) -> dict | None:

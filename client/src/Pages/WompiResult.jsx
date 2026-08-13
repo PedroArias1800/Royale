@@ -1,34 +1,23 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useLocation, Link } from "react-router-dom";
-import { postYappyVerifyRequest } from "../api/Cart.api";
+import { useSearchParams, Link } from "react-router-dom";
+import { getWompiStatusRequest } from "../api/Cart.api";
 import { useParfum } from "../context/ParfumContext";
 
-export const YappySuccess = () => {
+export const WompiResult = () => {
   const [searchParams] = useSearchParams();
-  const { state }      = useLocation();
-  const { clearCart }  = useParfum();
-  const [status, setStatus] = useState("verifying");
+  const { clearCart } = useParfum();
+  const [status, setStatus] = useState("verifying"); // "verifying" | "confirmed" | "failed"
 
   useEffect(() => {
-    // V2: llegamos aquí desde YappyPayment.jsx tras confirmación por polling.
-    // El carrito ya fue limpiado y la transacción ya está actualizada en BD.
-    if (state?.v2confirmed) {
-      setStatus("confirmed");
-      return;
-    }
+    const wompiId = searchParams.get("id");
 
-    // V1 legacy: Yappy redirigió con query params (flujo antiguo).
-    const orderId            = searchParams.get("orderId");
-    const paymentStatus      = searchParams.get("status");
-    const confirmationNumber = searchParams.get("confirmationNumber");
-    const hash               = searchParams.get("hash");
+    if (!wompiId) { setStatus("failed"); return; }
 
-    if (!orderId) { setStatus("failed"); return; }
-
-    postYappyVerifyRequest({ orderId, status: paymentStatus || "E", confirmationNumber, hash })
+    getWompiStatusRequest(wompiId)
       .then(res => {
-        if (res.data?.success) {
-          clearCart("¡Pago confirmado!", "--color-dorado", "--color-dorado-hover");
+        const txStatus = res.data?.status;
+        if (txStatus === "APPROVED") {
+          clearCart('¡Pago confirmado!', '--color-dorado', '--color-dorado-hover');
           setStatus("confirmed");
         } else {
           setStatus("failed");
@@ -42,7 +31,7 @@ export const YappySuccess = () => {
       {status === "verifying" && (
         <div className="yappy-page__box">
           <div className="yappy-spinner" />
-          <p className="yappy-page__msg">Verificando tu pago con Yappy…</p>
+          <p className="yappy-page__msg">Verificando tu pago con Wompi…</p>
         </div>
       )}
       {status === "confirmed" && (

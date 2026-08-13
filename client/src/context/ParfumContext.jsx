@@ -220,6 +220,7 @@ export const ParfumContextProvider = ({ children }) => {
 <br/>Realizamos envíos a Panamá, en la ciudad de Panamá, dentro de un plazo de 3 días.
 <br/>Si el producto llega dañado o no coincide con tu pedido, tienes derecho a solicitar un cambio o reembolso dentro del primer día posterior a la recepción del paquete.
 <br/>Los costos de envío no son reembolsables, salvo en caso de error nuestro.
+<br/>En caso de que aplique una devolución aprobada por Royale Panama, el costo del envío de retorno correrá por cuenta del cliente.
 <br/>
 <br/>5. Uso Aceptable del Sitio Web
 <br/>No está permitido usar el sitio web para actividades ilegales, fraudulentas o que puedan dañar nuestra plataforma.

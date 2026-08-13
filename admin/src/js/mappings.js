@@ -42,8 +42,32 @@ export const columnMappings = {
     percentage: 'Porcentaje',
     seller: 'Vendedor',
     productsThatApply: 'Productos que Aplican',
-    provider_id_fk: 'Proveedor'
+    provider_id_fk: 'Proveedor',
+    order_number: 'N° Pedido',
+    express_delivery: 'Express',
+    express_fee: 'Cargo Express',
+    delivery_date: 'Fecha Entrega',
+    delivery_status: 'Estado Entrega',
+    max_uses: 'Límite de Usos',
+    uses_count: 'Usos',
+    fin_type: 'Tipo',
+    label: 'Etiqueta',
+    payment_method: 'Método de Pago',
+    delivery_fee: 'Costo Delivery',
+    yappy_fee: 'Comisión Yappy',
+    delivery_label: 'Zona Delivery',
+    coupon_discount: 'Descuento Cupón',
+    channel: 'Canal',
+    lot_numbers: 'N° de Lote',
+    delivery_method: 'Método de Entrega',
+    delivery_assigned_to: 'Encargado de Entrega',
+    delivery_assigned_name: 'Encargado de Entrega',
+    delivered_by: 'Entregado por',
+    delivery_note: 'Nota de Entrega',
+    delivered_at: 'Fecha de Entrega Real',
+    products_prices: 'Precios',
+    seller_id_fk: 'Vendedor',
   };
 
-  export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk"];
-  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt", "seller_id_fk"];
+  export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "corte_id", "seller_id", "active", "category", "delivery_assigned_to", "delivered_by", "delivery_note", "delivered_at", "products_prices", "quantities", "productsTypes"];
+  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "corte_id", "seller_id", "active", "category"];

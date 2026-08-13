@@ -8,10 +8,9 @@ export const ModalFormUser = ({ modalData }) => {
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-
         setModalData((prevData) => ({
             ...prevData,
-            [name]: convertType(name, value), // Convertimos según el tipo esperado
+            [name]: convertType(name, value),
         }));
     };
 
@@ -19,6 +18,18 @@ export const ModalFormUser = ({ modalData }) => {
         const integerFields = ['gender', 'status'];
         return integerFields.includes(name) ? parseInt(value, 10) : value;
     };
+
+    const handleRoleCheckbox = (roleId) => {
+        const currentRoles = Array.isArray(modalData?.roles) ? modalData.roles : [modalData?.rol].filter(Boolean);
+        const newRoles = currentRoles.includes(roleId)
+            ? currentRoles.filter(r => r !== roleId)
+            : [...currentRoles, roleId];
+        if (newRoles.length === 0) return;
+        const primaryRol = newRoles.includes(1) ? 1 : newRoles.includes(2) ? 2 : 3;
+        setModalData(prev => ({ ...prev, roles: newRoles, rol: primaryRol }));
+    };
+
+    const currentRoles = Array.isArray(modalData?.roles) ? modalData.roles : [modalData?.rol].filter(Boolean);
 
     const enviarDatos = async (e) => {
         e.preventDefault();
@@ -97,20 +108,39 @@ export const ModalFormUser = ({ modalData }) => {
             <div className="form-group3">
                 {
                     (user.rol == 1) && (
-                        <label htmlFor="rol">
-                            <p>Rol</p>
-                            <select
-                                name="rol"
-                                id="rol"
-                                value={modalData?.rol !== undefined ? modalData?.rol : ''}
-                                onChange={handleInputChange}
-                                required={true}
-                            >
-                                <option value="" disabled>Selecciona una opción</option>
-                                <option value="1">Administrador</option>
-                                <option value="2">Vendedor</option>
-                            </select>
-                        </label>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <p style={{ margin: '0 0 8px', fontSize: '0.82rem', color: 'rgba(237,232,235,0.6)', letterSpacing: '0.04em' }}>Roles</p>
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                {[
+                                    { id: 1, label: 'Admin', color: '#d60a5f' },
+                                    { id: 2, label: 'Vendedor', color: '#fdd05e' },
+                                    { id: 3, label: 'Delivery', color: '#1BAEE8' },
+                                ].map(role => {
+                                    const active = currentRoles.includes(role.id);
+                                    return (
+                                        <button
+                                            key={role.id}
+                                            type="button"
+                                            onClick={() => handleRoleCheckbox(role.id)}
+                                            style={{
+                                                padding: '5px 14px',
+                                                borderRadius: '20px',
+                                                border: `1.5px solid ${active ? role.color : 'rgba(237,232,235,0.2)'}`,
+                                                background: active ? `${role.color}22` : 'transparent',
+                                                color: active ? role.color : 'rgba(237,232,235,0.45)',
+                                                fontSize: '0.78rem',
+                                                fontWeight: active ? '600' : '400',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.18s',
+                                                letterSpacing: '0.04em',
+                                            }}
+                                        >
+                                            {active ? '✓ ' : ''}{role.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
                     )
                 }
                 <label htmlFor="status">

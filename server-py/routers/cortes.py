@@ -6,7 +6,7 @@ from bson import ObjectId
 
 from database import get_db
 from auth import verify_token
-from helpers import to_object_id
+from helpers import to_object_id, generate_order_number
 
 router = APIRouter()
 
@@ -148,6 +148,7 @@ def _serialize_corte(doc: dict) -> dict:
             "tx_count":       s.get("tx_count", 0),
             "paid":           s.get("paid", False),
             "paid_at":        s["paid_at"].isoformat() if s.get("paid_at") else None,
+            "transaction_id": str(s["transaction_id"]) if s.get("transaction_id") else None,
         })
     return {
         "_id":               str(doc["_id"]),
@@ -318,24 +319,85 @@ def delete_corte(corte_id: str, db=Depends(get_db), payload: dict = Depends(veri
 @router.put("/api/cortes/{corte_id}/paid/{seller_id}")
 def mark_paid(corte_id: str, seller_id: str, db=Depends(get_db), payload: dict = Depends(verify_token)):
     _require_admin(payload, db)
-    r = db.cortes.update_one(
-        {"_id": to_object_id(corte_id), "sellers.seller_id": ObjectId(seller_id)},
-        {"$set": {"sellers.$.paid": True, "sellers.$.paid_at": datetime.now(timezone.utc)}},
+    corte_oid  = to_object_id(corte_id)
+    seller_oid = ObjectId(seller_id)
+    now        = datetime.now(timezone.utc)
+
+    corte = db.cortes.find_one({"_id": corte_oid})
+    if not corte:
+        raise HTTPException(status_code=404, detail="Corte no encontrado")
+
+    seller_entry = next((s for s in corte.get("sellers", []) if str(s["seller_id"]) == seller_id), None)
+    if not seller_entry:
+        raise HTTPException(status_code=404, detail="Vendedor no encontrado en este corte")
+
+    existing_tx_id = seller_entry.get("transaction_id")
+
+    if existing_tx_id:
+        # Reactivar transacción existente (fue revertida antes)
+        db.transactions.update_one(
+            {"_id": existing_tx_id},
+            {"$set": {"active": True, "updatedAt": now}},
+        )
+        tx_id = existing_tx_id
+    else:
+        # Crear transacción de salida — Día de Corte
+        tx_doc = {
+            "fin_type":    "salida",
+            "label":       "Pago de Corte",
+            "is_manual":   True,
+            "category":    "Día de Corte",
+            "description": f"Pago a {seller_entry['seller_name']} — {corte.get('label', '')}",
+            "total":       round(seller_entry.get("seller_cut", 0), 2),
+            "active":      True,
+            "corte_id":    corte_oid,
+            "seller_id":   seller_oid,
+            "status":      2,
+            "omitted":     False,
+            "order_number": generate_order_number(db),
+            "createdAt":   now,
+            "updatedAt":   now,
+        }
+        tx_id = db.transactions.insert_one(tx_doc).inserted_id
+
+    db.cortes.update_one(
+        {"_id": corte_oid, "sellers.seller_id": seller_oid},
+        {"$set": {
+            "sellers.$.paid":           True,
+            "sellers.$.paid_at":        now,
+            "sellers.$.transaction_id": tx_id,
+        }},
     )
-    if r.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Corte o vendedor no encontrado")
-    return {"message": "Marcado como pagado"}
+    return {"message": "Marcado como pagado", "transaction_id": str(tx_id)}
 
 
 @router.put("/api/cortes/{corte_id}/unpaid/{seller_id}")
 def mark_unpaid(corte_id: str, seller_id: str, db=Depends(get_db), payload: dict = Depends(verify_token)):
     _require_admin(payload, db)
-    r = db.cortes.update_one(
-        {"_id": to_object_id(corte_id), "sellers.seller_id": ObjectId(seller_id)},
+    corte_oid  = to_object_id(corte_id)
+    seller_oid = ObjectId(seller_id)
+    now        = datetime.now(timezone.utc)
+
+    corte = db.cortes.find_one({"_id": corte_oid})
+    if not corte:
+        raise HTTPException(status_code=404, detail="Corte no encontrado")
+
+    seller_entry = next((s for s in corte.get("sellers", []) if str(s["seller_id"]) == seller_id), None)
+    if not seller_entry:
+        raise HTTPException(status_code=404, detail="Vendedor no encontrado en este corte")
+
+    # Desactivar la transacción (queda en BD pero excluida de gráficas)
+    tx_id = seller_entry.get("transaction_id")
+    if tx_id:
+        db.transactions.update_one(
+            {"_id": tx_id},
+            {"$set": {"active": False, "updatedAt": now}},
+        )
+
+    db.cortes.update_one(
+        {"_id": corte_oid, "sellers.seller_id": seller_oid},
         {"$set": {"sellers.$.paid": False, "sellers.$.paid_at": None}},
     )
-    if r.matched_count == 0:
-        raise HTTPException(status_code=404, detail="Corte o vendedor no encontrado")
     return {"message": "Marcado como pendiente"}
 
 

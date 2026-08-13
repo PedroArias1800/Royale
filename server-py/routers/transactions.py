@@ -10,17 +10,19 @@ from bson import ObjectId
 
 from database import get_db
 from auth import verify_token
-from helpers import serialize_doc, to_object_id
+from helpers import serialize_doc, to_object_id, generate_order_number, mark_coupon_used
 
 router = APIRouter()
 
 
 class FilterBody(BaseModel):
     filter: str = ""
+    fin_type: Optional[str] = None
+    order_number: Optional[str] = None
 
 
 LABELS_INGRESO = ["Venta Directa", "Abono", "Devolución recibida", "Otro ingreso"]
-LABELS_SALIDA = ["Costo del Producto", "Gastos Operativos", "Merma", "Publicidad y Marketing", "Envíos y Logística", "Devolución emitida", "Otro gasto"]
+LABELS_SALIDA = ["Costo del Producto", "Gastos Operativos", "Merma", "Publicidad y Marketing", "Envíos y Logística", "Devolución emitida", "Pago de Corte", "Otro gasto"]
 
 
 class TransactionUpdateBody(BaseModel):
@@ -37,6 +39,10 @@ class TransactionUpdateBody(BaseModel):
     products_prices: Optional[List[float]] = None
     total: Optional[float] = None
     seller_id_fk: Optional[str] = None
+    lot_numbers: Optional[List[str]] = None
+    delivery_date: Optional[str] = None
+    delivery_assigned_to: Optional[str] = None
+    delivery_assigned_name: Optional[str] = None
 
 
 class TransactionManualBody(BaseModel):
@@ -60,6 +66,8 @@ class TransactionManualBody(BaseModel):
     seller_id_fk: Optional[str] = None
     status: Optional[int] = 2              # 1=pendiente, 2=procesada
     created_at: Optional[str] = None       # ISO date override (YYYY-MM-DD)
+    lot_numbers: Optional[List[str]] = []
+    delivery_date: Optional[str] = None    # YYYY-MM-DD para aparecer en Consolidación
 
 
 def _populate_transaction(doc: dict, db, include_products: bool = False) -> dict:
@@ -111,8 +119,9 @@ def get_all_transactions(_: dict = Depends(verify_token), page: int = Query(defa
     db = get_db()
     limit = 15
     skip = (page - 1) * limit
-    docs = list(db.transactions.find().sort("createdAt", -1).skip(skip).limit(limit))
-    total = db.transactions.count_documents({})
+    query = {"status": {"$ne": 0}}
+    docs = list(db.transactions.find(query).sort("createdAt", -1).skip(skip).limit(limit))
+    total = db.transactions.count_documents(query)
     data = [_populate_transaction(d, db) for d in docs]
     return {
         "data": data,
@@ -138,7 +147,13 @@ def get_filtered_transactions(body: FilterBody, _: dict = Depends(verify_token),
     elif f and "desactivado".startswith(f.lower()):
         status_filter = 0
 
-    query = {}
+    base: dict = {"status": {"$ne": 0}}
+    if body.fin_type:
+        base["fin_type"] = body.fin_type
+    if body.order_number:
+        base["order_number"] = {"$regex": body.order_number, "$options": "i"}
+
+    query = base
     if f:
         or_clauses = [
             {"userName": {"$regex": f, "$options": "i"}},
@@ -151,10 +166,11 @@ def get_filtered_transactions(body: FilterBody, _: dict = Depends(verify_token),
             {"delivery_method": {"$regex": f, "$options": "i"}},
             {"channel": {"$regex": f, "$options": "i"}},
             {"fin_type": {"$regex": f, "$options": "i"}},
+            {"order_number": {"$regex": f, "$options": "i"}},
         ]
         if status_filter is not None:
             or_clauses.append({"status": bool(status_filter)})
-        query = {"$or": or_clauses}
+        query = {"$and": [base, {"$or": or_clauses}]}
 
     docs = list(db.transactions.find(query).sort("createdAt", -1).skip(skip).limit(limit))
     total = db.transactions.count_documents(query)
@@ -294,6 +310,7 @@ def get_manual_transactions(
 @router.post("/api/transactions/manual")
 def create_manual_transaction(body: TransactionManualBody, db=Depends(get_db), _=Depends(verify_token)):
     now = datetime.now(timezone.utc)
+    order_number = generate_order_number(db)
     doc = {
         "fin_type": body.fin_type,
         "label": body.label,
@@ -312,8 +329,12 @@ def create_manual_transaction(body: TransactionManualBody, db=Depends(get_db), _
         "products": body.products or [],
         "productsTypes": body.productsTypes or [],
         "quantities": body.quantities or [],
+        "lot_numbers": body.lot_numbers or [],
         "status": body.status if body.status in (1, 2) else 2,
         "is_manual": True,
+        "order_number": order_number,
+        "delivery_date": body.delivery_date or None,
+        "delivery_status": "pending",
         "createdAt": datetime.fromisoformat(body.created_at).replace(tzinfo=timezone.utc) if body.created_at else now,
         "updatedAt": now,
     }
@@ -352,12 +373,22 @@ def update_transaction(transaction_id: str, body: TransactionUpdateBody, db=Depe
             updates["seller_id_fk"] = ObjectId(body.seller_id_fk)
         except Exception:
             pass
+    if body.lot_numbers is not None:
+        updates["lot_numbers"] = body.lot_numbers
+    if body.delivery_date is not None:
+        updates["delivery_date"] = body.delivery_date
+    if body.delivery_assigned_to is not None:
+        updates["delivery_assigned_to"] = body.delivery_assigned_to
+    if body.delivery_assigned_name is not None:
+        updates["delivery_assigned_name"] = body.delivery_assigned_name
 
     result = db.transactions.update_one({"_id": oid}, {"$set": updates})
     if result.matched_count == 0:
         return JSONResponse(status_code=404, content={"message": "Transacción no encontrada"})
 
     doc = db.transactions.find_one({"_id": oid})
+    if body.status == 2:
+        mark_coupon_used(db, doc.get("coupon_id") if doc else None)
     return _populate_transaction(doc, db, include_products=True)
 
 

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { PaymentModal } from './PaymentModal';
-import { postPagarRequest, postTransactionRequest, getCuponRequest } from '../api/Cart.api';
+import { postPagarRequest, postTransactionRequest, getCuponRequest, postNewsletterRequest } from '../api/Cart.api';
 import { useParfum } from '../context/ParfumContext'
 
 
@@ -96,9 +96,13 @@ export const CartResume = ({ products }) => {
   };
   
   const handleFormSubmit = async (data, deliveryOption) => {
-    const deliveryFee   = deliveryOption ? (deliveryOption.is_free ? 0 : Number(deliveryOption.price)) : 0;
-    const deliveryLabel = deliveryOption?.label || '';
+    const baseDeliveryFee = deliveryOption ? (deliveryOption.is_free ? 0 : Number(deliveryOption.price)) : 0;
+    const expressCharge   = deliveryOption?.express_fee || 0;
+    const deliveryFee     = baseDeliveryFee + expressCharge;
+    const deliveryLabel   = deliveryOption?.label || '';
     const total = (actualTotal - totalSavingsCoupon + deliveryFee).toFixed(2);
+    const isExpress = Boolean(data.express_delivery);
+    const isNewsletter = Boolean(data.newsletter);
 
     const transaction = {
       userName:        data.name,
@@ -107,7 +111,7 @@ export const CartResume = ({ products }) => {
       email:           data.email || '',
       subTotal:        actualTotal.toFixed(2),
       total,
-      delivery_fee:    deliveryFee,
+      delivery_fee:    baseDeliveryFee,
       delivery_label:  deliveryLabel,
       payment_method:  'WhatsApp',
       channel:         channelSource,
@@ -116,6 +120,9 @@ export const CartResume = ({ products }) => {
       productsTypes:   typesId,
       quantities:      quantities,
       products_prices: productDetails.map(item => parseFloat(item.price.toFixed(2))),
+      express_delivery: isExpress,
+      express_fee:      expressCharge,
+      newsletter:       isNewsletter,
     }
 
     try {
@@ -149,16 +156,24 @@ export const CartResume = ({ products }) => {
     }
     if (deliveryOption) {
       message += `Delivery: ${deliveryLabel}`;
-      message += deliveryOption.is_free ? ' (Gratis)\n\n' : ` — $${deliveryFee.toFixed(2)}\n\n`;
-      msgTotal += deliveryFee;
+      message += deliveryOption.is_free ? ' (Gratis)\n\n' : ` — $${baseDeliveryFee.toFixed(2)}\n\n`;
+      msgTotal += baseDeliveryFee;
+    }
+    if (isExpress) {
+      message += `🚀 Delivery Express — $${expressCharge.toFixed(2)} (entrega mismo día)\n\n`;
+      msgTotal += expressCharge;
     }
     message += `Total: $${msgTotal.toFixed(2)}\n\n`;
     message += `Me puedes contactar de la siguiente manera:\n`;
     message += `Número de Teléfono: +507 ${data.phone}\n`;
     message += `Correo: ${data.email}`;
-    
+
+    if (isNewsletter && data.email) {
+      try { await postNewsletterRequest(data.email); } catch {}
+    }
+
     try {
-      const response = await postPagarRequest(message, name);
+      const response = await postPagarRequest(message, name, data.phone);
       if (response) {
         handleResponse(response);
       } else {
@@ -291,12 +306,16 @@ export const CartResume = ({ products }) => {
         onClose={handleCloseModal}
         onSubmit={handleFormSubmit}
         cartData={{
-          subTotal:       actualTotal,
-          couponDiscount: totalSavingsCoupon,
-          couponId:       dataCupon?._id || null,
+          subTotal:        actualTotal,
+          couponDiscount:  totalSavingsCoupon,
+          couponId:        dataCupon?._id || null,
           productsId,
           typesId,
           quantities,
+          products_prices: productDetails.map(item => parseFloat(item.price.toFixed(2))),
+          productDetails,
+          channelSource,
+          URLFrontend,
         }}
       />
     </div>

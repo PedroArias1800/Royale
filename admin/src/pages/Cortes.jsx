@@ -477,7 +477,7 @@ const SellerView = ({ user }) => {
 // ─── Página principal ─────────────────────────────────────────────────────
 export const Cortes = () => {
     const { user } = useAuth();
-    const isAdmin  = user?.rol == 1;
+    const isAdmin  = user?.roles?.includes(1) || user?.rol == 1;
 
     const [config, setConfig]           = useState({ royale_pct: 50, seller_pct: 50 });
     const [cortes, setCortes]           = useState([]);

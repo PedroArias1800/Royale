@@ -14,6 +14,8 @@ import { Finanzas } from './Pages/Finanzas.jsx';
 import { Delivery } from './pages/Delivery.jsx';
 import { Descuentos } from './pages/Descuentos.jsx';
 import { Cortes } from './pages/Cortes.jsx';
+import { Consolidacion } from './pages/Consolidacion.jsx';
+import { Suscriptores } from './pages/Suscriptores.jsx';
 
 const App = () => {
 
@@ -34,6 +36,8 @@ const App = () => {
         <Route path="/delivery" element={<Delivery />} />
         <Route path="/descuentos" element={<Descuentos />} />
         <Route path="/cortes" element={<Cortes />} />
+        <Route path="/consolidacion" element={<Consolidacion />} />
+        <Route path="/suscriptores" element={<Suscriptores />} />
         <Route path="*" element={<Login />} />
       </Routes>
       <Footer />

@@ -32,7 +32,7 @@ export const Search = () => {
         const response = await getParfumsRequest(50, 'Normal');
         setProducts(response.data);
         setFilteredProducts(response.data);
-        const uniqueBrands = [...new Set(response.data.map(p => p.brand.brand_name))];
+        const uniqueBrands = [...new Set(response.data.map(p => p.brand.brand_name))].sort((a, b) => a.localeCompare(b, 'es'));
         setBrands(uniqueBrands);
       } catch (error) {
         console.error("Error al cargar los perfumes:", error);

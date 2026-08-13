@@ -1159,31 +1159,29 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0;
-  padding: 11px 16px;
-  background: linear-gradient(135deg, #e8b400, #FFD100);
+  padding: 10px 16px;
   border: none;
-  border-radius: 3px;
-  color: #1a0a00;
-  font-size: 0.82rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(255, 209, 0, 0.35);
+  transition: all 0.2s ease;
   font-family: var(--font-body);
 }
-.pm-yappy-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, #FFD100, #ffe84d);
-  box-shadow: 0 6px 20px rgba(255, 209, 0, 0.55);
+.pm-yappy-sky {
+  background: #e4f5fc;
+  border: 1.5px solid #1BAEE8;
+  box-shadow: 0 2px 8px rgba(27, 174, 232, 0.2);
+  color: #0077a8;
+}
+.pm-yappy-sky:hover:not(:disabled) {
+  background: #ceedf8;
+  box-shadow: 0 4px 14px rgba(27, 174, 232, 0.35);
   transform: translateY(-1px);
 }
 .pm-yappy-btn:disabled { opacity: 0.55; cursor: not-allowed; }
 .pm-yappy-logo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 .pm-yappy-icon {
   display: inline-flex;
@@ -1200,6 +1198,28 @@
   flex-shrink: 0;
   letter-spacing: -0.5px;
 }
+.pm-yappy-svg {
+  width: 34px;
+  height: 21px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+.pm-yappy-pagar {
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #0077a8;
+  letter-spacing: 0.01em;
+  text-transform: none;
+  white-space: nowrap;
+}
+.pm-yappy-brand {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #0077a8;
+  letter-spacing: -0.01em;
+  text-transform: lowercase;
+  white-space: nowrap;
+}
 .pagar {
   flex: 1;
 }
@@ -1211,6 +1231,19 @@
   background: rgba(214, 10, 95, 0.08);
   border-left: 2px solid var(--color-rojo);
   border-radius: 2px;
+}
+.btn-wompi {
+  background: linear-gradient(135deg, #1a3a6b, #2557a7);
+  color: #fff;
+  border: 1px solid rgba(37, 87, 167, 0.6);
+}
+.btn-wompi:hover:not(:disabled) {
+  background: linear-gradient(135deg, #2557a7, #3a6fd4);
+  border-color: rgba(58, 111, 212, 0.8);
+}
+.btn-wompi:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ── Aviso horario de corte ── */

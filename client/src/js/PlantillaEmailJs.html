@@ -240,8 +240,47 @@
         <p class="gracias">¡Gracias por confiar en nosotros!</p>
     </div>
 
+    <!-- ── Botones WhatsApp al cliente ── -->
+    <div style="padding: 24px 36px 0; text-align: center;">
+        <p style="margin: 0 0 6px; font-family: Arial, sans-serif; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(253,208,94,0.5);">
+            Contactar al cliente
+        </p>
+        <p style="margin: 0 0 18px; font-family: Arial, sans-serif; font-size: 11px; color: rgba(237,232,235,0.3); letter-spacing: 0.04em;">
+            +{{phone}} &nbsp;·&nbsp; {{name}}
+        </p>
+
+        <!-- WhatsApp Business (App nativa) -->
+        <div style="margin-bottom: 10px;">
+            <p style="margin: 0 0 6px; font-family: Arial, sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(253,208,94,0.4);">
+                ▸ &nbsp; WhatsApp Business
+            </p>
+            <a href="https://wa.me/{{phone}}?text=Hola%20{{name}}%2C%20soy%20del%20equipo%20de%20Royale%20Panam%C3%A1%20%E2%AD%90%20Confirmamos%20que%20tu%20pedido%20fue%20recibido%20con%20%C3%A9xito.%20En%20breve%20lo%20estaremos%20preparando%20y%20te%20contactaremos%20para%20coordinar%20la%20entrega.%20%C2%BFTienes%20alguna%20pregunta%3F"
+               target="_blank"
+               style="display: inline-block; background-color: #128C7E; color: #ffffff; text-decoration: none; font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 0.05em; padding: 11px 26px; border-radius: 2px;">
+                Abrir con WhatsApp Business
+            </a>
+        </div>
+
+        <!-- Separador -->
+        <p style="margin: 4px 0 10px; font-family: Arial, sans-serif; font-size: 10px; color: rgba(237,232,235,0.18); letter-spacing: 0.1em;">
+            — &nbsp; o &nbsp; —
+        </p>
+
+        <!-- WhatsApp Web (navegador) -->
+        <div style="margin-bottom: 4px;">
+            <p style="margin: 0 0 6px; font-family: Arial, sans-serif; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(237,232,235,0.3);">
+                ▸ &nbsp; WhatsApp Personal
+            </p>
+            <a href="https://web.whatsapp.com/send?phone={{phone}}&text=Hola%20{{name}}%2C%20soy%20del%20equipo%20de%20Royale%20Panam%C3%A1%20%E2%AD%90%20Confirmamos%20que%20tu%20pedido%20fue%20recibido%20con%20%C3%A9xito.%20En%20breve%20lo%20estaremos%20preparando%20y%20te%20contactaremos%20para%20coordinar%20la%20entrega.%20%C2%BFTienes%20alguna%20pregunta%3F"
+               target="_blank"
+               style="display: inline-block; background-color: #1e2d26; color: #25D366; text-decoration: none; font-family: Arial, sans-serif; font-size: 12px; font-weight: bold; letter-spacing: 0.05em; padding: 11px 26px; border-radius: 2px; border: 1px solid #25D366;">
+                Abrir con WhatsApp Personal
+            </a>
+        </div>
+    </div>
+
     <!-- ── Separador ornamental ── -->
-    <div class="separator">
+    <div class="separator" style="margin-top: 24px;">
         <span class="sep-line"></span>
         <span class="sep-gem">◆</span>
         <span class="sep-line"></span>
@@ -287,6 +326,7 @@
   Template params usados:
     {{name}}     → nombre del cliente
     {{message}}  → detalle del pedido (texto con saltos de línea)
+    {{phone}}    → teléfono del cliente con prefijo 507, sin guiones (ej: 50762126212)
 
   IMPORTANTE: Copiar el HTML completo de arriba (desde <!DOCTYPE html>
   hasta </html>) en el campo "Body" del template de EmailJS.

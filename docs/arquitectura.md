@@ -1,6 +1,6 @@
 # Arquitectura del Sistema — Royale Panama
 
-> **Última actualización:** 2026-06-19
+> **Última actualización:** 2026-08-13
 > Este documento se mantiene sincronizado con cada cambio arquitectónico del proyecto.
 
 ---
@@ -62,7 +62,7 @@ Royale es una plataforma de e-commerce para la venta de perfumes. Está compuest
 | Dominio staging | https://xxxx.cloudfront.net (URL por defecto) |
 | Variables de entorno | `VITE_SERVER_URL`, `VITE_FRONTEND_URL` |
 
-**Páginas:** Index, Search (con paginación, 12/página), ParfumDetails, Cart
+**Páginas:** Index, Search (con paginación, 12/página), ParfumDetails, Cart, YappyPayment, YappySuccess, WompiResult
 
 **Componentes principales del cliente:**
 - `Header` — overlay fullscreen mobile + `CartDrawer` integrado
@@ -72,6 +72,14 @@ Royale es una plataforma de e-commerce para la venta de perfumes. Está compuest
 - `MasBuscados` — carrusel genérico (Ventas Flash, Search)
 - `ParfumInfo` — detalle de parfum con precio prominente y badge flash
 - `Alert` — toast bottom-right con barra de progreso
+- `WhatsAppFab` — botón flotante de WhatsApp (bottom-right)
+- `PaymentModal` — selección de método de pago; Yappy y Wompi integrados
+
+**Flujo de pago Yappy:**
+1. Cliente completa carrito → `POST /api/yappy/pay` → devuelve `token` + `cdnUrl`
+2. `/pago-yappy` carga web component oficial de Yappy, auto-click dispara la solicitud al teléfono del cliente
+3. Polling cada 30s + visibilitychange → `POST /api/yappy/verify` → redirige a `/pago-exitoso` o `/pago-cancelado`
+4. Cargo de comisión Yappy (3%) calculado y mostrado en el admin, no al cliente
 
 **Estado:** Cart en `localStorage` (persiste sin servidor). Filtros y alertas en `ParfumContext`.
 
@@ -90,9 +98,18 @@ Royale es una plataforma de e-commerce para la venta de perfumes. Está compuest
 | Dominio prod | https://admin.royalepanama.com |
 | Dominio staging | https://xxxx.cloudfront.net (URL por defecto) |
 
-**Páginas:** Login, Register, Admin (dashboard), Data (tablas CRUD)
+**Páginas:** Login, Register, Admin (dashboard), Data (tablas CRUD), Finanzas, Consolidación, Días de Corte, Delivery, Descuentos, Suscriptores
 
 **Estado central:** `AuthProvider` — concentra autenticación, operaciones CRUD, paginación y estado de modales.
+
+**Módulo Transacciones (Data?id=7):**
+- `MovimientosCRUD` — gestión en vivo de transacciones pendientes/en camino/finalizadas, embebido en la parte superior de la página
+- `DataTable` — consulta paginada con filtro de texto y tabs Todos/Ingresos/Salidas; `order_number` siempre primera columna
+- Botón "+ Añadir" abre `AgregarTransaccionModal` vía prop `openExternal` en `MovimientosCRUD`
+
+**Sistema de roles:** array `roles: [int]` — 1=Admin, 2=Vendedor, 3=Delivery. Compatible con campo legado `rol`.
+
+**Entidades:** parfum, brand, type, body, version, promotion, coupon, transaction, user, provider (proveedor)
 
 ---
 
@@ -108,7 +125,22 @@ Royale es una plataforma de e-commerce para la venta de perfumes. Está compuest
 | Dominio staging | URL autogenerada por API Gateway |
 | Deploy tool | AWS SAM (template.yaml) |
 
-**Entidades CRUD:** parfum, brand, type, body, version, promotion, coupon, transaction, user
+**Entidades CRUD:** parfum, brand, type, body, version, promotion, coupon, transaction, user, provider
+
+**Routers activos:**
+| Router | Ruta base | Descripción |
+|---|---|---|
+| `transactions.py` | `/api/transactions` | CRUD transacciones + export XLSX + estado delivery |
+| `yappy.py` | `/api/yappy` | Integración Yappy (pay, verify, webhook) |
+| `wompi.py` | `/api/wompi` | Integración Wompi (iniciar pago, webhook) |
+| `consolidacion.py` | `/api/consolidacion` | Consolidación de pedidos por período |
+| `subscribers.py` | `/api/subscribers` | Gestión de suscriptores |
+| `analytics.py` | `/api/analytics` | KPIs y datos para gráficas de Finanzas |
+| `cortes.py` | `/api/cortes` | Días de corte / liquidaciones por vendedor |
+| `coupons.py` | `/api/coupons` | CRUD cupones de descuento |
+| `auth.py` | `/api/auth` | Login, logout, verify, perfil |
+| `users.py` | `/api/users` | CRUD usuarios con roles |
+| `public.py` | `/` | Endpoints sin autenticación (parfums, cart, etc.) |
 
 ---
 
@@ -233,15 +265,25 @@ Cliente carga página
 ```
 Royale/
 ├── client/          ← Tienda React (SPA)
+│   └── src/
+│       ├── Pages/        ← Index, Search, Cart, YappyPayment, YappySuccess, WompiResult
+│       ├── components/   ← Header, CartDrawer, PaymentModal, WhatsAppFab, Alert…
+│       ├── context/      ← ParfumContext (cart, filtros, alertas)
+│       └── api/          ← Módulos de llamada a la API por entidad
 ├── admin/           ← Dashboard React (SPA)
-├── server/          ← API Express original (Node.js) — OBSOLETO
+│   └── src/
+│       ├── pages/        ← Admin, Data, Finanzas, Cortes, Consolidacion, Suscriptores…
+│       ├── components/   ← DataTable, ModalForm*, MovimientosCRUD, charts…
+│       ├── context/      ← AuthProvider (auth + CRUD + paginación + modales)
+│       └── api/          ← Módulos de llamada a la API por entidad
+├── server/          ← API Express original (Node.js) — OBSOLETO, referencia
 ├── server-py/       ← API Python FastAPI — ACTIVO
 │   ├── main.py
 │   ├── database.py
 │   ├── auth.py
 │   ├── storage.py
 │   ├── helpers.py
-│   ├── routers/     ← Un archivo por entidad
+│   ├── routers/     ← Un archivo por entidad/dominio
 │   ├── requirements.txt
 │   ├── template.yaml   ← AWS SAM config (prod + staging)
 │   ├── samconfig.toml  ← Parámetros guardados por sam deploy
@@ -249,8 +291,12 @@ Royale/
 ├── bd/
 │   └── backup/json/ ← Backup de los 235 documentos MongoDB
 └── docs/
-    ├── plan-aws-migration.md  ← Resumen ejecutivo del plan
-    └── arquitectura.md        ← Este archivo
+    ├── plan-aws-migration.md      ← Resumen ejecutivo del plan
+    ├── arquitectura.md            ← Este archivo
+    ├── plan-finanzas-estadisticas.md
+    ├── plan-descuentos-metricas.md
+    ├── plan-tracking-canal.md
+    └── plan-wompi-integration.md
 ```
 
 ---

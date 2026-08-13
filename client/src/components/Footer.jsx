@@ -94,7 +94,7 @@ export const Footer = () => {
             </div>
 
             <div className="footerBottom">
-                <p className="footerCopyright">© 2025 Royale Panama. Todos los derechos reservados.</p>
+                <p className="footerCopyright">© 2026 Royale Panama. Todos los derechos reservados.</p>
                 <div className="footerLegal">
                     <button onClick={() => openModal('privacy')}>Privacidad</button>
                     <span className="footerLegal-sep">·</span>

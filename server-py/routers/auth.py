@@ -27,12 +27,15 @@ class LoginBody(BaseModel):
 
 
 def _user_response(user: dict) -> dict:
+    rol = user.get("rol", 2)
+    roles = user.get("roles") or [rol]
     return {
         "id": str(user["_id"]),
         "firstname": user["firstname"],
         "lastname": user["lastname"],
         "email": user["email"],
-        "rol": user.get("rol"),
+        "rol": rol,
+        "roles": roles,
         "status": user.get("status"),
         "createdAt": user.get("createdAt", "").isoformat() if user.get("createdAt") else None,
         "updatedAt": user.get("updatedAt", "").isoformat() if user.get("updatedAt") else None,
@@ -66,12 +69,14 @@ def verify(payload: dict = Depends(verify_token)):
     user = db.users.find_one({"_id": to_object_id(payload["id"])})
     if not user:
         return JSONResponse(status_code=401, content=["User not found"])
+    rol = user.get("rol", 2)
     return {
         "id": str(user["_id"]),
         "firstname": user["firstname"],
         "lastname": user["lastname"],
         "email": user["email"],
-        "rol": user.get("rol"),
+        "rol": rol,
+        "roles": user.get("roles") or [rol],
         "status": user.get("status"),
     }
 

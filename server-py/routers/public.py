@@ -11,7 +11,7 @@ from bson import ObjectId
 
 from database import get_db
 from auth import verify_token
-from helpers import serialize_doc, to_object_id
+from helpers import serialize_doc, to_object_id, generate_order_number
 
 router = APIRouter()
 
@@ -148,7 +148,16 @@ def get_cupon(id: str = Query(...)):
         return {
             "_id": "",
             "valido": False,
-            "texto": f"Este cupón no está disponible",
+            "texto": "Este cupón no está disponible",
+            "percentage": 0,
+        }
+
+    max_uses = coupon.get("max_uses")
+    if max_uses is not None and coupon.get("uses_count", 0) >= max_uses:
+        return {
+            "_id": "",
+            "valido": False,
+            "texto": "Este cupón ha alcanzado su límite de usos",
             "percentage": 0,
         }
 
@@ -305,13 +314,19 @@ class TransactionBody(BaseModel):
     payment_method: str = "WhatsApp"
     channel: Optional[str] = None
     products_prices: Optional[List[float]] = []
+    express_delivery: bool = False
+    express_fee: float = 0.0
+    newsletter: bool = False
 
 
 @router.post("/transaction")
 def create_transaction(body: TransactionBody):
     db = get_db()
     from datetime import datetime, timezone
+    from helpers import compute_delivery_date
     now = datetime.now(timezone.utc)
+    order_number = generate_order_number(db)
+    delivery_date = compute_delivery_date(body.express_delivery)
     doc = {
         "userName": body.userName,
         "phone": body.phone,
@@ -327,6 +342,11 @@ def create_transaction(body: TransactionBody):
         "productsTypes": body.productsTypes,
         "quantities": body.quantities,
         "products_prices": body.products_prices or [],
+        "express_delivery": body.express_delivery,
+        "express_fee": body.express_fee,
+        "order_number": order_number,
+        "delivery_date": delivery_date,
+        "delivery_status": "pending",
         "status": 1,
         "createdAt": now,
         "updatedAt": now,
@@ -338,7 +358,29 @@ def create_transaction(body: TransactionBody):
             pass
     result = db.transactions.insert_one(doc)
     doc["_id"] = result.inserted_id
+    if body.newsletter and body.email:
+        existing = db.subscribers.find_one({"email": body.email})
+        if not existing:
+            db.subscribers.insert_one({"email": body.email, "createdAt": now})
     return serialize_doc(doc)
+
+
+# ── Newsletter ────────────────────────────────────────────────────────────────
+
+class NewsletterBody(BaseModel):
+    email: str
+
+
+@router.post("/newsletter")
+def subscribe_newsletter(body: NewsletterBody):
+    db = get_db()
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc)
+    existing = db.subscribers.find_one({"email": body.email})
+    if existing:
+        return {"message": "Ya estás suscrito"}
+    db.subscribers.insert_one({"email": body.email, "createdAt": now})
+    return {"message": "Suscrito con éxito"}
 
 
 # ── PUT /transaction/:id (mark as attended, protected) ────────────────────────

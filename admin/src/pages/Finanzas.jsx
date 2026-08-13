@@ -1,12 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import {
-    getPendingTransactionsRequest,
-    getProcessedTransactionsRequest,
-    putTransactionRequest,
-    postManualTransactionRequest,
-    deleteManualTransactionRequest,
-} from '../api/Transaction.api.js';
 import axios from '../api/axios.js';
 import { PeriodPicker } from '../components/finanzas/PeriodPicker.jsx';
 import { KpiCards } from '../components/finanzas/KpiCards.jsx';
@@ -14,7 +7,6 @@ import { ChartTendencia } from '../components/finanzas/ChartTendencia.jsx';
 import { ChartDesglose } from '../components/finanzas/ChartDesglose.jsx';
 import { ChartMetodos } from '../components/finanzas/ChartMetodos.jsx';
 import { ChartTopParfums } from '../components/finanzas/ChartTopParfums.jsx';
-import { MovimientosCRUD } from '../components/finanzas/MovimientosCRUD.jsx';
 import '../css/Finanzas.css';
 
 function todayISO() {
@@ -35,14 +27,10 @@ export const Finanzas = () => {
     const [summary, setSummary] = useState(null);
     const [trends, setTrends] = useState([]);
     const [breakdown, setBreakdown] = useState([]);
-    const [pendientes, setPendientes] = useState([]);
-    const [procesadas, setProcesadas] = useState([]);
 
     const [loadingSummary, setLoadingSummary] = useState(false);
     const [loadingTrends, setLoadingTrends] = useState(false);
     const [loadingBreakdown, setLoadingBreakdown] = useState(false);
-    const [loadingPendientes, setLoadingPendientes] = useState(false);
-    const [loadingProcesadas, setLoadingProcesadas] = useState(false);
 
     // Panamá = UTC-5 (sin DST). Se incluye el offset para que el backend filtre correctamente.
     const qs = `start=${period.start}T00:00:00-05:00&end=${period.end}T23:59:59-05:00`;
@@ -84,98 +72,13 @@ export const Finanzas = () => {
         } catch (e) { console.error(e); return []; }
     }, [qs]);
 
-    const loadPendientes = useCallback(async () => {
-        setLoadingPendientes(true);
-        try {
-            const res = await getPendingTransactionsRequest();
-            setPendientes(res.data?.data || []);
-        } catch (e) { console.error(e); }
-        finally { setLoadingPendientes(false); }
-    }, []);
-
-    const loadProcesadas = useCallback(async () => {
-        setLoadingProcesadas(true);
-        try {
-            const res = await getProcessedTransactionsRequest(period.start, period.end);
-            setProcesadas(res.data || []);
-        } catch (e) { console.error(e); }
-        finally { setLoadingProcesadas(false); }
-    }, [period]);
-
     useEffect(() => {
         loadSummary();
         loadTrends();
         loadBreakdown('label');
-        loadProcesadas();
     }, [period]);
 
-    // Pendientes no depende del período
-    useEffect(() => {
-        loadPendientes();
-    }, []);
-
     const handlePeriodChange = (range) => setPeriod(range);
-
-    const handleProcess = async (id, data) => {
-        try {
-            await putTransactionRequest(id, data);
-            loadPendientes();
-            loadProcesadas();
-            loadSummary();
-            loadTrends();
-            loadBreakdown('label');
-        } catch (e) { console.error(e); }
-    };
-
-    const handleAddTransaction = async (data) => {
-        try {
-            await postManualTransactionRequest(data);
-            if (data.status === 2) {
-                loadProcesadas();
-                loadSummary();
-                loadTrends();
-                loadBreakdown('label');
-            } else {
-                loadPendientes();
-            }
-        } catch (e) { console.error(e); }
-    };
-
-    // Revertir procesada → status:1 (pendiente)
-    const handleRevert = async (id) => {
-        if (!confirm('¿Revertir esta transacción a pendiente?')) return;
-        try {
-            await putTransactionRequest(id, { status: 1 });
-            loadProcesadas();
-            loadPendientes();
-            loadSummary();
-            loadTrends();
-            loadBreakdown('label');
-        } catch (e) { console.error(e); }
-    };
-
-    // Omitir / incluir en estadísticas sin eliminar
-    const handleToggleOmit = async (id, omitted) => {
-        try {
-            await putTransactionRequest(id, { omitted });
-            // Actualizar estado local sin recargar para feedback inmediato
-            setProcesadas(prev => prev.map(t => t._id === id ? { ...t, omitted } : t));
-            loadSummary();
-            loadTrends();
-            loadBreakdown('label');
-        } catch (e) { console.error(e); }
-    };
-
-    const handleDelete = async (id) => {
-        if (!confirm('¿Eliminar esta transacción permanentemente?')) return;
-        try {
-            await deleteManualTransactionRequest(id);
-            loadProcesadas();
-            loadSummary();
-            loadTrends();
-            loadBreakdown('label');
-        } catch (e) { console.error(e); }
-    };
 
     return (
         <div className="finanzas-page">
@@ -199,18 +102,6 @@ export const Finanzas = () => {
             <ChartMetodos fetchBreakdown={loadBreakdown} loading={loadingBreakdown} />
 
             <ChartTopParfums fetchTopProducts={loadTopProducts} loading={false} />
-
-            <MovimientosCRUD
-                pendientes={pendientes}
-                procesadas={procesadas}
-                onProcess={handleProcess}
-                onAddTransaction={handleAddTransaction}
-                onRevert={handleRevert}
-                onToggleOmit={handleToggleOmit}
-                onDelete={handleDelete}
-                loadingPendientes={loadingPendientes}
-                loadingProcesadas={loadingProcesadas}
-            />
         </div>
     );
 };

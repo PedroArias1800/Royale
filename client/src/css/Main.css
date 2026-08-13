@@ -786,6 +786,7 @@ body::before {
   line-height: 1.78;
   color: rgba(237, 232, 235, 0.75);
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   margin: 0;
   text-align: left;
@@ -810,7 +811,9 @@ body::before {
   transition: box-shadow 0.35s, transform 0.35s;
   min-width: 140px;
   max-width: 200px;
-  margin: auto 0 0 auto;
+  flex-shrink: 0;
+  margin-top: 20px;
+  margin-left: auto;
   box-shadow: 0 4px 18px rgba(214, 10, 95, 0.32);
 }
 .accept-button::before {

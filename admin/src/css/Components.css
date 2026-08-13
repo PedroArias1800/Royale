@@ -135,18 +135,7 @@
 }
 
 
-/* ═══════════════════════════════════════
-   DATA CONTENT WRAPPER
-═══════════════════════════════════════ */
-.dataContent {
-    min-height: calc(100vh - 56px);
-    display: flex;
-    align-items: start;
-    flex-flow: column;
-    padding: 0 1%;
-    background: #1a1a1f;
-    color: #ede8eb;
-}
+/* .dataContent definido en Pages.css */
 
 
 /* ═══════════════════════════════════════

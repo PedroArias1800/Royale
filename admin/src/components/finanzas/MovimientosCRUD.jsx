@@ -9,12 +9,12 @@ import {
 
 const LABELS = {
     ingreso: ['Venta Directa', 'Abono', 'Devolución recibida', 'Otro ingreso'],
-    salida:  ['Costo del Producto', 'Gastos Operativos', 'Merma', 'Publicidad y Marketing', 'Envíos y Logística', 'Devolución emitida', 'Otro gasto'],
+    salida:  ['Costo del Producto', 'Gastos Operativos', 'Merma', 'Publicidad y Marketing', 'Envíos y Logística', 'Devolución emitida', 'Pago de Corte', 'Otro gasto'],
 };
 
-const CHANNELS = ['Sitio Web', 'WhatsApp', 'Instagram', 'Facebook', 'QR', 'Google', 'Directo', 'Vendedor', 'Presencial', 'Otro'];
+const CHANNELS = ['Sitio Web', 'WhatsApp', 'Instagram', 'Facebook', 'QR', 'Google', 'Directo', 'Vendedor', 'Presencial', 'Wompi', 'Yappy', 'Otro'];
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
+const todayISO = () => new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Panama' });
 
 const EMPTY_TX = {
     status: '1', fin_type: 'ingreso', label: LABELS.ingreso[0],
@@ -398,17 +398,26 @@ const AgregarTransaccionModal = ({ onClose, onSave }) => {
     );
 };
 
+// Cutoff: transacciones antes de esta fecha van directo a Finalizadas
+const FINALIZADAS_CUTOFF = new Date('2025-08-10T00:00:00-05:00');
+const isFinalized = (t) =>
+    t.delivery_status === 'delivered' ||
+    t.fin_type === 'salida' ||
+    (t.createdAt && new Date(t.createdAt) < FINALIZADAS_CUTOFF);
+
 // ─── Modal de procesado con precios y costos editables por producto ───────────
 const ProcesarModal = ({ tx, onClose, onSave }) => {
     const [form, setForm] = useState({
-        fin_type:         tx.fin_type || 'ingreso',
-        payment_method:   tx.payment_method || '',
-        delivery_method:  tx.delivery_method || '',
-        channel:          tx.channel || '',
-        label:            tx.label || LABELS.ingreso[0],
-        description:      tx.description || '',
-        operational_cost: tx.operational_cost != null ? String(tx.operational_cost) : '',
-        seller_id_fk:     tx.seller_id_fk || '',   // fix: pre-popular vendedor al revertir
+        fin_type:              tx.fin_type || 'ingreso',
+        payment_method:        tx.payment_method || '',
+        delivery_method:       tx.delivery_method || '',
+        channel:               tx.channel || '',
+        label:                 tx.label || LABELS.ingreso[0],
+        description:           tx.description || '',
+        operational_cost:      tx.operational_cost != null ? String(tx.operational_cost) : '',
+        seller_id_fk:          tx.seller_id_fk || '',
+        lot_numbers_str:       (tx.lot_numbers || []).join(', '),
+        delivery_assigned_to:  tx.delivery_assigned_to || '',
         status: 2,
     });
     const [users, setUsers] = useState([]);
@@ -497,6 +506,15 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
         if (payload.operational_cost !== '') payload.operational_cost = parseFloat(payload.operational_cost);
         else delete payload.operational_cost;
         if (!payload.seller_id_fk) delete payload.seller_id_fk;
+        if (!payload.delivery_assigned_to) {
+            delete payload.delivery_assigned_to;
+        } else {
+            const assignedUser = users.find(u => (u.id || u._id) === payload.delivery_assigned_to);
+            if (assignedUser) payload.delivery_assigned_name = `${assignedUser.firstname} ${assignedUser.lastname}`;
+        }
+        // Convert lot_numbers string to array
+        payload.lot_numbers = (payload.lot_numbers_str || '').split(',').map(s => s.trim()).filter(Boolean);
+        delete payload.lot_numbers_str;
         if (totalProductsCost > 0) payload.products_cost = parseFloat(totalProductsCost.toFixed(2));
         if (parsedProducts.length > 0) {
             payload.products_prices = prices.map(p => parseFloat(p) || 0);
@@ -643,6 +661,32 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
                                 onChange={handleChange} min="0" step="0.01" placeholder="0.00" />
                         </label>
                     </div>
+                    <div className="mov-form-row">
+                        <label>N° de Lote (separados por coma)
+                            <input
+                                type="text"
+                                value={form.lot_numbers_str}
+                                onChange={e => setForm(p => ({ ...p, lot_numbers_str: e.target.value }))}
+                                placeholder="Ej: L2025-01, L2025-02"
+                            />
+                        </label>
+                        <label>Asignar a (Delivery)
+                            <select
+                                value={form.delivery_assigned_to}
+                                onChange={e => setForm(p => ({ ...p, delivery_assigned_to: e.target.value }))}
+                            >
+                                <option value="">Sin asignar</option>
+                                {users.filter(u => {
+                                    const roles = u.roles || [u.rol];
+                                    return roles.includes(1) || roles.includes(3);
+                                }).map(u => (
+                                    <option key={u.id || u._id} value={u.id || u._id}>
+                                        {u.firstname} {u.lastname}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
                     <label>Notas (opcional)
                         <input type="text" name="description" value={form.description} onChange={handleChange} placeholder="Detalles adicionales..." />
                     </label>
@@ -656,9 +700,16 @@ const ProcesarModal = ({ tx, onClose, onSave }) => {
     );
 };
 
+const DELIVERY_STATUS_LABELS = {
+    pending:   'Pendiente',
+    delivered: 'Entregado',
+    cancelled: 'Cancelado',
+};
+
 // ─── Modal Ver Detalles (read-only) ──────────────────────────────────────────
 const VerDetallesModal = ({ tx, onClose }) => {
     const [typeData, setTypeData] = useState([]);
+    const [users, setUsers] = useState([]);
 
     const parsedProducts = useMemo(() =>
         (tx.products || []).map((p, i) => ({
@@ -687,6 +738,15 @@ const VerDetallesModal = ({ tx, onClose }) => {
             if (pending === 0) setTypeData([...data]);
         });
     }, [tx._id]);
+
+    useEffect(() => {
+        getAllUsersRequest().then(r => setUsers(r.data?.data || r.data || [])).catch(() => {});
+    }, []);
+
+    const assignedUser = users.find(u => (u.id || u._id) === tx.delivery_assigned_to);
+    const assignedName = assignedUser
+        ? `${assignedUser.firstname} ${assignedUser.lastname}`
+        : (tx.delivery_assigned_to ? tx.delivery_assigned_to : null);
 
     const salida = getSalida(tx);
 
@@ -778,6 +838,29 @@ const VerDetallesModal = ({ tx, onClose }) => {
                     )}
                 </div>
 
+                {/* Delivery */}
+                {(tx.lot_numbers?.length > 0 || tx.delivery_date || tx.delivery_assigned_to || tx.delivery_status || tx.delivered_by || tx.delivery_note) && (
+                    <div className="proc-products-section">
+                        <div className="mov-form-section-title">Delivery</div>
+                        <div className="mov-form-row">
+                            {tx.lot_numbers?.length > 0 && <RO label="N° de Lote" value={tx.lot_numbers.join(', ')} />}
+                            {tx.delivery_date && <RO label="Fecha de Entrega" value={tx.delivery_date} />}
+                            {assignedName && <RO label="Asignado a" value={assignedName} />}
+                            {tx.delivery_status && (
+                                <RO label="Estado de Entrega"
+                                    value={DELIVERY_STATUS_LABELS[tx.delivery_status] || tx.delivery_status}
+                                    style={{ color: tx.delivery_status === 'delivered' ? '#25D366' : tx.delivery_status === 'cancelled' ? '#d60a5f' : '#fdd05e' }} />
+                            )}
+                        </div>
+                        {(tx.delivered_by || tx.delivery_note) && (
+                            <div className="mov-form-row">
+                                {tx.delivered_by && <RO label="Entregado por" value={tx.delivered_by} />}
+                                {tx.delivery_note && <RO label="Nota de entrega" value={tx.delivery_note} />}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {/* Financiero desglosado */}
                 <div className="proc-products-section">
                     <div className="mov-form-section-title">Financiero</div>
@@ -822,7 +905,7 @@ const THead = () => (
 );
 
 // ─── Pestaña Pendientes ───────────────────────────────────────────────────────
-const PendientesList = ({ pendientes, onProcess, loading }) => {
+const PendientesList = ({ pendientes, onProcess, onRejectPending, onDeletePending, loading }) => {
     const [expandedId, setExpandedId] = useState(null);
     const sorted = useMemo(() => sortByDate(pendientes), [pendientes]);
 
@@ -857,6 +940,8 @@ const PendientesList = ({ pendientes, onProcess, loading }) => {
                                 <td className="mov-actions" onClick={e => e.stopPropagation()}>
                                     <DotsMenu options={[
                                         { label: 'Procesar', action: () => onProcess(t) },
+                                        { label: 'Rechazar', cls: 'danger', action: () => onRejectPending(t._id) },
+                                        { label: 'Eliminar', cls: 'danger', action: () => onDeletePending(t._id) },
                                     ]} />
                                 </td>
                             </tr>
@@ -938,40 +1023,58 @@ const ProcesadasList = ({ procesadas, onRevert, onToggleOmit, onDelete, loading 
 // ─── Componente principal ─────────────────────────────────────────────────────
 export const MovimientosCRUD = ({
     pendientes, procesadas,
-    onProcess, onAddTransaction, onRevert, onToggleOmit, onDelete,
+    onProcess, onAddTransaction, onRejectPending, onDeletePending, onRevert, onToggleOmit, onDelete,
     loadingPendientes, loadingProcesadas,
+    openExternal = false, onCloseExternal,
 }) => {
     const [tab, setTab] = useState('pendientes');
     const [procesando, setProcesando] = useState(null);
     const [showAgregar, setShowAgregar] = useState(false);
 
+    const finalizadas = useMemo(() => (procesadas || []).filter(isFinalized), [procesadas]);
+    const enCamino    = useMemo(() => (procesadas || []).filter(t => !isFinalized(t)), [procesadas]);
+
+    useEffect(() => {
+        if (openExternal) setShowAgregar(true);
+    }, [openExternal]);
+
     return (
         <div className="mov-crud">
             <div className="mov-header">
-                <h3 className="chart-title">Transacciones</h3>
-                <div className="mov-header-right">
-                    <div className="dim-tabs">
-                        <button className={`dim-tab${tab === 'pendientes' ? ' active' : ''}`}
-                            onClick={() => setTab('pendientes')} type="button">
-                            Pendientes
-                            {pendientes?.length ? <span className="pending-badge">{pendientes.length}</span> : null}
-                        </button>
-                        <button className={`dim-tab${tab === 'procesadas' ? ' active' : ''}`}
-                            onClick={() => setTab('procesadas')} type="button">
-                            Procesadas
-                        </button>
-                    </div>
-                    <button className="btn-agregar-tx" onClick={() => setShowAgregar(true)} type="button">
-                        + Agregar Transacción
+                <div className="dim-tabs">
+                    <button className={`dim-tab${tab === 'pendientes' ? ' active' : ''}`}
+                        onClick={() => setTab('pendientes')} type="button">
+                        No Procesadas
+                        {pendientes?.length ? <span className="pending-badge">{pendientes.length}</span> : null}
+                    </button>
+                    <button className={`dim-tab${tab === 'procesadas' ? ' active' : ''}`}
+                        onClick={() => setTab('procesadas')} type="button">
+                        En Camino
+                        {enCamino.length ? <span className="pending-badge" style={{ background: '#fdd05e', color: '#080409' }}>{enCamino.length}</span> : null}
+                    </button>
+                    <button className={`dim-tab${tab === 'finalizadas' ? ' active' : ''}`}
+                        onClick={() => setTab('finalizadas')} type="button">
+                        Finalizadas
+                        {finalizadas.length ? <span className="pending-badge" style={{ background: '#25D366', color: '#080409' }}>{finalizadas.length}</span> : null}
                     </button>
                 </div>
             </div>
 
             {tab === 'pendientes' && (
-                <PendientesList pendientes={pendientes} onProcess={setProcesando} loading={loadingPendientes} />
+                <PendientesList
+                    pendientes={pendientes}
+                    onProcess={setProcesando}
+                    onRejectPending={onRejectPending}
+                    onDeletePending={onDeletePending}
+                    loading={loadingPendientes}
+                />
             )}
             {tab === 'procesadas' && (
-                <ProcesadasList procesadas={procesadas} onRevert={onRevert}
+                <ProcesadasList procesadas={enCamino} onRevert={onRevert}
+                    onToggleOmit={onToggleOmit} onDelete={onDelete} loading={loadingProcesadas} />
+            )}
+            {tab === 'finalizadas' && (
+                <ProcesadasList procesadas={finalizadas} onRevert={onRevert}
                     onToggleOmit={onToggleOmit} onDelete={onDelete} loading={loadingProcesadas} />
             )}
 
@@ -979,7 +1082,10 @@ export const MovimientosCRUD = ({
                 <ProcesarModal tx={procesando} onClose={() => setProcesando(null)} onSave={onProcess} />
             )}
             {showAgregar && (
-                <AgregarTransaccionModal onClose={() => setShowAgregar(false)} onSave={onAddTransaction} />
+                <AgregarTransaccionModal
+                    onClose={() => { setShowAgregar(false); onCloseExternal?.(); }}
+                    onSave={onAddTransaction}
+                />
             )}
         </div>
     );

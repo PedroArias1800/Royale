@@ -2,7 +2,7 @@ import bcrypt
 from fastapi import APIRouter, Depends, Query, Response
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 from database import get_db
 from auth import create_access_token, verify_token
@@ -27,6 +27,7 @@ class UserBody(BaseModel):
     email: str
     password: Optional[str] = None
     rol: int
+    roles: Optional[List[int]] = None
     status: int
 
 
@@ -55,7 +56,7 @@ def _user_resp(user: dict) -> dict:
 @router.get("/api/users/all")
 def get_all_users():
     db = get_db()
-    docs = list(db.users.find({}, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "status": 1}))
+    docs = list(db.users.find({}, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "roles": 1, "status": 1}))
     return [serialize_doc(d) for d in docs]
 
 
@@ -113,7 +114,9 @@ def create_user(body: UserBody, response: Response):
     doc = {
         "firstname": body.firstname, "lastname": body.lastname,
         "email": body.email, "password": password_hash,
-        "rol": body.rol, "status": body.status,
+        "rol": body.rol,
+        "roles": body.roles if body.roles else [body.rol],
+        "status": body.status,
         "createdAt": now, "updatedAt": now,
     }
     result = db.users.insert_one(doc)
@@ -138,7 +141,9 @@ def update_user(id: str, body: UserBody):
     update_data = {
         "firstname": body.firstname, "lastname": body.lastname,
         "email": body.email, "password": password_hash,
-        "rol": body.rol, "status": body.status,
+        "rol": body.rol,
+        "roles": body.roles if body.roles else [body.rol],
+        "status": body.status,
         "updatedAt": datetime.now(timezone.utc),
     }
     doc = db.users.find_one_and_update(

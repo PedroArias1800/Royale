@@ -18,6 +18,14 @@ Globals:
         YAPPY_MERCHANT_ID: !Ref YappyMerchantId
         YAPPY_SECRET_TOKEN: !Ref YappySecretToken
         YAPPY_SANDBOX: !Ref YappySandbox
+        YAPPY_DOMAIN: !Ref YappyDomain
+        WOMPI_PUBLIC_KEY: !Ref WompiPublicKey
+        WOMPI_PRIVATE_KEY: !Ref WompiPrivateKey
+        WOMPI_INTEGRITY_KEY: !Ref WompiIntegrityKey
+        WOMPI_EVENTS_KEY: !Ref WompiEventsKey
+        WOMPI_SANDBOX: !Ref WompiSandbox
+        YAPPY_MOVEMENT_API_KEY: !Ref YappyMovementApiKey
+        YAPPY_MOVEMENT_SECRET_KEY: !Ref YappyMovementSecretKey
 
 
 Parameters:
@@ -52,6 +60,43 @@ Parameters:
     Type: String
     Default: "yes"
     Description: "'yes' = modo pruebas sin cobro real, 'no' = producción"
+  YappyDomain:
+    Type: String
+    Default: "https://royalepanama.com"
+    Description: "Dominio registrado en el portal Yappy Comercial (debe coincidir exactamente)"
+  WompiPublicKey:
+    Type: String
+    Default: ""
+    Description: Wompi — Public key (pub_test_... / pub_prod_...)
+  WompiPrivateKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Wompi — Private key (prv_test_... / prv_prod_...)
+  WompiIntegrityKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Wompi — Integrity key para firma SHA256 del checkout
+  WompiEventsKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Wompi — Events key para verificar autenticidad de webhooks
+  WompiSandbox:
+    Type: String
+    Default: "true"
+    Description: "'true' = modo sandbox sin cobro real, 'false' = producción"
+  YappyMovementApiKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Yappy API Historial — api-key provista por Banco General (producto separado)
+  YappyMovementSecretKey:
+    Type: String
+    Default: ""
+    NoEcho: true
+    Description: Yappy API Historial — secret-key provista por Banco General (producto separado)
 
 Resources:
   # ── Lambda Function ──────────────────────────────────────────────────────────
