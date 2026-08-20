@@ -491,7 +491,7 @@ body::before {
 }
 
 .MasBuscadosVentasFlash::before {
-  background-image: url('/index/BackgroundVentasFlash.jpg') !important;
+  background-image: url('/index/BackgroundVentasFlash.webp') !important;
 }
 .MasBuscadosVentasFlash .MasBuscadosTitle {
   color: var(--color-dorado-light);
