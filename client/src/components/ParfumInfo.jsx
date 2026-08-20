@@ -51,7 +51,21 @@ export const ParfumInfo = ({ product, typeParfum, discountPct = null }) => {
   const handleTypeSelection = (type) => setSelectedType(type);
 
   if (!product || !selectedType) {
-    return <p>Cargando...</p>;
+    return (
+      <div className="parfumInfo pi-skeleton">
+        <div className="pi-skeleton__img skeleton" />
+        <div className="pi-skeleton__body">
+          <div className="skeleton pi-skeleton__line pi-skeleton__line--brand" />
+          <div className="skeleton pi-skeleton__line pi-skeleton__line--title" />
+          <div className="skeleton pi-skeleton__line pi-skeleton__line--version" />
+          <div className="skeleton pi-skeleton__line pi-skeleton__line--price" />
+          <div className="pi-skeleton__types">
+            {[1,2,3].map(i => <div key={i} className="skeleton pi-skeleton__type-btn" />)}
+          </div>
+          <div className="skeleton pi-skeleton__cta" />
+        </div>
+      </div>
+    );
   }
 
   const handleShare = async () => {

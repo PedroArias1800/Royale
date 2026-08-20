@@ -38,7 +38,7 @@ export const Card = ({element, cardsRef, index, width100, typeOfSale}) => {
               {typeOfSales && (
                 <FontAwesomeIcon icon={faBolt} style={gradientStyle} className='boltFlash' />
               )}
-              <img src={imgSrc(element?.types[0]?.img)} alt={`Imagen de ${element?.brand.brand_name} ${element?.title}`} />
+              <img src={imgSrc(element?.types[0]?.img)} alt={`Imagen de ${element?.brand.brand_name} ${element?.title}`} loading="lazy" />
               {typeOfSales && (
                 <p className='quantityFlash'>{element?.types[0]?.quantity_flash} Disponibles</p>
               )}

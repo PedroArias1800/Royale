@@ -564,7 +564,7 @@ export const ModalFormTransaction = ({ modalData }) => {
                             <select name="delivery_method" id="delivery_method" value={modalData?.delivery_method || ''} onChange={handleInputChange}>
                                 <option value="">Sin especificar</option>
                                 <option value="Pickup">Pickup</option>
-                                <option value="Delivery propio">Delivery propio</option>
+                                <option value="Delivery Propio">Delivery Propio</option>
                                 <option value="Mensajería">Mensajería</option>
                                 <option value="Digital">Digital</option>
                             </select>

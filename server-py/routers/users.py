@@ -46,7 +46,8 @@ def _user_resp(user: dict) -> dict:
         "firstname": user["firstname"],
         "lastname": user["lastname"],
         "email": user["email"],
-        "rol": _get_rol(user.get("rol", 2)),
+        "rol": user.get("rol", 2),
+        "roles": user.get("roles") or [user.get("rol", 2)],
         "status": user.get("status"),
         "createdAt": user["createdAt"].isoformat() if isinstance(user.get("createdAt"), datetime) else None,
         "updatedAt": user["updatedAt"].isoformat() if isinstance(user.get("updatedAt"), datetime) else None,
@@ -72,7 +73,7 @@ def get_sellers(page: int = Query(default=1)):
 def get_users(page: int = Query(default=1)):
     db = get_db()
     query = {}
-    cursor = db.users.find(query, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "status": 1})
+    cursor = db.users.find(query, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "roles": 1, "status": 1})
     return paginate_cursor(cursor, db.users, query, page)
 
 
@@ -98,7 +99,7 @@ def get_filtered_users(body: FilterBody, _: dict = Depends(verify_token), page: 
             or_clauses.append({"rol": rol_filter})
         query = {"$or": or_clauses}
 
-    cursor = db.users.find(query, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "status": 1}).sort("firstname", 1)
+    cursor = db.users.find(query, {"firstname": 1, "lastname": 1, "email": 1, "rol": 1, "roles": 1, "status": 1}).sort("firstname", 1)
     return paginate_cursor(cursor, db.users, query, page)
 
 
@@ -132,10 +133,17 @@ def update_user(id: str, body: UserBody):
     db = get_db()
     from datetime import datetime, timezone
 
+    oid = to_object_id(id)
+
+    # Check email uniqueness against other users
+    email_conflict = db.users.find_one({"email": body.email, "_id": {"$ne": oid}}, {"_id": 1})
+    if email_conflict:
+        return JSONResponse(status_code=400, content=["El Correo ya está en uso por otro usuario"])
+
     if body.password:
         password_hash = bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode()
     else:
-        existing = db.users.find_one({"email": body.email}, {"password": 1})
+        existing = db.users.find_one({"_id": oid}, {"password": 1})
         password_hash = existing["password"] if existing else ""
 
     update_data = {
@@ -147,7 +155,7 @@ def update_user(id: str, body: UserBody):
         "updatedAt": datetime.now(timezone.utc),
     }
     doc = db.users.find_one_and_update(
-        {"_id": to_object_id(id)}, {"$set": update_data}, return_document=True
+        {"_id": oid}, {"$set": update_data}, return_document=True
     )
     if not doc:
         return JSONResponse(status_code=404, content={"message": "User not Found"})

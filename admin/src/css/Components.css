@@ -152,3 +152,41 @@
     height: 44px;
     background: #111115;
 }
+
+
+/* ── Type ID Copy ── */
+.type-id-copy {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+}
+.type-id-copy__label {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.45);
+    white-space: nowrap;
+}
+.type-id-copy__value {
+    font-family: monospace;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.75);
+    flex: 1;
+    word-break: break-all;
+}
+.type-id-copy__btn {
+    padding: 0.2rem 0.6rem;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.72rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+.type-id-copy__btn:hover { background: rgba(255,255,255,0.18); color: #fff; }

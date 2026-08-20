@@ -37,6 +37,16 @@ body {
     background: linear-gradient(to top, var(--color-dorado-hover), var(--color-dorado));
 }
 
+/* Links dentro de tablas — color dorado del sistema para legibilidad sobre fondo oscuro */
+table a {
+    color: #fdd05e;
+    text-decoration: none;
+}
+table a:hover {
+    color: #c79a28;
+    text-decoration: underline;
+}
+
 /* ═══════════════════════════════════════
    MODAL
 ═══════════════════════════════════════ */

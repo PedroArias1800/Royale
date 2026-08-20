@@ -30,7 +30,7 @@ export const BodyInicial = () => {
                     style={{'backgroundImage': `url("${imgSrc(element.back_img)}")`}}
                     >
                         <div className="bodyContent" style={{'marginLeft': element.align}}>
-                            <img src={imgSrc(element.parfum_img)} alt="" />
+                            <img src={imgSrc(element.parfum_img)} alt={element.title ? element.title.replace(/<[^>]*>/g, '') : 'Perfume destacado'} loading="lazy" />
                             <h1 dangerouslySetInnerHTML={{ __html: element.title }}></h1>
                             <Link to={`/parfum?id=${element.parfum_id_fk._id}`}
                                 onMouseEnter={handleMouseEnter}

@@ -18,9 +18,17 @@ export const ParfumDetails = () => {
     useEffect(() => {
         if (!id) return;
         getParfumVersionRequest(id)
-            .then(res => setProduct(res.data))
+            .then(res => {
+                setProduct(res.data);
+                const p = res.data;
+                if (p) {
+                    const brand = p.brand?.brand_name || '';
+                    document.title = `${brand} ${p.title} · Royale Panama`.trim();
+                }
+            })
             .catch(err => console.error('Error al cargar el perfume:', err));
         window.scrollTo(0, 0);
+        return () => { document.title = 'Royale Panama — Perfumes de Lujo en Panamá'; };
     }, [id]);
 
     const discountPct = getDiscount && product ? getDiscount(product) : null;

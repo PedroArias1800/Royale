@@ -11,21 +11,32 @@ import {
     putTransactionRequest,
     postManualTransactionRequest,
     deleteManualTransactionRequest,
+    postAccountTransactionRequest,
+    getAccountTransactionsRequest,
+    postAccountPaymentRequest,
 } from '../api/Transaction.api.js';
+import { putDeliveryStatusRequest } from '../api/Consolidacion.api.js';
 import { MovimientosCRUD } from '../components/finanzas/MovimientosCRUD.jsx';
-
-function firstOfMonthISO() {
-    const d = new Date();
-    d.setDate(1);
-    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
-    return d.toISOString().slice(0, 10);
-}
 
 function todayISO() {
     const d = new Date();
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     return d.toISOString().slice(0, 10);
 }
+
+function daysAgoISO(days) {
+    const d = new Date(Date.now() - days * 24 * 3600 * 1000);
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0, 10);
+}
+
+const PERIOD_OPTIONS = [
+    { key: '30d',  label: '30 días',  days: 30 },
+    { key: '3m',   label: '3 meses',  days: 90 },
+    { key: '6m',   label: '6 meses',  days: 180 },
+    { key: 'year', label: 'Año',      year: true },
+    { key: 'all',  label: 'Todo',     days: null },
+];
 
 export const Data = () => {
 
@@ -36,7 +47,8 @@ export const Data = () => {
     const [consulta, setConsulta] = useState('')
     const [page, setPage] = useState(1);
     const [filterText, setFilterText] = useState('');
-    const [txTab, setTxTab] = useState('all'); // 'all' | 'ingreso' | 'salida'
+    const [txTab, setTxTab] = useState('all');       // 'all' | 'ingreso' | 'salida'
+    const [stageFilter, setStageFilter] = useState('all'); // 'all' | 'pending' | 'en-camino' | 'finalizadas' | 'canceladas' | 'cuentas-pendientes' | 'cuentas-cerradas'
     const debounceRef = useRef(null);
 
     // Estado de la sección de gestión de transacciones (solo id == 7)
@@ -45,7 +57,10 @@ export const Data = () => {
     const [loadingPendientes, setLoadingPendientes] = useState(false);
     const [loadingProcesadas, setLoadingProcesadas] = useState(false);
     const [showAgregarTx, setShowAgregarTx] = useState(false);
-    
+    const [cuentas, setCuentas] = useState([]);
+    const [loadingCuentas, setLoadingCuentas] = useState(false);
+    const [procesadasPeriod, setProcesadasPeriod] = useState('30d');
+
 
     const volver = () => {
         closeModal()
@@ -161,16 +176,18 @@ export const Data = () => {
         );
     };
 
-    const applyFilter = useCallback(async (text, currentPage = 1, tab = txTab) => {
+    const applyFilter = useCallback(async (text, currentPage = 1, tab = txTab, stage = stageFilter) => {
         const finType = id == 7 && tab !== 'all' ? tab : undefined;
-        if (!text.trim() && !finType) {
+        const stg     = id == 7 && stage !== 'all' ? stage : undefined;
+        if (!text.trim() && !finType && !stg) {
             await cargarDataTables(id, currentPage);
         } else {
             const body = { filter: text.trim() };
             if (finType) body.fin_type = finType;
+            if (stg)     body.stage    = stg;
             await filtrarData(id, currentPage, body);
         }
-    }, [id, txTab, cargarDataTables, filtrarData]);
+    }, [id, txTab, stageFilter, cargarDataTables, filtrarData]);
 
     const filtrar = async (e) => {
         e.preventDefault();
@@ -187,6 +204,7 @@ export const Data = () => {
 
     const clearFilter = async () => {
         setFilterText('');
+        setStageFilter('all');
         if (debounceRef.current) clearTimeout(debounceRef.current);
         if (id == 7 && txTab !== 'all') {
             await filtrarData(id, 1, { filter: '', fin_type: txTab });
@@ -201,7 +219,14 @@ export const Data = () => {
         setPage(1);
         setFilterText('');
         if (debounceRef.current) clearTimeout(debounceRef.current);
-        await applyFilter('', 1, tab);
+        await applyFilter('', 1, tab, stageFilter);
+    };
+
+    const handleStageFilter = async (stage) => {
+        setStageFilter(stage);
+        setPage(1);
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        await applyFilter(filterText, 1, txTab, stage);
     };
 
     // ── Gestión de transacciones (id == 7) ──────────────────────────────────────
@@ -214,21 +239,46 @@ export const Data = () => {
         finally { setLoadingPendientes(false); }
     }, []);
 
-    const loadProcesadas = useCallback(async () => {
+    const loadProcesadas = useCallback(async (period = procesadasPeriod) => {
         setLoadingProcesadas(true);
         try {
-            const res = await getProcessedTransactionsRequest(firstOfMonthISO(), todayISO());
+            const opt = PERIOD_OPTIONS.find(o => o.key === period);
+            let start = null, end = null;
+            if (opt?.year) {
+                const now = new Date();
+                start = `${now.getFullYear()}-01-01`;
+                end   = todayISO();
+            } else if (opt?.days) {
+                start = daysAgoISO(opt.days);
+                end   = todayISO();
+            }
+            const res = await getProcessedTransactionsRequest(start, end);
             setProcesadas(res.data || []);
         } catch (e) { console.error(e); }
         finally { setLoadingProcesadas(false); }
+    }, [procesadasPeriod]);
+
+    const loadCuentas = useCallback(async () => {
+        setLoadingCuentas(true);
+        try {
+            const res = await getAccountTransactionsRequest();
+            setCuentas(res.data || []);
+        } catch (e) { console.error(e); }
+        finally { setLoadingCuentas(false); }
     }, []);
 
     useEffect(() => {
         if (id == 7) {
             loadPendientes();
-            loadProcesadas();
+            loadProcesadas(procesadasPeriod);
+            loadCuentas();
         }
     }, [id]);
+
+    const handleProcesadasPeriod = (key) => {
+        setProcesadasPeriod(key);
+        loadProcesadas(key);
+    };
 
     const handleProcess = async (tx_id, data) => {
         try {
@@ -268,8 +318,19 @@ export const Data = () => {
         } catch (e) { console.error(e); }
     };
 
-    const handleRevert = async (tx_id) => {
-        if (!confirm('¿Revertir esta transacción a pendiente?')) return;
+    const handleEntregar = async (tx_id, deliveryStatus, deliveredBy, deliveryNote, deliveredAt, noPromote) => {
+        try {
+            if (noPromote) {
+                await putTransactionRequest(tx_id, { delivered_by: deliveredBy, delivery_note: deliveryNote, delivered_at: deliveredAt });
+            } else {
+                await putDeliveryStatusRequest(tx_id, deliveryStatus, deliveredBy, deliveryNote);
+            }
+            loadProcesadas();
+        } catch (e) { console.error(e); }
+    };
+
+    const handleDemoteToNoProcesadas = async (tx_id) => {
+        if (!confirm('¿Mover esta transacción a No Procesadas?')) return;
         try {
             await putTransactionRequest(tx_id, { status: 1 });
             loadProcesadas();
@@ -278,10 +339,11 @@ export const Data = () => {
         } catch (e) { console.error(e); }
     };
 
-    const handleToggleOmit = async (tx_id, omitted) => {
+    const handleDemoteToEnCamino = async (tx_id) => {
+        if (!confirm('¿Mover esta transacción a En Camino?')) return;
         try {
-            await putTransactionRequest(tx_id, { omitted });
-            setProcesadas(prev => prev.map(t => t._id === tx_id ? { ...t, omitted } : t));
+            await putDeliveryStatusRequest(tx_id, 'pending', '', '');
+            loadProcesadas();
         } catch (e) { console.error(e); }
     };
 
@@ -290,6 +352,30 @@ export const Data = () => {
         try {
             await deleteManualTransactionRequest(tx_id);
             loadProcesadas();
+            await cargarDataTables(id, page);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleAddCuenta = async (data) => {
+        try {
+            await postAccountTransactionRequest(data);
+            loadCuentas();
+            await cargarDataTables(id, page);
+        } catch (e) { console.error(e); }
+    };
+
+    const handleAbonar = async (tx_id, data) => {
+        try {
+            await postAccountPaymentRequest(tx_id, data);
+            loadCuentas();
+        } catch (e) { console.error(e); }
+    };
+
+    const handleDeleteCuenta = async (tx_id) => {
+        if (!confirm('¿Eliminar esta cuenta permanentemente? Esta acción no se puede deshacer.')) return;
+        try {
+            await deleteManualTransactionRequest(tx_id);
+            loadCuentas();
             await cargarDataTables(id, page);
         } catch (e) { console.error(e); }
     };
@@ -305,19 +391,36 @@ export const Data = () => {
                     )}
                 </div>
                 <div className='tx-gestion'>
-                    <h2 className='tx-gestion-title'>Gestión de Transacciones</h2>
+                    <div className='tx-gestion-header'>
+                        <h2 className='tx-gestion-title'>Gestión de Transacciones</h2>
+                        <div className='tx-period-selector'>
+                            {PERIOD_OPTIONS.map(opt => (
+                                <button key={opt.key} type="button"
+                                    className={`tx-period-btn${procesadasPeriod === opt.key ? ' active' : ''}`}
+                                    onClick={() => handleProcesadasPeriod(opt.key)}>
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
                     <MovimientosCRUD
                         pendientes={pendientes}
                         procesadas={procesadas}
+                        cuentas={cuentas}
                         onProcess={handleProcess}
                         onAddTransaction={handleAddTransaction}
                         onRejectPending={handleRejectPending}
                         onDeletePending={handleDeletePending}
-                        onRevert={handleRevert}
-                        onToggleOmit={handleToggleOmit}
+                        onEntregar={handleEntregar}
+                        onDemoteToNoProcesadas={handleDemoteToNoProcesadas}
+                        onDemoteToEnCamino={handleDemoteToEnCamino}
                         onDelete={handleDelete}
+                        onAddCuenta={handleAddCuenta}
+                        onAbonar={handleAbonar}
+                        onDeleteCuenta={handleDeleteCuenta}
                         loadingPendientes={loadingPendientes}
                         loadingProcesadas={loadingProcesadas}
+                        loadingCuentas={loadingCuentas}
                         openExternal={showAgregarTx}
                         onCloseExternal={() => setShowAgregarTx(false)}
                     />
@@ -393,6 +496,22 @@ export const Data = () => {
                         <button key={key} type="button"
                             className={`tx-tab-btn${txTab === key ? ' active' : ''}`}
                             onClick={() => handleTxTab(key)}
+                        >{label}</button>
+                    ))}
+                </div>
+                <div className='tx-tabs-group tx-stage-group'>
+                    {[
+                        ['all',                'Todas las Etapas'],
+                        ['pending',            'No Procesadas'],
+                        ['en-camino',          'En Camino'],
+                        ['finalizadas',        'Finalizadas'],
+                        ['canceladas',         'Canceladas'],
+                        ['cuentas-pendientes', 'Cuentas Pendientes'],
+                        ['cuentas-cerradas',   'Cuentas Cerradas'],
+                    ].map(([key, label]) => (
+                        <button key={key} type="button"
+                            className={`tx-tab-btn tx-stage-btn${stageFilter === key ? ' active' : ''}`}
+                            onClick={() => handleStageFilter(key)}
                         >{label}</button>
                     ))}
                 </div>

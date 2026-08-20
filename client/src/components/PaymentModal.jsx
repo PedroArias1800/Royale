@@ -148,6 +148,11 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
 
   const handleWhatsApp = (e) => {
     e.preventDefault();
+    if (deliveryFee === null && !isFreeOrder) {
+      setYappyError('Selecciona una opción de delivery válida antes de continuar.');
+      return;
+    }
+    setYappyError('');
     const formData = new FormData(e.target);
     const data = Object.fromEntries(formData.entries());
     data._deliveryLabel     = getDeliveryLabel();
@@ -167,7 +172,9 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
     e.preventDefault();
     const form = e.currentTarget.closest('form');
     if (!form.checkValidity()) { form.reportValidity(); return; }
-    if (deliveryFee === null) { setYappyError('Selecciona una opción de delivery válida primero.'); return; }
+    if (!isFreeOrder && deliveryFee === null) { setYappyError('Selecciona tu zona de entrega o estación de metro antes de continuar.'); return; }
+    if (isFreeOrder && method === 'zona' && !province) { setYappyError('Indica tu provincia para coordinar la entrega.'); return; }
+    if (isFreeOrder && method === 'metro' && !metroStation) { setYappyError('Selecciona tu estación de metro antes de continuar.'); return; }
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
@@ -250,7 +257,12 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
         });
       }
     } catch (err) {
-      setYappyError(err.response?.data?.message || 'Error al conectar con Yappy. Usa el método por WhatsApp.');
+      const msg = err.response?.data?.message || '';
+      if (msg.toLowerCase().includes('yappy no pudo') || msg.toLowerCase().includes('verifica tus datos')) {
+        setYappyError('El número ingresado no está registrado en Yappy o no tiene saldo suficiente. Verifica que sea el número asociado a tu cuenta Yappy e intenta de nuevo.');
+      } else {
+        setYappyError(msg || 'Error al conectar con Yappy. Usa el método por WhatsApp.');
+      }
     } finally { setYappyLoading(false); }
   };
 
@@ -258,7 +270,9 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
     e.preventDefault();
     const form = e.currentTarget.closest('form');
     if (!form.checkValidity()) { form.reportValidity(); return; }
-    if (deliveryFee === null) { setWompiError('Selecciona una opción de delivery válida primero.'); return; }
+    if (!isFreeOrder && deliveryFee === null) { setWompiError('Selecciona tu zona de entrega o estación de metro antes de continuar.'); return; }
+    if (isFreeOrder && method === 'zona' && !province) { setWompiError('Indica tu provincia para coordinar la entrega.'); return; }
+    if (isFreeOrder && method === 'metro' && !metroStation) { setWompiError('Selecciona tu estación de metro antes de continuar.'); return; }
 
     const formData = new FormData(form);
     const data = Object.fromEntries(formData.entries());
@@ -314,12 +328,21 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
             </div>
             <div className="form-group2">
               <label htmlFor="phone">Teléfono</label>
-              <input type="tel" id="phone" name="phone" placeholder="6212-6212" required autoComplete="tel" />
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                placeholder="6212-6212"
+                required
+                autoComplete="tel"
+                pattern="[0-9]{4}-[0-9]{4}|[0-9]{8}"
+                title="Formato: XXXX-XXXX o 8 dígitos seguidos (ej: 62126212)"
+              />
             </div>
           </div>
           <div className="form-group2">
             <label htmlFor="email">Correo</label>
-            <input type="email" id="email" name="email" placeholder="correo@gmail.com" autoComplete="email" />
+            <input type="email" id="email" name="email" placeholder="correo@gmail.com" required autoComplete="email" />
           </div>
 
           {/* ── Delivery ── */}
@@ -494,8 +517,8 @@ export const PaymentModal = ({ isOpen, onClose, onSubmit, cartData }) => {
 
           {/* ── Dirección adicional ── */}
           <div className="form-group2">
-            <label htmlFor="address">Dirección / Referencia adicional (opcional)</label>
-            <input type="text" id="address" name="address" placeholder="Calle, edificio, casa, referencia..." autoComplete="address-line1" />
+            <label htmlFor="address">Dirección / Referencia adicional</label>
+            <input type="text" id="address" name="address" placeholder="Calle, edificio, casa, referencia..." required autoComplete="address-line1" />
           </div>
 
           {/* ── Resumen de total ── */}

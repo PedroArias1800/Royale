@@ -13,6 +13,7 @@ import {
     getSellerSummaryRequest,
     getDeliveryConfigRequest,
     putDeliveryConfigRequest,
+    getSellerUncutRequest,
 } from '../api/Cortes.api.js';
 import '../css/Cortes.css';
 
@@ -25,6 +26,18 @@ const todayISO = () => {
     const d = new Date();
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     return d.toISOString().slice(0, 10);
+};
+// Panama = UTC-5, sin DST
+const firstDayOfMonth = () => {
+    const d = new Date(Date.now() - 5 * 3600 * 1000);
+    return `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}-01`;
+};
+const lastDayOfMonth = () => {
+    const d     = new Date(Date.now() - 5 * 3600 * 1000);
+    const year  = d.getUTCFullYear();
+    const month = d.getUTCMonth() + 1;
+    const last  = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    return `${year}-${String(month).padStart(2, '0')}-${String(last).padStart(2, '0')}`;
 };
 
 // ─── Tabla unificada por usuario ──────────────────────────────────────────
@@ -436,8 +449,8 @@ const DeliveryConfigPanel = ({ config, onSave }) => {
 const NuevoCortePanel = ({ config, onCreated, onCancel }) => {
     const [form, setForm] = useState({
         label:        '',
-        period_start: '',
-        period_end:   todayISO(),
+        period_start: firstDayOfMonth(),
+        period_end:   lastDayOfMonth(),
     });
     const [preview, setPreview]   = useState(null);
     const [loadingPrev, setLPrev] = useState(false);
@@ -570,19 +583,103 @@ const NuevoCortePanel = ({ config, onCreated, onCancel }) => {
     );
 };
 
+// ─── Ventas sin corte ─────────────────────────────────────────────────────
+const fmtProducts = (products = []) => {
+    if (!products.length) return '—';
+    return products.map(p => p.includes('=') ? p.split('=')[1] : p).join(', ');
+};
+
+const UncutSection = ({ uncut }) => {
+    const [expanded, setExpanded] = useState(false);
+    if (!uncut) return null;
+    const { transactions, total_seller_cut, tx_count, seller_pct, since } = uncut;
+    const sinceLabel = since
+        ? new Date(since).toLocaleDateString('es-PA', { day: '2-digit', month: 'short', year: 'numeric' })
+        : null;
+
+    return (
+        <div className="uncut-section">
+            <div className="uncut-header" onClick={() => setExpanded(v => !v)} style={{ cursor: 'pointer' }}>
+                <div className="uncut-header-left">
+                    <span className="uncut-title">Ventas Pendientes de Corte</span>
+                    {sinceLabel && (
+                        <span className="uncut-since">desde {sinceLabel}</span>
+                    )}
+                </div>
+                <div className="uncut-header-right">
+                    <span className="uncut-kpi">
+                        <span className="uncut-kpi-label">{tx_count} venta{tx_count !== 1 ? 's' : ''}</span>
+                    </span>
+                    <span className="uncut-kpi">
+                        <span className="uncut-kpi-label">Ganancia estimada</span>
+                        <span className="uncut-kpi-value">{fmtMoney(total_seller_cut)}</span>
+                        <span className="uncut-kpi-pct">({seller_pct}%)</span>
+                    </span>
+                    <span className="uncut-toggle">{expanded ? '▲' : '▼'}</span>
+                </div>
+            </div>
+
+            {expanded && (
+                <div className="uncut-table-wrap">
+                    {!transactions.length ? (
+                        <p className="uncut-empty">No hay ventas pendientes de corte.</p>
+                    ) : (
+                        <table className="uncut-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>N° Pedido</th>
+                                    <th>Productos</th>
+                                    <th style={{ textAlign: 'right' }}>Total Venta</th>
+                                    <th style={{ textAlign: 'right' }}>Tu Ganancia</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {transactions.map(tx => (
+                                    <tr key={tx._id}>
+                                        <td>{fmtDate(tx.createdAt)}</td>
+                                        <td className="uncut-order">{tx.order_number || '—'}</td>
+                                        <td className="uncut-products">{fmtProducts(tx.products)}</td>
+                                        <td style={{ textAlign: 'right', color: '#2ecc71' }}>{fmtMoney(tx.total)}</td>
+                                        <td style={{ textAlign: 'right', color: '#fdd05e', fontWeight: 600 }}>{fmtMoney(tx.seller_cut)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                            <tfoot>
+                                <tr className="uncut-total-row">
+                                    <td colSpan={3}></td>
+                                    <td style={{ textAlign: 'right', color: '#2ecc71' }}>
+                                        {fmtMoney(transactions.reduce((s, t) => s + t.total, 0))}
+                                    </td>
+                                    <td style={{ textAlign: 'right', color: '#fdd05e', fontWeight: 700 }}>
+                                        {fmtMoney(total_seller_cut)}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 // ─── Vista del vendedor / repartidor ─────────────────────────────────────
 const SellerView = () => {
     const [summary, setSummary] = useState(null);
     const [cortes, setCortes]   = useState([]);
+    const [uncut, setUncut]     = useState(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         Promise.all([
             getCortesRequest(),
             getSellerSummaryRequest(),
-        ]).then(([cortesRes, summaryRes]) => {
+            getSellerUncutRequest(),
+        ]).then(([cortesRes, summaryRes, uncutRes]) => {
             setCortes(cortesRes.data || []);
             setSummary(summaryRes.data);
+            setUncut(uncutRes.data);
         }).catch(console.error).finally(() => setLoading(false));
     }, []);
 
@@ -610,6 +707,8 @@ const SellerView = () => {
                     </div>
                 </div>
             )}
+
+            <UncutSection uncut={uncut} />
 
             <div className="cortes-history">
                 <p className="cortes-history-title">Historial de Cortes</p>
@@ -643,20 +742,23 @@ export const Cortes = () => {
     const [showNewCorte, setShowNew]        = useState(false);
     const [viewMode, setViewMode]           = useState('gestion'); // 'gestion' | 'personal'
     const [sellerSummary, setSellerSummary] = useState(null);
+    const [sellerUncut, setSellerUncut]     = useState(null);
 
     const loadAll = useCallback(async () => {
         setLoading(true);
         try {
-            const [cortesRes, configRes, summaryRes, deliveryCfgRes] = await Promise.all([
+            const [cortesRes, configRes, summaryRes, deliveryCfgRes, uncutRes] = await Promise.all([
                 getCortesRequest(),
                 getCortesConfigRequest(),
                 getSellerSummaryRequest(),
                 getDeliveryConfigRequest(),
+                getSellerUncutRequest(),
             ]);
             setCortes(cortesRes.data || []);
             setConfig(configRes.data);
             setSellerSummary(summaryRes.data);
             setDeliveryConfig(deliveryCfgRes.data);
+            setSellerUncut(uncutRes.data);
         } catch (e) { console.error(e); }
         finally { setLoading(false); }
     }, []);
@@ -818,6 +920,8 @@ export const Cortes = () => {
                             </div>
                         </div>
                     )}
+
+                    <UncutSection uncut={sellerUncut} />
 
                     <div className="cortes-history">
                         <p className="cortes-history-title">Mi historial de cortes</p>

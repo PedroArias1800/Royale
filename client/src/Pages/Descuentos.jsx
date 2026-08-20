@@ -129,6 +129,11 @@ export const Descuentos = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        document.title = 'Descuentos Exclusivos · Royale Panama';
+        return () => { document.title = 'Royale Panama — Perfumes de Lujo en Panamá'; };
+    }, []);
+
+    useEffect(() => {
         getDiscountsPublicRequest()
             .then(res => setRules(res.data || []))
             .catch(() => setRules([]))

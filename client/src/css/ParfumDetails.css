@@ -315,7 +315,7 @@
   gap: 8px;
 }
 .pi-price-discounted {
-  color: #2ecc71 !important;
+  color: var(--color-dorado-light, #ffe88a) !important;
 }
 .pi-discount-badge {
   display: inline-flex;

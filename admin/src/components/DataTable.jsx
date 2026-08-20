@@ -1,6 +1,7 @@
 import { columnMappings, excludedColumns, excludedColumnsSeller } from "../js/mappings";
 import { useAuth } from "../context/AuthProvider.jsx";
 import { useState } from "react";
+import { TransactionDetailModal } from "./TransactionDetailModal.jsx";
 
 const NON_SORTABLE = new Set(['products', 'productsTypes', 'quantities', 'img', 'back_img', 'parfum_img', 'media', 'products_prices']);
 
@@ -9,6 +10,7 @@ export const DataTable = ({ data, idCategory }) => {
   const [productsThatApply] = useState(['Todos', 'Damas', 'Caballeros']);
   const [sortKey, setSortKey] = useState(null);
   const [sortDir, setSortDir] = useState('asc');
+  const [selectedTx, setSelectedTx] = useState(null);
 
   if (!Array.isArray(data)) {
     console.error("Invalid data format received:", data);
@@ -17,7 +19,12 @@ export const DataTable = ({ data, idCategory }) => {
 
   const isAdmin = user?.roles?.includes(1) || user?.rol == 1;
 
-  let headers = Object.keys(data[0] || {}).filter((header) => {
+  // Union of all rows' keys to handle mixed transaction types (e.g. accounts mixed with normal tx)
+  const allKeys = idCategory == 7
+    ? [...new Set(data.flatMap(row => Object.keys(row)))]
+    : Object.keys(data[0] || {});
+
+  let headers = allKeys.filter((header) => {
     if (isAdmin){
       if (excludedColumns.includes(header)) return false;
     } else {
@@ -55,13 +62,20 @@ export const DataTable = ({ data, idCategory }) => {
     : data;
 
   const handleRowClick = (row) => {
-    if (isAdmin){
-      setIdNumber(parseInt(idCategory, 10))
-      setModalData(row)
+    if (!isAdmin) return;
+    if (idCategory == 7) {
+      setSelectedTx(row);
+    } else {
+      setIdNumber(parseInt(idCategory, 10));
+      setModalData(row);
     }
   };
 
   return (
+    <>
+    {selectedTx && (
+      <TransactionDetailModal tx={selectedTx} onClose={() => setSelectedTx(null)} />
+    )}
     <table border="1" className="responsiveTable">
       <thead>
         <tr>
@@ -103,7 +117,13 @@ export const DataTable = ({ data, idCategory }) => {
             {headers.map((header) => (
               <td key={header} style={{ padding: "8px" }}>
                 {
-                  header === "version_id_fk"
+                  header === "rol"
+                  ? (() => {
+                      const ROLE_LABELS = { 1: 'Admin', 2: 'Vendedor', 3: 'Delivery' };
+                      const roles = Array.isArray(row.roles) && row.roles.length ? row.roles : [row.rol];
+                      return roles.map(r => ROLE_LABELS[r] || r).join(', ');
+                    })()
+                  : header === "version_id_fk"
                   ? row[header]?.version_name || "N/A"
                   : header === "productsThatApply"
                   ? productsThatApply[row[header]] || "N/A"
@@ -155,5 +175,6 @@ export const DataTable = ({ data, idCategory }) => {
         ))}
       </tbody>
     </table>
+    </>
   );
 };

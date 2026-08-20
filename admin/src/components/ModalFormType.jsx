@@ -4,12 +4,14 @@ import { postTypesRequest, putTypesRequest, deleteTypesRequest } from '../api/Ty
 import { useAuth } from '../context/AuthProvider';
 import { getParfumsIconGallery, getParfumsIconGallery2 } from '../api/Img.api.js';
 import { ConfirmDeleteButton } from './ConfirmDeleteButton';
+import axios from '../api/axios.js';
 
 export const ModalFormType = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, URLServer, imgSrc } = useAuth();
     const [parfums, setParfum] = useState([]);
     const [parfumsGallery, setParfumsGallery] = useState([]);
     const [required, setRequired] = useState(Boolean(modalData?._id))
+    const [idCopied, setIdCopied] = useState(false);
     const [selectedImage, setSelectedImage] = useState(modalData?.img || '');  
     const [showImgServer, setShowImgServer] = useState(false)
     const isUpdate = Boolean(modalData?._id)
@@ -259,9 +261,26 @@ export const ModalFormType = ({ modalData }) => {
         setRequired(true)
     }
 
+    const copyId = () => {
+        if (!modalData?._id) return;
+        navigator.clipboard.writeText(modalData._id).then(() => {
+            setIdCopied(true);
+            setTimeout(() => setIdCopied(false), 2000);
+        });
+    };
+
     return (
         <form onSubmit={enviarDatos}>
             <input type="hidden" name="_id" value={modalData?._id || ''} onChange={handleInputChange} required={true} />
+            {isUpdate && modalData?._id && (
+                <div className="type-id-copy">
+                    <span className="type-id-copy__label">ID del Tipo:</span>
+                    <code className="type-id-copy__value">{modalData._id}</code>
+                    <button type="button" className="type-id-copy__btn" onClick={copyId}>
+                        {idCopied ? '✓ Copiado' : 'Copiar'}
+                    </button>
+                </div>
+            )}
             <div className="form-group3">
                 <label htmlFor="ml">
                     <p>Mililitros</p>

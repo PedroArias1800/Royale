@@ -9,6 +9,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
   const { cart, addToCart, decreaseQuantity, removeFromCart, getTotalQuantity, imgSrc, getDiscount } = useParfum();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(null); // { parfumId, typeId }
   const wasOpen = useRef(false);
 
   const fetchProducts = useCallback(async () => {
@@ -69,7 +70,11 @@ export const CartDrawer = ({ isOpen, onClose }) => {
     setProducts(prev => prev.filter(p =>
       !(p.parfum._id === parfumId && p.type._id === typeId)
     ));
+    setConfirmDelete(null);
   };
+
+  const requestDelete = (parfumId, typeId) => setConfirmDelete({ parfumId, typeId });
+  const cancelDelete = () => setConfirmDelete(null);
 
   const effectivePrice = (p) => {
     const isFlash = p.type.type_of_sale === 'Flash' && p.type.quantity_flash > 0;
@@ -183,7 +188,7 @@ export const CartDrawer = ({ isOpen, onClose }) => {
                           >+</button>
                           <button
                             className="cdr__remove"
-                            onClick={() => handleRemove(p.parfum._id, p.type._id)}
+                            onClick={() => requestDelete(p.parfum._id, p.type._id)}
                             aria-label="Eliminar producto"
                           >
                             <FontAwesomeIcon icon={faTrash} />
@@ -191,6 +196,21 @@ export const CartDrawer = ({ isOpen, onClose }) => {
                         </div>
                       </div>
                     </div>
+                    {confirmDelete?.parfumId === p.parfum._id && confirmDelete?.typeId === p.type._id && (
+                      <div className="cdr__confirm-delete">
+                        <span className="cdr__confirm-text">¿Eliminar del carrito?</span>
+                        <div className="cdr__confirm-actions">
+                          <button
+                            className="cdr__confirm-yes"
+                            onClick={() => handleRemove(p.parfum._id, p.type._id)}
+                          >Sí, eliminar</button>
+                          <button
+                            className="cdr__confirm-no"
+                            onClick={cancelDelete}
+                          >Cancelar</button>
+                        </div>
+                      </div>
+                    )}
                   </li>
                 );
               })}

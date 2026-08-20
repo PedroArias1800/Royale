@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import { postUsersRequest, putUsersRequest } from '../api/User.api.js';
 import { useAuth } from '../context/AuthProvider';
 import { ConfirmDeleteButton } from './ConfirmDeleteButton';
 
 export const ModalFormUser = ({ modalData }) => {
     const { setModalData, cargarDataTables, closeModal, showAlert, user } = useAuth();
-    const isUpdate = Boolean(modalData?._id); // Identificar si es una actualización
+    const isUpdate = Boolean(modalData?._id);
+    const [submitting, setSubmitting] = useState(false);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -33,28 +35,30 @@ export const ModalFormUser = ({ modalData }) => {
 
     const enviarDatos = async (e) => {
         e.preventDefault();
+        if (submitting) return;
+        setSubmitting(true);
         try {
             if (isUpdate) {
-                // Llamar a la API de actualización
                 const res = await putUsersRequest(modalData._id, modalData);
-                if (res.status == 200){
+                if (res.status === 200) {
                     showAlert('Datos actualizados con éxito', 1);
-                    cargarDataTables(6)
-                    closeModal()
+                    cargarDataTables(6);
+                    closeModal();
                 }
             } else {
-                // Llamar a la API de creación
                 const res = await postUsersRequest(modalData);
-                if (res.status == 200){
+                if (res.status === 200) {
                     showAlert('Datos creados con éxito', 1);
-                    cargarDataTables(6)
-                    closeModal()
+                    cargarDataTables(6);
+                    closeModal();
                 }
             }
-            setModalData(null); // Limpiar los datos del modal
+            setModalData(null);
         } catch (error) {
-            console.error('Error al enviar los datos:', error);
-            showAlert('Ocurrió un error. Inténtalo más tarde.', 0);
+            const msg = error?.response?.data?.[0] || 'Ocurrió un error. Inténtalo más tarde.';
+            showAlert(msg, 0);
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -161,7 +165,7 @@ export const ModalFormUser = ({ modalData }) => {
             </div>
             <div className='btnBorrarCrear' style={{justifyContent: isUpdate ? 'space-between' : 'right'}}>
                 {isUpdate && <ConfirmDeleteButton onConfirm={deleteDatos} />}
-                <input type="submit" value={isUpdate ? 'Actualizar' : 'Crear'} className='btnActualizarCrear' />
+                <input type="submit" value={submitting ? 'Guardando...' : (isUpdate ? 'Actualizar' : 'Crear')} className='btnActualizarCrear' disabled={submitting} />
             </div>
         </form>
     );

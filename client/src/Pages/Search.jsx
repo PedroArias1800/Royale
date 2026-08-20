@@ -18,6 +18,12 @@ export const Search = () => {
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [brands, setBrands] = useState([]);
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    document.title = 'Catálogo de Perfumes · Royale Panama';
+    return () => { document.title = 'Royale Panama — Perfumes de Lujo en Panamá'; };
+  }, []);
 
   const scrollTop = () => {
     window.scrollTo(0, 0);
@@ -29,15 +35,27 @@ export const Search = () => {
   useEffect(() => {
     async function loadParfums() {
       try {
-        const response = await getParfumsRequest(50, 'Normal');
-        setProducts(response.data);
-        setFilteredProducts(response.data);
-        const uniqueBrands = [...new Set(response.data.map(p => p.brand.brand_name))].sort((a, b) => a.localeCompare(b, 'es'));
+        const [resNormal, resFlash] = await Promise.all([
+          getParfumsRequest(50, 'Normal'),
+          getParfumsRequest(50, 'Flash'),
+        ]);
+        const combined = [...resNormal.data, ...resFlash.data];
+        const seen = new Set();
+        const all = combined.filter(p => {
+          if (seen.has(p._id)) return false;
+          seen.add(p._id);
+          return true;
+        });
+        setProducts(all);
+        setFilteredProducts(all);
+        const uniqueBrands = [...new Set(all.map(p => p.brand?.brand_name).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
         setBrands(uniqueBrands);
       } catch (error) {
         console.error("Error al cargar los perfumes:", error);
         setProducts([]);
         setFilteredProducts([]);
+      } finally {
+        setLoading(false);
       }
     }
     loadParfums();
@@ -107,9 +125,15 @@ export const Search = () => {
       <Filter onFilter={handleFilter} brands={brands} id={id} type={type} />
 
       <div className="search-results">
-        {filteredProducts.length === 0 ? (
+        {loading ? (
+          <div className="search-skeleton">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="search-skeleton__card skeleton" />
+            ))}
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className='sinDatosParaMostrar'>
-            <h1>No hay datos para mostrar</h1>
+            <h1>No encontramos perfumes con ese criterio</h1>
           </div>
         ) : (
           <>

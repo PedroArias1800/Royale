@@ -17,7 +17,6 @@ export const Filter = ({ onFilter, brands, type }) => {
   const [minPrice, setMinPrice]   = useState("");
   const [maxPrice, setMaxPrice]   = useState("");
   const [brand, setBrand]         = useState("");
-  const [desplegarFlecha, setDesplegarFlecha] = useState(false);
 
   const prevSearch   = useRef(search);
   const prevGender   = useRef(gender);
@@ -63,7 +62,6 @@ export const Filter = ({ onFilter, brands, type }) => {
   const handleMinPriceChange = (e) => setMinPrice(e.target.value);
   const handleMaxPriceChange = (e) => setMaxPrice(e.target.value);
   const handleBrandChange    = (e) => setBrand(e.target.value);
-  const handleDesplegar      = () => setDesplegarFlecha(!desplegarFlecha);
 
   const anyActive = search || gender || minPrice || maxPrice || brand;
 
@@ -74,11 +72,6 @@ export const Filter = ({ onFilter, brands, type }) => {
         {/* ── Cabecera ── */}
         <div className="headerFilter">
           <h5>Filtros</h5>
-          <FontAwesomeIcon
-            icon={faChevronDown}
-            onClick={handleDesplegar}
-            className={desplegarFlecha ? 'desplegar' : ''}
-          />
         </div>
 
         {/* ── Búsqueda ── */}

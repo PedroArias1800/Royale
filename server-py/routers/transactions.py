@@ -19,6 +19,7 @@ class FilterBody(BaseModel):
     filter: str = ""
     fin_type: Optional[str] = None
     order_number: Optional[str] = None
+    stage: Optional[str] = None   # pending|en-camino|finalizadas|canceladas|cuentas-pendientes|cuentas-cerradas
 
 
 LABELS_INGRESO = ["Venta Directa", "Abono", "Devolución recibida", "Otro ingreso"]
@@ -52,6 +53,37 @@ class TransactionUpdateBody(BaseModel):
     delivery_date: Optional[str] = None
     delivery_assigned_to: Optional[str] = None
     delivery_assigned_name: Optional[str] = None
+    provider_id_fk: Optional[str] = None
+    coupon_id: Optional[str] = None
+    coupon_discount: Optional[float] = None
+    yappy_fee: Optional[float] = None
+    delivery_label: Optional[str] = None
+    direction: Optional[str] = None
+    delivered_by: Optional[str] = None
+    delivered_at: Optional[str] = None
+    delivery_note: Optional[str] = None
+
+
+class AccountTransactionBody(BaseModel):
+    fin_type: str                           # 'ingreso' | 'salida'
+    label: str                              # 'Cuenta por Cobrar' | 'Cuenta por Pagar'
+    total: float
+    entity_name: str
+    entity_user_id: Optional[str] = None
+    description: Optional[str] = ""
+    products: Optional[List[str]] = []
+    quantities: Optional[List[int]] = []
+    products_prices: Optional[List[float]] = []
+    created_by: Optional[str] = None
+    created_at: Optional[str] = None
+    next_payment_date: Optional[str] = None
+
+
+class RegisterPaymentBody(BaseModel):
+    amount: float
+    note: Optional[str] = ""
+    registered_by: Optional[str] = None
+    next_payment_date: Optional[str] = None
 
 
 class TransactionManualBody(BaseModel):
@@ -78,6 +110,13 @@ class TransactionManualBody(BaseModel):
     lot_numbers: Optional[List[str]] = []
     delivery_date: Optional[str] = None    # YYYY-MM-DD para aparecer en Consolidación
     operational_costs: Optional[List[OperationalCostItem]] = []
+    coupon_id: Optional[str] = None
+    coupon_discount: Optional[float] = 0.0
+    yappy_fee: Optional[float] = 0.0
+    products_cost: Optional[float] = None
+    products_prices: Optional[List[float]] = []
+    provider_id_fk: Optional[str] = None
+    express_delivery: Optional[bool] = False
 
 
 def _populate_transaction(doc: dict, db, include_products: bool = False) -> dict:
@@ -144,6 +183,106 @@ def get_all_transactions(_: dict = Depends(verify_token), page: int = Query(defa
     }
 
 
+@router.post("/api/transactions/account")
+def create_account_transaction(body: AccountTransactionBody, user: dict = Depends(verify_token)):
+    from datetime import datetime, timezone
+    db = get_db()
+    now = datetime.now(timezone.utc)
+
+    created_at = now
+    if body.created_at:
+        try:
+            created_at = datetime.fromisoformat(body.created_at)
+            if created_at.tzinfo is None:
+                created_at = created_at.replace(tzinfo=timezone.utc)
+        except Exception:
+            pass
+
+    order_number = generate_order_number(db)
+    doc = {
+        "order_number":    order_number,
+        "fin_type":        body.fin_type,
+        "label":           body.label,
+        "status":          3,
+        "is_account":      True,
+        "is_manual":       True,
+        "entity_name":     body.entity_name,
+        "entity_user_id":  to_object_id(body.entity_user_id) if body.entity_user_id else None,
+        "total":           body.total,
+        "amount_paid":     0.0,
+        "description":     body.description or "",
+        "products":          body.products or [],
+        "quantities":        body.quantities or [],
+        "products_prices":   body.products_prices or [],
+        "payment_history":   [],
+        "next_payment_date": body.next_payment_date or None,
+        "createdAt":         created_at,
+        "created_by":        body.created_by or user.get("id"),
+        "omitted":           False,
+        "active":            True,
+    }
+    result = db.transactions.insert_one(doc)
+    doc["_id"] = result.inserted_id
+    return serialize_doc(doc)
+
+
+@router.get("/api/transactions/accounts")
+def get_account_transactions(_: dict = Depends(verify_token)):
+    db = get_db()
+    docs = list(db.transactions.find(
+        {"is_account": True},
+    ).sort("createdAt", -1))
+    out = []
+    for doc in docs:
+        s = serialize_doc(doc)
+        # resolve entity user name if linked
+        if doc.get("entity_user_id"):
+            u = db.users.find_one({"_id": doc["entity_user_id"]}, {"firstname": 1, "lastname": 1})
+            if u:
+                s["entity_display"] = f"{u['firstname']} {u['lastname']}"
+        out.append(s)
+    return out
+
+
+@router.post("/api/transactions/{tx_id}/payment")
+def register_account_payment(tx_id: str, body: RegisterPaymentBody, user: dict = Depends(verify_token)):
+    from datetime import datetime, timezone
+    db = get_db()
+    oid = to_object_id(tx_id)
+    tx = db.transactions.find_one({"_id": oid})
+    if not tx:
+        return JSONResponse(status_code=404, content={"message": "Transacción no encontrada"})
+    if not tx.get("is_account"):
+        return JSONResponse(status_code=400, content={"message": "No es una cuenta por cobrar/pagar"})
+
+    now = datetime.now(timezone.utc)
+    payment_item = {
+        "amount":        round(float(body.amount), 2),
+        "note":          body.note or "",
+        "date":          now.isoformat(),
+        "registered_by": body.registered_by or user.get("id"),
+    }
+
+    current_paid = float(tx.get("amount_paid") or 0)
+    new_paid = round(current_paid + float(body.amount), 2)
+    total = float(tx.get("total") or 0)
+
+    update: dict = {
+        "$push": {"payment_history": payment_item},
+        "$set":  {"amount_paid": new_paid},
+    }
+    if body.next_payment_date is not None:
+        update["$set"]["next_payment_date"] = body.next_payment_date or None
+    if new_paid >= total:
+        update["$set"]["status"] = 2
+        update["$set"]["completed_at"] = now.isoformat()
+        update["$set"]["next_payment_date"] = None
+
+    db.transactions.update_one({"_id": oid}, update)
+    updated = db.transactions.find_one({"_id": oid})
+    return serialize_doc(updated)
+
+
 @router.post("/api/transactions/filtered")
 def get_filtered_transactions(body: FilterBody, _: dict = Depends(verify_token), page: int = Query(default=1)):
     db = get_db()
@@ -162,6 +301,29 @@ def get_filtered_transactions(body: FilterBody, _: dict = Depends(verify_token),
         base["fin_type"] = body.fin_type
     if body.order_number:
         base["order_number"] = {"$regex": body.order_number, "$options": "i"}
+
+    # Stage filter overrides the default status filter with a specific pipeline stage
+    if body.stage:
+        if body.stage == "pending":
+            base["status"] = 1
+            base["is_account"] = {"$ne": True}
+        elif body.stage == "en-camino":
+            base["status"] = 2
+            base["delivery_status"] = {"$nin": ["delivered", "cancelled"]}
+            base["is_account"] = {"$ne": True}
+        elif body.stage == "finalizadas":
+            base["status"] = 2
+            base["delivery_status"] = "delivered"
+            base["is_account"] = {"$ne": True}
+        elif body.stage == "canceladas":
+            base["delivery_status"] = "cancelled"
+            base["is_account"] = {"$ne": True}
+        elif body.stage == "cuentas-pendientes":
+            base["is_account"] = True
+            base["status"] = 3
+        elif body.stage == "cuentas-cerradas":
+            base["is_account"] = True
+            base["status"] = 2
 
     query = base
     if f:
@@ -345,7 +507,10 @@ def create_manual_transaction(body: TransactionManualBody, db=Depends(get_db), _
         "order_number": order_number,
         "delivery_date": body.delivery_date or None,
         "delivery_status": "pending",
-        "createdAt": datetime.fromisoformat(body.created_at).replace(tzinfo=timezone.utc) if body.created_at else now,
+        "createdAt": datetime(
+            *datetime.fromisoformat(body.created_at[:10]).timetuple()[:3],
+            now.hour, now.minute, now.second, now.microsecond, timezone.utc
+        ) if body.created_at else now,
         "updatedAt": now,
     }
     if body.seller_id_fk:
@@ -355,6 +520,26 @@ def create_manual_transaction(body: TransactionManualBody, db=Depends(get_db), _
             pass
     if body.operational_costs:
         doc["operational_costs"] = [item.model_dump() for item in body.operational_costs]
+    if body.coupon_id:
+        try:
+            doc["coupon_id"] = ObjectId(body.coupon_id)
+        except Exception:
+            doc["coupon_id"] = body.coupon_id
+    if body.coupon_discount:
+        doc["coupon_discount"] = body.coupon_discount
+    if body.yappy_fee:
+        doc["yappy_fee"] = body.yappy_fee
+    if body.products_cost is not None:
+        doc["products_cost"] = body.products_cost
+    if body.products_prices:
+        doc["products_prices"] = body.products_prices
+    if body.provider_id_fk:
+        try:
+            doc["provider_id_fk"] = ObjectId(body.provider_id_fk)
+        except Exception:
+            pass
+    if body.express_delivery:
+        doc["express_delivery"] = True
     result = db.transactions.insert_one(doc)
     doc["_id"] = result.inserted_id
     return serialize_doc(doc)
@@ -395,6 +580,24 @@ def update_transaction(transaction_id: str, body: TransactionUpdateBody, db=Depe
         updates["delivery_assigned_to"] = body.delivery_assigned_to
     if body.delivery_assigned_name is not None:
         updates["delivery_assigned_name"] = body.delivery_assigned_name
+    if body.provider_id_fk:
+        try:
+            updates["provider_id_fk"] = ObjectId(body.provider_id_fk)
+        except Exception:
+            pass
+    if body.coupon_id:
+        try:
+            updates["coupon_id"] = ObjectId(body.coupon_id)
+        except Exception:
+            updates["coupon_id"] = body.coupon_id
+    if body.coupon_discount is not None:
+        updates["coupon_discount"] = body.coupon_discount
+    if body.yappy_fee is not None:
+        updates["yappy_fee"] = body.yappy_fee
+    if body.delivery_label is not None:
+        updates["delivery_label"] = body.delivery_label
+    if body.direction is not None:
+        updates["direction"] = body.direction
 
     result = db.transactions.update_one({"_id": oid}, {"$set": updates})
     if result.matched_count == 0:

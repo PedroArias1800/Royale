@@ -67,7 +67,10 @@ export const columnMappings = {
     delivered_at: 'Fecha de Entrega Real',
     products_prices: 'Precios',
     seller_id_fk: 'Vendedor',
+    entity_name: 'Nombre',
+    amount_paid: 'Pagado',
+    next_payment_date: 'Próximo Abono',
   };
 
-  export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "operational_costs", "corte_id", "seller_id", "active", "category", "delivery_assigned_to", "delivered_by", "delivery_note", "delivered_at", "products_prices", "quantities", "productsTypes"];
-  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "operational_costs", "corte_id", "seller_id", "active", "category"];
+  export const excludedColumns = ["_id", "__v", "updatedAt", "url", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "operational_costs", "corte_id", "seller_id", "active", "category", "delivery_assigned_to", "delivered_by", "delivery_note", "delivered_at", "products_prices", "quantities", "productsTypes", "roles", "password", "entity_name", "entity_user_id", "amount_paid", "payment_history", "is_account", "next_payment_date", "created_by"];
+  export const excludedColumnsSeller = ["_id", "__v", "updatedAt", "url", "createdAt", "seller_id_fk", "coupon_id", "yappy_order_id", "yappy_tx_id", "wompi_tx_id", "yappy_status", "is_manual", "omitted", "products_cost", "operational_cost", "operational_costs", "corte_id", "seller_id", "active", "category", "roles", "password", "entity_name", "entity_user_id", "amount_paid", "payment_history", "is_account", "next_payment_date", "created_by"];

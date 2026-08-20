@@ -41,3 +41,6 @@ export const putDeliveryConfigRequest = (data) =>
 
 export const getDeliveryPreviewRequest = (start, end) =>
     axios.get(`/api/cortes/delivery-preview?start=${start}&end=${end}`);
+
+export const getSellerUncutRequest = () =>
+    axios.get('/api/cortes/seller/uncut');

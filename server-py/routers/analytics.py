@@ -17,6 +17,36 @@ def _sum_op_costs(tx: dict) -> float:
     return float(tx.get("operational_cost") or 0)
 
 
+def _account_payments_in_range(db, start_dt, end_dt, fin_type: str) -> float:
+    """Suma los abonos de cuentas por cobrar/pagar registrados dentro del rango."""
+    pipe = [
+        {"$match": {"is_account": True, "fin_type": fin_type, "omitted": {"$ne": True}}},
+        {"$unwind": "$payment_history"},
+        {"$addFields": {"pay_date": {"$dateFromString": {"dateString": "$payment_history.date"}}}},
+        {"$match": {"pay_date": {"$gte": start_dt, "$lte": end_dt}}},
+        {"$group": {"_id": None, "total": {"$sum": "$payment_history.amount"}}},
+    ]
+    result = list(db.transactions.aggregate(pipe))
+    return result[0]["total"] if result else 0.0
+
+
+def _account_payments_by_period(db, start_dt, end_dt, fin_type: str, fmt: str) -> dict:
+    """Abonos de cuentas agrupados por período para el gráfico de tendencias."""
+    pipe = [
+        {"$match": {"is_account": True, "fin_type": fin_type, "omitted": {"$ne": True}}},
+        {"$unwind": "$payment_history"},
+        {"$addFields": {"pay_date": {"$dateFromString": {"dateString": "$payment_history.date"}}}},
+        {"$match": {"pay_date": {"$gte": start_dt, "$lte": end_dt}}},
+        {
+            "$group": {
+                "_id": {"$dateToString": {"format": fmt, "date": "$pay_date"}},
+                "total": {"$sum": "$payment_history.amount"},
+            }
+        },
+    ]
+    return {r["_id"]: r["total"] for r in db.transactions.aggregate(pipe)}
+
+
 def _parse_range(start: Optional[str], end: Optional[str]):
     now = datetime.now(timezone.utc)
     if start:
@@ -91,6 +121,12 @@ def get_summary(
     ingresos_ventas   = income_result[0]["ingresos_ventas"]   if income_result else 0.0
     ingresos_manuales = income_result[0]["ingresos_manuales"] if income_result else 0.0
 
+    # Abonos de cuentas por cobrar (flujo de caja: fecha del abono)
+    account_ingresos = _account_payments_in_range(db, start_dt, end_dt, "ingreso")
+    account_salidas  = _account_payments_in_range(db, start_dt, end_dt, "salida")
+    total_ingresos  += account_ingresos
+    ingresos_manuales += account_ingresos
+
     # --- COGS: usa products_cost/operational_costs almacenados; fallback a cost de tipos ---
     income_txs = list(db.transactions.find(
         _income_match(start_dt, end_dt),
@@ -125,6 +161,7 @@ def get_summary(
     ]
     expense_result = list(db.transactions.aggregate(expense_pipe))
     total_salidas_manuales = expense_result[0]["total_salidas"] if expense_result else 0.0
+    total_salidas_manuales += account_salidas
 
     total_salidas = cogs + total_salidas_manuales
     balance = total_ingresos - total_salidas
@@ -212,17 +249,25 @@ def get_trends(
     ]
     cogs_by_period = {r["_id"]: r["cogs"] for r in db.transactions.aggregate(cogs_pipe)}
 
-    all_periods = sorted(set(list(income_by_period) + list(expense_by_period) + list(cogs_by_period)))
+    # Abonos de cuentas por período (flujo de caja)
+    acc_income_by_period  = _account_payments_by_period(db, start_dt, end_dt, "ingreso", fmt)
+    acc_expense_by_period = _account_payments_by_period(db, start_dt, end_dt, "salida",  fmt)
+
+    all_periods = sorted(set(
+        list(income_by_period) + list(expense_by_period) + list(cogs_by_period)
+        + list(acc_income_by_period) + list(acc_expense_by_period)
+    ))
 
     rows = [
         {
             "period":   p,
-            "ingresos": round(income_by_period.get(p, 0), 2),
-            "salidas":  round(expense_by_period.get(p, 0) + cogs_by_period.get(p, 0), 2),
+            "ingresos": round(income_by_period.get(p, 0) + acc_income_by_period.get(p, 0), 2),
+            "salidas":  round(expense_by_period.get(p, 0) + cogs_by_period.get(p, 0) + acc_expense_by_period.get(p, 0), 2),
             "balance":  round(
-                income_by_period.get(p, 0)
+                income_by_period.get(p, 0) + acc_income_by_period.get(p, 0)
                 - expense_by_period.get(p, 0)
-                - cogs_by_period.get(p, 0),
+                - cogs_by_period.get(p, 0)
+                - acc_expense_by_period.get(p, 0),
                 2,
             ),
         }

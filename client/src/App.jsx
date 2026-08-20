@@ -14,6 +14,7 @@ import { WompiResult } from "./Pages/WompiResult";
 import { YappyPayment } from "./Pages/YappyPayment";
 import { PrivacyTermModal } from './components/PrivacyTermModal.jsx';
 import { Descuentos } from './Pages/Descuentos.jsx';
+import { PromoLanding } from './Pages/PromoLanding.jsx';
 import { WhatsAppFab } from './components/WhatsAppFab.jsx';
 
 import 'aos/dist/aos.css';
@@ -46,6 +47,7 @@ const App = () => {
         <Route path="/pago-cancelado" element={<YappyCancel />} />
         <Route path="/pago-wompi" element={<WompiResult />} />
         <Route path="/pago-yappy" element={<YappyPayment />} />
+        <Route path="/promo" element={<PromoLanding />} />
         <Route path="*" element={<Index />} />
       </Routes>
       <WhatsAppFab />

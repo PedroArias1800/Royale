@@ -11,5 +11,8 @@ export const getParfumsRequest = async (limit, type) =>
         }
     });
 
-export const getParfumsBodyRequest = async () => 
+export const getParfumsBodyRequest = async () =>
     await axios.get(`${URL}/parfums/body`);
+
+export const getPromoFeaturedRequest = async () =>
+    await axios.get(`${URL}/api/types/promo-featured`);

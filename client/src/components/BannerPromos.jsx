@@ -1,52 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParfum } from '../context/ParfumContext'
 
 export const BannerPromos = ({ data }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
-    const [intervalId, setIntervalId] = useState(null);
+    const intervalRef = useRef(null);
     const { imgSrc } = useParfum();
 
-    // Iniciar el contador cada 5 segundos
+    const startInterval = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(() => {
+            setCurrentIndex(prev => (prev + 1) % data.length);
+        }, 5000);
+    };
+
     useEffect(() => {
-        const newIntervalId = setInterval(() => {
-            setCurrentIndex((prevIndex) => (prevIndex + 1) % data.length);
-        }, 5000); // Cambiar cada 5 segundos
-
-        setIntervalId(newIntervalId); // Guardamos el id del intervalo
-
-        return () => clearInterval(newIntervalId); // Limpiar el intervalo cuando el componente se desmonte
+        if (data.length === 0) return;
+        startInterval();
+        return () => clearInterval(intervalRef.current);
     }, [data.length]);
 
-    // Cambiar el índice hacia adelante
     const goForward = () => {
-        clearInterval(intervalId); // Limpiar el intervalo actual
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % data.length); // Ir hacia adelante
-        restartInterval(); // Reiniciar el intervalo
+        setCurrentIndex(prev => (prev + 1) % data.length);
+        startInterval();
     };
 
-    // Cambiar el índice hacia atrás
     const goBackward = () => {
-        clearInterval(intervalId); // Limpiar el intervalo actual
-        setCurrentIndex((prevIndex) => (prevIndex - 1 + data.length) % data.length); // Ir hacia atrás
-        restartInterval(); // Reiniciar el intervalo
+        setCurrentIndex(prev => (prev - 1 + data.length) % data.length);
+        startInterval();
     };
 
-    // Reiniciar el intervalo
-    const restartInterval = () => {
-        const newIntervalId = setInterval(() => {
-            setCurrentIndex((prevIndex) => (prevIndex + 1) % data.length);
-        }, 5000); // Reiniciar cada 5 segundos
-        setIntervalId(newIntervalId); // Actualizar el id del intervalo
-    };
-
-    document.addEventListener("DOMContentLoaded", () => {
-        document.querySelectorAll(".banner-carousel-media").forEach(video => {
-          video.addEventListener("canplaythrough", () => {
-            video.play().catch(err => console.warn("No se pudo reproducir el video:", err));
-          });
-        });
-      });
-      
+    if (data.length === 0) return null;
 
     return (
         <div className="banner-carousel-container">
@@ -59,12 +42,11 @@ export const BannerPromos = ({ data }) => {
                         {item.media.endsWith('.mp4') ? (
                             <video
                                 src={imgSrc(item.media)}
-                                autoPlay={true}
+                                autoPlay={index === currentIndex}
                                 loop={true}
                                 muted={true}
                                 playsInline={true}
-                                preload='auto'
-                                alt={`Video de la promoción ${item.title}`}
+                                preload={index === currentIndex ? 'metadata' : 'none'}
                                 className="banner-carousel-media"
                             />
                         ) : (
@@ -72,6 +54,7 @@ export const BannerPromos = ({ data }) => {
                                 src={imgSrc(item.media)}
                                 alt={`Imagen de la promoción ${item.title}`}
                                 className="banner-carousel-media banner-carousel-img"
+                                loading={index === 0 ? 'eager' : 'lazy'}
                                 style={{width: '100% !important'}}
                             />
                         )}

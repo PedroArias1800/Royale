@@ -684,3 +684,68 @@ def seller_summary(db=Depends(get_db), payload: dict = Depends(verify_token)):
         "total_pending": round(total_pending, 2),
         "corte_count":   len(docs),
     }
+
+
+@router.get("/api/cortes/seller/uncut")
+def seller_uncut(db=Depends(get_db), payload: dict = Depends(verify_token)):
+    """Transacciones del vendedor que aún no han sido incluidas en ningún corte."""
+    uid    = ObjectId(payload["id"])
+    config = _get_config(db)
+    seller_pct = config["seller_pct"]
+
+    # Último period_end de los cortes donde aparece este vendedor
+    seller_cortes = list(db.cortes.find(
+        {"sellers.seller_id": uid},
+        {"period_end": 1}
+    ))
+    since: datetime | None = None
+    if seller_cortes:
+        since = max(c["period_end"] for c in seller_cortes)
+
+    query: dict = {
+        "seller_id_fk": uid,
+        "status": 2,
+        "omitted": {"$ne": True},
+        "$or": [
+            {"fin_type": {"$exists": False}},
+            {"fin_type": None},
+            {"fin_type": "ingreso"},
+        ],
+    }
+    if since:
+        query["createdAt"] = {"$gt": since}
+
+    txs = list(db.transactions.find(
+        query,
+        {"createdAt": 1, "order_number": 1, "total": 1, "products_cost": 1,
+         "operational_cost": 1, "operational_costs": 1, "productsTypes": 1,
+         "quantities": 1, "products": 1, "label": 1, "delivery_status": 1},
+    ).sort("createdAt", -1))
+
+    cost_cache: dict = {}
+    result = []
+    total_seller_cut = 0.0
+
+    for tx in txs:
+        utility, _ = _tx_utility(tx, cost_cache, db)
+        seller_cut = round(utility * seller_pct / 100, 2)
+        total_seller_cut += seller_cut
+        result.append({
+            "_id":            str(tx["_id"]),
+            "createdAt":      tx["createdAt"].isoformat() if tx.get("createdAt") else None,
+            "order_number":   tx.get("order_number", ""),
+            "total":          float(tx.get("total") or 0),
+            "utilidad":       round(utility, 2),
+            "seller_cut":     seller_cut,
+            "label":          tx.get("label", ""),
+            "delivery_status": tx.get("delivery_status", ""),
+            "products":       tx.get("products", []),
+        })
+
+    return {
+        "transactions":    result,
+        "total_seller_cut": round(total_seller_cut, 2),
+        "tx_count":        len(result),
+        "seller_pct":      seller_pct,
+        "since":           since.isoformat() if since else None,
+    }

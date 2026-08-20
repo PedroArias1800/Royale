@@ -5,6 +5,7 @@ import { SectionDamaCaballero } from '../components/SectionDamaCaballero'
 import { MasBuscados } from '../components/MasBuscados'
 import { MasBuscadosHome } from '../components/MasBuscadosHome'
 import { BannerPromos } from '../components/BannerPromos'
+import { Testimonials } from '../components/Testimonials'
 import { getPromotions } from '../api/Promotions.api.js';
 import { getParfumsRequest } from '../api/Parfum.api.js';
 
@@ -18,24 +19,51 @@ const shuffle = (arr) => {
   return a;
 };
 
+const CarouselSkeleton = () => (
+  <div className="carousel-skeleton">
+    <div className="skeleton carousel-skeleton__title" />
+    <div className="carousel-skeleton__cards">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <div key={i} className="skeleton carousel-skeleton__card" />
+      ))}
+    </div>
+  </div>
+);
+
 export const Index = () => {
 
   const [parfumFlash, setParfumFlash] = useState([])
   const [parfumNormal, setParfumNormal] = useState([])
   const [promotions, setPromotions] = useState([]);
+  const [loadingBanner, setLoadingBanner] = useState(true);
+  const [loadingFlash, setLoadingFlash] = useState(true);
+  const [loadingNormal, setLoadingNormal] = useState(true);
+
+  useEffect(() => {
+    document.title = 'Royale Panama — Perfumes de Lujo en Panamá';
+  }, []);
 
     useEffect(() => {
         async function loadPromotions() {
-            const response = await getPromotions();
-            setPromotions(response.data);
+            try {
+              const response = await getPromotions();
+              setPromotions(response.data);
+            } catch {}
+            finally { setLoadingBanner(false); }
         }
         async function loadParfumFlash() {
-          const response = await getParfumsRequest(10, 'Flash')
-          setParfumFlash(shuffle(response.data))
+          try {
+            const response = await getParfumsRequest(10, 'Flash')
+            setParfumFlash(shuffle(response.data))
+          } catch {}
+          finally { setLoadingFlash(false); }
         }
         async function loadParfumNormal() {
-          const response = await getParfumsRequest(10, 'Normal')
-          setParfumNormal(shuffle(response.data))
+          try {
+            const response = await getParfumsRequest(10, 'Normal')
+            setParfumNormal(shuffle(response.data))
+          } catch {}
+          finally { setLoadingNormal(false); }
         }
         loadPromotions();
         loadParfumFlash()
@@ -45,15 +73,25 @@ export const Index = () => {
 
   return (
     <>
-        <BannerPromos data={promotions} />
-        {parfumFlash.length > 0 && (
-          <MasBuscados title={'VENTAS FLASH'} typeOfSale={'Flash'} parfum={parfumFlash} />
-        )}
-        {parfumNormal.length > 0 && (
-          <MasBuscadosHome title={'MÁS BUSCADOS'} typeOfSale={'Normal'} parfum={parfumNormal} />
-        )}
+        {loadingBanner
+          ? <div className="skeleton banner-skeleton" />
+          : <BannerPromos data={promotions} />
+        }
+        {loadingFlash
+          ? <CarouselSkeleton />
+          : parfumFlash.length > 0 && (
+              <MasBuscados title={'VENTAS FLASH'} typeOfSale={'Flash'} parfum={parfumFlash} />
+            )
+        }
+        {loadingNormal
+          ? <CarouselSkeleton />
+          : parfumNormal.length > 0 && (
+              <MasBuscadosHome title={'MÁS BUSCADOS'} typeOfSale={'Normal'} parfum={parfumNormal} />
+            )
+        }
         <BodyInicial />
         <SectionDamaCaballero />
+        <Testimonials />
     </>
   )
 }

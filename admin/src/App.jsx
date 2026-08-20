@@ -16,6 +16,7 @@ import { Descuentos } from './pages/Descuentos.jsx';
 import { Cortes } from './pages/Cortes.jsx';
 import { Consolidacion } from './pages/Consolidacion.jsx';
 import { Suscriptores } from './pages/Suscriptores.jsx';
+import { PromoConfig } from './pages/PromoConfig.jsx';
 
 const App = () => {
 
@@ -38,6 +39,7 @@ const App = () => {
         <Route path="/cortes" element={<Cortes />} />
         <Route path="/consolidacion" element={<Consolidacion />} />
         <Route path="/suscriptores" element={<Suscriptores />} />
+        <Route path="/promo-config" element={<PromoConfig />} />
         <Route path="*" element={<Login />} />
       </Routes>
       <Footer />

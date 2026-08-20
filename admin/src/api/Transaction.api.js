@@ -18,5 +18,19 @@ export const postManualTransactionRequest = async (data) =>
 export const deleteManualTransactionRequest = async (id) =>
     await axios.delete(`/api/transactions/${id}`)
 
-export const getProcessedTransactionsRequest = async (start, end) =>
-    await axios.get(`/api/transactions/processed?start=${start}T00:00:00-05:00&end=${end}T23:59:59-05:00`)
+export const getProcessedTransactionsRequest = async (start, end) => {
+    const params = new URLSearchParams();
+    if (start) params.append('start', `${start}T00:00:00-05:00`);
+    if (end)   params.append('end',   `${end}T23:59:59-05:00`);
+    const qs = params.toString();
+    return axios.get(`/api/transactions/processed${qs ? `?${qs}` : ''}`);
+};
+
+export const postAccountTransactionRequest = async (data) =>
+    await axios.post('/api/transactions/account', data)
+
+export const getAccountTransactionsRequest = async () =>
+    await axios.get('/api/transactions/accounts')
+
+export const postAccountPaymentRequest = async (txId, data) =>
+    await axios.post(`/api/transactions/${txId}/payment`, data)

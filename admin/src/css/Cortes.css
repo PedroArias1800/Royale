@@ -695,3 +695,146 @@
     .corte-seller-nums { gap: 8px; }
     .corte-configs-row { grid-template-columns: 1fr; }
 }
+
+/* ── Ventas Pendientes de Corte ──────────────────────────────────────────── */
+.uncut-section {
+    margin: 16px 0;
+    border: 1px solid rgba(253, 208, 94, 0.22);
+    border-radius: 4px;
+    background: rgba(253, 208, 94, 0.03);
+    overflow: hidden;
+}
+
+.uncut-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    background: rgba(253, 208, 94, 0.06);
+    border-bottom: 1px solid rgba(253, 208, 94, 0.12);
+    flex-wrap: wrap;
+}
+
+.uncut-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.uncut-title {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #fdd05e;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.uncut-since {
+    font-size: 0.75rem;
+    color: rgba(237, 232, 235, 0.4);
+    font-style: italic;
+}
+
+.uncut-header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.uncut-kpi {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+}
+
+.uncut-kpi-label {
+    font-size: 0.68rem;
+    color: rgba(237, 232, 235, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.uncut-kpi-value {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #fdd05e;
+}
+
+.uncut-kpi-pct {
+    font-size: 0.7rem;
+    color: rgba(253, 208, 94, 0.5);
+}
+
+.uncut-toggle {
+    font-size: 0.75rem;
+    color: rgba(253, 208, 94, 0.5);
+    padding-left: 8px;
+}
+
+.uncut-table-wrap {
+    overflow-x: auto;
+    padding: 0 0 4px;
+}
+
+.uncut-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+.uncut-table th {
+    padding: 8px 12px;
+    text-align: left;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: rgba(237, 232, 235, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.15);
+    white-space: nowrap;
+}
+
+.uncut-table td {
+    padding: 8px 12px;
+    color: rgba(237, 232, 235, 0.75);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: middle;
+}
+
+.uncut-table tbody tr:last-child td { border-bottom: none; }
+.uncut-table tbody tr:hover td { background: rgba(253, 208, 94, 0.03); }
+
+.uncut-order {
+    font-size: 0.75rem;
+    color: rgba(237, 232, 235, 0.4);
+    font-family: 'Courier New', monospace;
+}
+
+.uncut-products {
+    max-width: 280px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: rgba(237, 232, 235, 0.65);
+    font-size: 0.8rem;
+}
+
+.uncut-total-row td {
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-bottom: none !important;
+    background: rgba(0, 0, 0, 0.1);
+    font-weight: 700;
+    padding: 10px 12px;
+}
+
+.uncut-empty {
+    padding: 24px;
+    text-align: center;
+    color: rgba(237, 232, 235, 0.35);
+    font-size: 0.85rem;
+    font-style: italic;
+}

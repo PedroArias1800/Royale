@@ -253,3 +253,48 @@ def delete_type(id: str, _: dict = Depends(verify_token)):
     if not doc:
         return JSONResponse(status_code=404, content={"message": "Type not Found"})
     return serialize_doc(doc)
+
+
+# ── Promo Featured Types ──────────────────────────────────────────
+
+@router.get("/api/types/promo-featured")
+def get_promo_featured():
+    """Public endpoint — returns types marked as promo featured, with parfum info."""
+    db = get_db()
+    pipeline = [
+        {"$match": {"is_promo_featured": True}},
+        {"$lookup": {
+            "from": "parfums",
+            "localField": "parfum_id_fk",
+            "foreignField": "_id",
+            "as": "parfum_data",
+        }},
+        {"$unwind": "$parfum_data"},
+        {"$lookup": {
+            "from": "brands",
+            "localField": "parfum_data.brand_id_fk",
+            "foreignField": "_id",
+            "as": "brand_data",
+        }},
+        {"$addFields": {
+            "parfum_data.brand": {"$arrayElemAt": ["$brand_data", 0]},
+        }},
+        {"$addFields": {"parfum_id_fk": "$parfum_data"}},
+        {"$project": {"parfum_data": 0, "brand_data": 0}},
+    ]
+    return [serialize_doc(d) for d in db.types.aggregate(pipeline)]
+
+
+@router.put("/api/types/promo-featured")
+def set_promo_featured(body: dict, _: dict = Depends(verify_token)):
+    """Admin — sets is_promo_featured=True for given IDs, False for all others."""
+    db = get_db()
+    ids = body.get("ids", [])
+    object_ids = [to_object_id(i) for i in ids if i]
+    db.types.update_many({}, {"$set": {"is_promo_featured": False}})
+    if object_ids:
+        db.types.update_many(
+            {"_id": {"$in": object_ids}},
+            {"$set": {"is_promo_featured": True}},
+        )
+    return {"updated": len(object_ids)}

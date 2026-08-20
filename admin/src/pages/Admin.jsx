@@ -57,6 +57,7 @@ export const Admin = () => {
                 <Link to="/finanzas">Finanzas</Link>
                 <Link to="/data?id=5">Fondos de Inicio</Link>
                 <Link to="/data?id=10">Proveedores</Link>
+                <Link to="/promo-config">Promo Landing</Link>
                 <Link to="/suscriptores">Suscriptores</Link>
                 <Link to="/data?id=7">Transacciones</Link>
                 <Link to="/data?id=6">Usuarios</Link>

@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWhatsapp } from '@fortawesome/free-brands-svg-icons';
 
-const HIDDEN_PATHS = ['/', '/cart'];
+const HIDDEN_PATHS = ['/cart'];
 
 const getWhatsAppUrl = () => {
     const phone = '50765623382';
