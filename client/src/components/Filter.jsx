@@ -153,9 +153,8 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
 
         <div className="filterDivider" />
 
-        {/* ── Fila 2: Ordenar (icono compacto, lejos de Limpiar) ── */}
+        {/* ── Fila 2: Ordenar (icono + label inline) ── */}
         <div className="filters__group filters__group--sort filters__actions" ref={sortRef}>
-          <label className="filter__sort-label">{sortLabel}</label>
           <button
             className={`filter__sort-btn${sortValue ? ' filter__sort-btn--active' : ''}`}
             onClick={() => setSortOpen(o => !o)}
@@ -165,6 +164,12 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
             <FontAwesomeIcon icon={faSort} />
             {sortValue && <span className="filter__sort-dot" />}
           </button>
+          <label
+            className={`filter__sort-label${sortValue ? ' filter__sort-label--active' : ''}`}
+            onClick={() => setSortOpen(o => !o)}
+          >
+            {sortLabel}
+          </label>
           {sortOpen && (
             <div className="filter__sort-dropdown">
               {SORT_OPTIONS.map(opt => (

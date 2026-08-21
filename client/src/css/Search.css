@@ -662,17 +662,21 @@ input[type="number"]::placeholder { color: rgba(237, 232, 235, 0.28); }
   color: var(--color-dorado);
 }
 
-/* ── Sort label (desktop sidebar) ── */
+/* ── Sort label (desktop sidebar: encima del botón; mobile: a la derecha del icono) ── */
 .filter__sort-label {
   font-size: 0.80rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-dorado);
-  font-weight: 600;
-  font-family: var(--font-body);
+  color: rgba(253, 208, 94, 0.45);
+  font-family: var(--font-cinzel);
   margin-bottom: 2px;
   display: block;
+  cursor: pointer;
+  transition: color 0.25s;
+  user-select: none;
 }
+.filter__sort-label--active { color: var(--color-dorado); }
+.filter__sort-label:hover   { color: var(--color-dorado); }
 
 /* ── Sort button ── */
 .filters__group--sort {
