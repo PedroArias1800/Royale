@@ -210,6 +210,7 @@
     border-bottom: 1px solid rgba(253, 208, 94, 0.12);
     padding: 0 !important;
     background: linear-gradient(180deg, #100810 0%, #0d060b 100%);
+    overflow: visible !important;
   }
 
   /* ── filtersStatic: two-row matrix layout ── */
@@ -248,18 +249,30 @@
   .filters__group--price  { flex: 2 1 140px !important; border-right: 1px solid rgba(253, 208, 94, 0.06) !important; animation: filterFadeIn 0.35s 0.15s ease both; }
   .filtersStatic .filters__actions { flex: 0 0 auto !important; align-self: flex-end !important; animation: filterFadeIn 0.35s 0.2s ease both; }
 
-  /* ── Sort button: compact in chip row ── */
+  /* ── Sort: icono compacto en la fila de chips ── */
+  /* Ocultar el sort-label en mobile (solo aparece en desktop sidebar) */
+  .filter__sort-label { display: none !important; }
+
+  /* Botón sort: cuadrado solo con el ícono */
   .filters__group--sort .filter__sort-btn {
-    padding: 4px 8px !important;
-    font-size: 0.70rem !important;
-  }
-  .filters__group--sort .filter__sort-dropdown {
-    right: 0 !important;
-    left: auto !important;
-    min-width: 180px !important;
+    padding: 0 !important;
+    width: 34px !important;
+    height: 34px !important;
+    justify-content: center !important;
+    font-size: 0.88rem !important;
   }
 
-  /* ── Limpiar: compact inline style in search row ── */
+  /* Dropdown: z-index alto para quedar encima de las cards */
+  .filter__sort-dropdown {
+    z-index: 1000 !important;
+    right: 0 !important;
+    left: auto !important;
+    min-width: 190px !important;
+    /* Abrir hacia abajo pero asegurando que quede sobre los productos */
+    top: calc(100% + 4px) !important;
+  }
+
+  /* ── Limpiar: compact inline style en search row ── */
   .filter__limpiar-btn {
     font-size: 0.68rem !important;
     padding: 4px 8px !important;
@@ -372,7 +385,7 @@
     color: var(--color-dorado) !important;
   }
 
-  .headerFilter { display: none; }
+  .headerFilter { display: none !important; }
 
   .subirTop {
     margin: 0 !important;

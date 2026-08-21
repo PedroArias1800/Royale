@@ -662,11 +662,24 @@ input[type="number"]::placeholder { color: rgba(237, 232, 235, 0.28); }
   color: var(--color-dorado);
 }
 
+/* ── Sort label (desktop sidebar) ── */
+.filter__sort-label {
+  font-size: 0.80rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-dorado);
+  font-weight: 600;
+  font-family: var(--font-body);
+  margin-bottom: 2px;
+  display: block;
+}
+
 /* ── Sort button ── */
 .filters__group--sort {
   position: relative;
 }
 
+/* Desktop: icon + text compact button */
 .filter__sort-btn {
   all: unset;
   box-sizing: border-box;
@@ -685,6 +698,7 @@ input[type="number"]::placeholder { color: rgba(237, 232, 235, 0.28); }
   cursor: pointer;
   white-space: nowrap;
   transition: all 0.25s;
+  position: relative;
 }
 .filter__sort-btn--active,
 .filter__sort-btn:hover {
@@ -693,16 +707,27 @@ input[type="number"]::placeholder { color: rgba(237, 232, 235, 0.28); }
   background: rgba(253, 208, 94, 0.05);
 }
 
+/* Dot indicator when a sort is active */
+.filter__sort-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--color-dorado);
+}
+
 /* ── Sort dropdown ── */
 .filter__sort-dropdown {
   position: absolute;
   top: calc(100% + 6px);
   right: 0;
-  z-index: 300;
+  z-index: 1000;
   background: linear-gradient(180deg, #1c1019 0%, #160c13 100%);
   border: 1px solid rgba(253, 208, 94, 0.2);
   border-radius: 2px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
   min-width: 200px;
   overflow: hidden;
   animation: sortFadeIn 0.18s ease both;

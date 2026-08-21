@@ -14,9 +14,7 @@ const SORT_OPTIONS = [
 export const Filter = ({ onFilter, onSort, brands, type }) => {
   const scrollToTop = () => {
     const container = document.querySelector('.searchDisplayStyle');
-    if (container) {
-      container.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    if (container) container.scrollTo({ top: 0, behavior: 'smooth' });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -82,26 +80,14 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
     setSortOpen(false);
   };
 
-  const sortLabel = SORT_OPTIONS.find(o => o.value === sortValue)?.label || 'Ordenar';
-
-  const handleSearchChange   = (e) => setSearch(e.target.value);
-  const handleGenderChange   = (e) => setGender(e.target.value);
-  const handleMinPriceChange = (e) => setMinPrice(e.target.value);
-  const handleMaxPriceChange = (e) => setMaxPrice(e.target.value);
-  const handleBrandChange    = (e) => setBrand(e.target.value);
-
   const anyActive = search || gender || minPrice || maxPrice || brand;
+  const sortLabel = SORT_OPTIONS.find(o => o.value === sortValue)?.label || 'Ordenar';
 
   return (
     <div className="filters">
       <div className="filtersStatic">
 
-        {/* ── Cabecera ── */}
-        <div className="headerFilter">
-          <h5>Filtros</h5>
-        </div>
-
-        {/* ── Búsqueda + Limpiar ── */}
+        {/* ── Fila 1: Búsqueda + Limpiar ── */}
         <div className={`filters__group filters__group--search${search ? ' filter--active' : ''}`}>
           <div className="filter__search-row">
             <div className="filterInputWrapper filter__search-input">
@@ -110,7 +96,7 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
                 type="text"
                 id="search"
                 value={search}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Nombre o fragancia..."
               />
             </div>
@@ -126,15 +112,13 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
 
         <div className="filterDivider" />
 
-        {/* ── Marca ── */}
+        {/* ── Fila 2: Marca ── */}
         <div className={`filters__group filters__group--brand${brand ? ' filter--active' : ''}`}>
           <label htmlFor="brand">Marca</label>
           <div className="filterSelectWrapper">
-            <select id="brand" value={brand} onChange={handleBrandChange}>
+            <select id="brand" value={brand} onChange={(e) => setBrand(e.target.value)}>
               <option value="">Todas las marcas</option>
-              {brands.map((b, index) => (
-                <option key={index} value={b}>{b}</option>
-              ))}
+              {brands.map((b, i) => <option key={i} value={b}>{b}</option>)}
             </select>
             <span className="filterSelectChevron">&#8964;</span>
           </div>
@@ -142,11 +126,11 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
 
         <div className="filterDivider" />
 
-        {/* ── Género ── */}
+        {/* ── Fila 2: Género ── */}
         <div className={`filters__group filters__group--gender${gender ? ' filter--active' : ''}`}>
           <label htmlFor="gender">Género</label>
           <div className="filterSelectWrapper">
-            <select id="gender" value={gender} onChange={handleGenderChange}>
+            <select id="gender" value={gender} onChange={(e) => setGender(e.target.value)}>
               <option value="">Todos</option>
               <option value="Caballeros">Caballeros</option>
               <option value="Damas">Damas</option>
@@ -157,39 +141,29 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
 
         <div className="filterDivider" />
 
-        {/* ── Rango de precio ── */}
+        {/* ── Fila 2: Precio ── */}
         <div className={`filters__group filters__group--price${(minPrice || maxPrice) ? ' filter--active' : ''}`}>
           <label>Precio <span className="filterLabelSub">(USD)</span></label>
           <div className="filterPriceRange">
-            <input
-              type="number"
-              id="minPrice"
-              value={minPrice}
-              onChange={handleMinPriceChange}
-              placeholder="Mín"
-            />
+            <input type="number" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="Mín" />
             <span className="filterPriceSep">—</span>
-            <input
-              type="number"
-              id="maxPrice"
-              value={maxPrice}
-              onChange={handleMaxPriceChange}
-              placeholder="Máx"
-            />
+            <input type="number" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="Máx" />
           </div>
         </div>
 
         <div className="filterDivider" />
 
-        {/* ── Ordenar ── */}
+        {/* ── Fila 2: Ordenar (icono compacto, lejos de Limpiar) ── */}
         <div className="filters__group filters__group--sort filters__actions" ref={sortRef}>
+          <label className="filter__sort-label">{sortLabel}</label>
           <button
             className={`filter__sort-btn${sortValue ? ' filter__sort-btn--active' : ''}`}
             onClick={() => setSortOpen(o => !o)}
             aria-expanded={sortOpen}
+            title={`Ordenar: ${sortLabel}`}
           >
             <FontAwesomeIcon icon={faSort} />
-            <span>{sortLabel}</span>
+            {sortValue && <span className="filter__sort-dot" />}
           </button>
           {sortOpen && (
             <div className="filter__sort-dropdown">
