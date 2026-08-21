@@ -88,10 +88,14 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
 
   const toggleSort = () => {
     if (!sortOpen && sortBtnRef.current) {
-      const rect = sortBtnRef.current.getBoundingClientRect();
+      const rect        = sortBtnRef.current.getBoundingClientRect();
+      const dropW       = 214;
+      const margin      = 8;
+      const idealLeft   = rect.left;
+      const clampedLeft = Math.min(idealLeft, window.innerWidth - dropW - margin);
       setDropdownPos({
-        top:   rect.bottom + window.scrollY + 4,
-        right: window.innerWidth - rect.right,
+        top:  rect.bottom + window.scrollY + 4,
+        left: Math.max(margin, clampedLeft),
       });
     }
     setSortOpen(o => !o);
@@ -191,7 +195,7 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
         <div
           ref={sortDropdownRef}
           className="filter__sort-dropdown"
-          style={{ top: dropdownPos.top, right: dropdownPos.right }}
+          style={{ top: dropdownPos.top, left: dropdownPos.left }}
         >
           {SORT_OPTIONS.map(opt => (
             <button
