@@ -711,6 +711,14 @@ input[type="number"]::placeholder { color: rgba(237, 232, 235, 0.28); }
   background: rgba(253, 208, 94, 0.05);
 }
 
+/* Texto dentro del botón sort */
+.filter__sort-btn-label {
+  font-family: var(--font-cinzel);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
 /* Dot indicator when a sort is active */
 .filter__sort-dot {
   position: absolute;
@@ -722,17 +730,15 @@ input[type="number"]::placeholder { color: rgba(237, 232, 235, 0.28); }
   background: var(--color-dorado);
 }
 
-/* ── Sort dropdown ── */
+/* ── Sort dropdown (portalizado a body) ── */
 .filter__sort-dropdown {
   position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
-  z-index: 1000;
+  z-index: 9999;
   background: linear-gradient(180deg, #1c1019 0%, #160c13 100%);
   border: 1px solid rgba(253, 208, 94, 0.2);
   border-radius: 2px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.75);
-  min-width: 200px;
+  min-width: 210px;
   overflow: hidden;
   animation: sortFadeIn 0.18s ease both;
 }

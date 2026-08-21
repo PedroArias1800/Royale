@@ -249,49 +249,15 @@
   .filters__group--price  { flex: 2 1 140px !important; border-right: 1px solid rgba(253, 208, 94, 0.06) !important; animation: filterFadeIn 0.35s 0.15s ease both; }
   .filtersStatic .filters__actions { flex: 0 0 auto !important; align-self: flex-end !important; animation: filterFadeIn 0.35s 0.2s ease both; }
 
-  /* ── Sort: icono a la IZQUIERDA + label inline (una sola línea en fila 2) ── */
-  .filters__group--sort {
-    display: flex !important;
-    flex-direction: row !important;
-    align-items: center !important;
-    gap: 5px !important;
-    padding: 6px 8px 8px !important;
-  }
-
-  /* Botón sort: cuadrado solo con el ícono */
+  /* ── Sort: botón único ícono + texto compacto en fila 2 ── */
   .filters__group--sort .filter__sort-btn {
-    padding: 0 !important;
-    width: 26px !important;
-    height: 26px !important;
-    justify-content: center !important;
-    font-size: 0.80rem !important;
-    flex-shrink: 0 !important;
-  }
-
-  /* Label sort: visible a la derecha del ícono */
-  .filter__sort-label {
-    display: block !important;
+    padding: 4px 8px !important;
     font-size: 0.68rem !important;
-    letter-spacing: 0.14em !important;
-    text-transform: uppercase !important;
-    font-family: var(--font-cinzel) !important;
-    color: rgba(253, 208, 94, 0.45) !important;
-    margin-bottom: 0 !important;
-    white-space: nowrap !important;
-    cursor: pointer !important;
-    line-height: 1 !important;
+    gap: 5px !important;
   }
-  .filter__sort-label--active {
-    color: var(--color-dorado) !important;
-  }
-
-  /* Dropdown: z-index alto para quedar encima de las cards */
-  .filter__sort-dropdown {
-    z-index: 1000 !important;
-    right: 0 !important;
-    left: auto !important;
-    min-width: 190px !important;
-    top: calc(100% + 4px) !important;
+  .filters__group--sort .filter__sort-btn-label {
+    font-size: 0.68rem !important;
+    letter-spacing: 0.12em !important;
   }
 
   /* ── Limpiar: compact inline style en search row ── */

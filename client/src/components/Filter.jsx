@@ -25,7 +25,10 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
   const [brand, setBrand]         = useState("");
   const [sortOpen, setSortOpen]   = useState(false);
   const [sortValue, setSortValue] = useState("");
-  const sortRef = useRef(null);
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 });
+
+  const sortBtnRef      = useRef(null);
+  const sortDropdownRef = useRef(null);
 
   const prevSearch   = useRef(search);
   const prevGender   = useRef(gender);
@@ -33,9 +36,12 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
   const prevMaxPrice = useRef(maxPrice);
   const prevBrand    = useRef(brand);
 
+  // Cerrar dropdown al click fuera (el dropdown está en el portal)
   useEffect(() => {
     const handleClick = (e) => {
-      if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false);
+      const inBtn      = sortBtnRef.current?.contains(e.target);
+      const inDropdown = sortDropdownRef.current?.contains(e.target);
+      if (!inBtn && !inDropdown) setSortOpen(false);
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
@@ -78,6 +84,17 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
     setSortValue(value);
     onSort?.(value);
     setSortOpen(false);
+  };
+
+  const toggleSort = () => {
+    if (!sortOpen && sortBtnRef.current) {
+      const rect = sortBtnRef.current.getBoundingClientRect();
+      setDropdownPos({
+        top:   rect.bottom + window.scrollY + 4,
+        right: window.innerWidth - rect.right,
+      });
+    }
+    setSortOpen(o => !o);
   };
 
   const anyActive = search || gender || minPrice || maxPrice || brand;
@@ -153,39 +170,41 @@ export const Filter = ({ onFilter, onSort, brands, type }) => {
 
         <div className="filterDivider" />
 
-        {/* ── Fila 2: Ordenar (icono + label inline) ── */}
-        <div className="filters__group filters__group--sort filters__actions" ref={sortRef}>
+        {/* ── Fila 2: Ordenar — botón único con ícono + texto ── */}
+        <div className="filters__group filters__group--sort filters__actions">
           <button
+            ref={sortBtnRef}
             className={`filter__sort-btn${sortValue ? ' filter__sort-btn--active' : ''}`}
-            onClick={() => setSortOpen(o => !o)}
+            onClick={toggleSort}
             aria-expanded={sortOpen}
             title={`Ordenar: ${sortLabel}`}
           >
             <FontAwesomeIcon icon={faSort} />
-            {sortValue && <span className="filter__sort-dot" />}
+            <span className="filter__sort-btn-label">{sortLabel}</span>
           </button>
-          <label
-            className={`filter__sort-label${sortValue ? ' filter__sort-label--active' : ''}`}
-            onClick={() => setSortOpen(o => !o)}
-          >
-            {sortLabel}
-          </label>
-          {sortOpen && (
-            <div className="filter__sort-dropdown">
-              {SORT_OPTIONS.map(opt => (
-                <button
-                  key={opt.value}
-                  className={`filter__sort-option${sortValue === opt.value ? ' filter__sort-option--active' : ''}`}
-                  onClick={() => handleSort(opt.value)}
-                >
-                  {opt.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
       </div>
+
+      {/* Dropdown portalizado a body → z-index ilimitado */}
+      {sortOpen && createPortal(
+        <div
+          ref={sortDropdownRef}
+          className="filter__sort-dropdown"
+          style={{ top: dropdownPos.top, right: dropdownPos.right }}
+        >
+          {SORT_OPTIONS.map(opt => (
+            <button
+              key={opt.value}
+              className={`filter__sort-option${sortValue === opt.value ? ' filter__sort-option--active' : ''}`}
+              onClick={() => handleSort(opt.value)}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>,
+        document.body
+      )}
 
       {createPortal(
         <button className="subirTop" onClick={scrollToTop} aria-label="Volver arriba">
