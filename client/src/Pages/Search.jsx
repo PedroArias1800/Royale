@@ -19,6 +19,7 @@ export const Search = () => {
   const [brands, setBrands] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState('');
 
   useEffect(() => {
     document.title = 'Catálogo de Perfumes · Royale Panama';
@@ -91,8 +92,25 @@ export const Search = () => {
     setPage(1);
   }, [products]);
 
-  const totalPages = Math.ceil(filteredProducts.length / PER_PAGE);
-  const pagedProducts = filteredProducts.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+  const getMinPrice = (p) => {
+    const prices = p.types.map(t => parseFloat(t.type_of_sale === 'Flash' && t.quantity_flash > 0 ? t.price_flash : t.price));
+    return Math.min(...prices);
+  };
+
+  const sortedProducts = (() => {
+    if (!sortBy) return filteredProducts;
+    const arr = [...filteredProducts];
+    switch (sortBy) {
+      case 'price_asc':  return arr.sort((a, b) => getMinPrice(a) - getMinPrice(b));
+      case 'price_desc': return arr.sort((a, b) => getMinPrice(b) - getMinPrice(a));
+      case 'name_asc':   return arr.sort((a, b) => a.title.localeCompare(b.title, 'es'));
+      case 'name_desc':  return arr.sort((a, b) => b.title.localeCompare(a.title, 'es'));
+      default:           return arr;
+    }
+  })();
+
+  const totalPages = Math.ceil(sortedProducts.length / PER_PAGE);
+  const pagedProducts = sortedProducts.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
   const changePage = (newPage) => {
     setPage(newPage);
@@ -122,7 +140,7 @@ export const Search = () => {
 
   return (
     <div className="app searchDisplayStyle" ref={containerRef}>
-      <Filter onFilter={handleFilter} brands={brands} id={id} type={type} />
+      <Filter onFilter={handleFilter} onSort={setSortBy} brands={brands} id={id} type={type} />
 
       <div className="search-results">
         {loading ? (
@@ -138,7 +156,7 @@ export const Search = () => {
         ) : (
           <>
             <div className="search-results__count">
-              {filteredProducts.length} perfume{filteredProducts.length !== 1 ? 's' : ''}
+              {sortedProducts.length} perfume{sortedProducts.length !== 1 ? 's' : ''}
               {totalPages > 1 && ` · Página ${page} de ${totalPages}`}
             </div>
 

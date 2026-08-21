@@ -197,16 +197,16 @@
 
 /* ── 800px: Filtros en horizontal ── */
 @media only screen and (max-width: 800px) {
-  .app { display: block; }
-  .searchDisplayStyle { height: auto; }
+  .app { display: block !important; }
+  .searchDisplayStyle { height: auto !important; }
 
   .filters {
     max-width: 100% !important;
-    width: 100vw;
+    width: 100vw !important;
     font-size: small;
     min-height: 0 !important;
-    position: relative;
-    border-right: none;
+    position: relative !important;
+    border-right: none !important;
     border-bottom: 1px solid rgba(253, 208, 94, 0.12);
     padding: 0 !important;
     background: linear-gradient(180deg, #100810 0%, #0d060b 100%);
@@ -215,11 +215,11 @@
   /* ── filtersStatic: two-row matrix layout ── */
   .filtersStatic {
     display: flex !important;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 0;
-    padding: 0;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    align-items: flex-end !important;
+    gap: 0 !important;
+    padding: 0 !important;
   }
 
   /* Dividers hidden */
@@ -227,10 +227,10 @@
 
   /* ── Row 1: Search — full width ── */
   .filters__group--search {
-    flex: 1 0 100%;
-    order: 0;
-    padding: 10px 16px 10px;
-    border-bottom: 1px solid rgba(253, 208, 94, 0.07);
+    flex: 1 0 100% !important;
+    order: 0 !important;
+    padding: 10px 16px 10px !important;
+    border-bottom: 1px solid rgba(253, 208, 94, 0.07) !important;
     animation: filterFadeIn 0.35s ease both;
   }
 
@@ -239,14 +239,31 @@
   .filters__group--gender,
   .filters__group--price,
   .filtersStatic .filters__actions {
-    order: 1;
-    padding: 8px 10px 10px;
+    order: 1 !important;
+    padding: 8px 10px 10px !important;
   }
 
-  .filters__group--brand  { flex: 1 1 100px; border-right: 1px solid rgba(253, 208, 94, 0.06); animation: filterFadeIn 0.35s 0.05s ease both; }
-  .filters__group--gender { flex: 1 1 90px;  border-right: 1px solid rgba(253, 208, 94, 0.06); animation: filterFadeIn 0.35s 0.1s  ease both; }
-  .filters__group--price  { flex: 2 1 140px; border-right: 1px solid rgba(253, 208, 94, 0.06); animation: filterFadeIn 0.35s 0.15s ease both; }
-  .filtersStatic .filters__actions { flex: 0 0 auto; align-self: flex-end; animation: filterFadeIn 0.35s 0.2s ease both; }
+  .filters__group--brand  { flex: 1 1 100px !important; border-right: 1px solid rgba(253, 208, 94, 0.06) !important; animation: filterFadeIn 0.35s 0.05s ease both; }
+  .filters__group--gender { flex: 1 1 90px  !important; border-right: 1px solid rgba(253, 208, 94, 0.06) !important; animation: filterFadeIn 0.35s 0.1s  ease both; }
+  .filters__group--price  { flex: 2 1 140px !important; border-right: 1px solid rgba(253, 208, 94, 0.06) !important; animation: filterFadeIn 0.35s 0.15s ease both; }
+  .filtersStatic .filters__actions { flex: 0 0 auto !important; align-self: flex-end !important; animation: filterFadeIn 0.35s 0.2s ease both; }
+
+  /* ── Sort button: compact in chip row ── */
+  .filters__group--sort .filter__sort-btn {
+    padding: 4px 8px !important;
+    font-size: 0.70rem !important;
+  }
+  .filters__group--sort .filter__sort-dropdown {
+    right: 0 !important;
+    left: auto !important;
+    min-width: 180px !important;
+  }
+
+  /* ── Limpiar: compact inline style in search row ── */
+  .filter__limpiar-btn {
+    font-size: 0.68rem !important;
+    padding: 4px 8px !important;
+  }
 
   /* ── Labels: micro uppercase cinzel ── */
   .filtersStatic .filters__group > label {

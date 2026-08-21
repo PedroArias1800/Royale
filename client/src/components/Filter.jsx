@@ -1,9 +1,17 @@
-import { faChevronDown, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faMagnifyingGlass, faSort } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
-export const Filter = ({ onFilter, brands, type }) => {
+const SORT_OPTIONS = [
+  { value: '',           label: 'Relevancia'           },
+  { value: 'price_asc',  label: 'Precio: menor a mayor' },
+  { value: 'price_desc', label: 'Precio: mayor a menor' },
+  { value: 'name_asc',   label: 'Nombre A–Z'            },
+  { value: 'name_desc',  label: 'Nombre Z–A'            },
+];
+
+export const Filter = ({ onFilter, onSort, brands, type }) => {
   const scrollToTop = () => {
     const container = document.querySelector('.searchDisplayStyle');
     if (container) {
@@ -17,12 +25,23 @@ export const Filter = ({ onFilter, brands, type }) => {
   const [minPrice, setMinPrice]   = useState("");
   const [maxPrice, setMaxPrice]   = useState("");
   const [brand, setBrand]         = useState("");
+  const [sortOpen, setSortOpen]   = useState(false);
+  const [sortValue, setSortValue] = useState("");
+  const sortRef = useRef(null);
 
   const prevSearch   = useRef(search);
   const prevGender   = useRef(gender);
   const prevMinPrice = useRef(minPrice);
   const prevMaxPrice = useRef(maxPrice);
   const prevBrand    = useRef(brand);
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (sortRef.current && !sortRef.current.contains(e.target)) setSortOpen(false);
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   useEffect(() => {
     if (type === '1')      setGender('Damas');
@@ -57,6 +76,14 @@ export const Filter = ({ onFilter, brands, type }) => {
     setSearch(""); setGender(""); setMinPrice(""); setMaxPrice(""); setBrand("");
   };
 
+  const handleSort = (value) => {
+    setSortValue(value);
+    onSort?.(value);
+    setSortOpen(false);
+  };
+
+  const sortLabel = SORT_OPTIONS.find(o => o.value === sortValue)?.label || 'Ordenar';
+
   const handleSearchChange   = (e) => setSearch(e.target.value);
   const handleGenderChange   = (e) => setGender(e.target.value);
   const handleMinPriceChange = (e) => setMinPrice(e.target.value);
@@ -74,18 +101,26 @@ export const Filter = ({ onFilter, brands, type }) => {
           <h5>Filtros</h5>
         </div>
 
-        {/* ── Búsqueda ── */}
+        {/* ── Búsqueda + Limpiar ── */}
         <div className={`filters__group filters__group--search${search ? ' filter--active' : ''}`}>
-          <label htmlFor="search">Búsqueda</label>
-          <div className="filterInputWrapper">
-            <FontAwesomeIcon icon={faMagnifyingGlass} className="filterIcon" />
-            <input
-              type="text"
-              id="search"
-              value={search}
-              onChange={handleSearchChange}
-              placeholder="Nombre o fragancia..."
-            />
+          <div className="filter__search-row">
+            <div className="filterInputWrapper filter__search-input">
+              <FontAwesomeIcon icon={faMagnifyingGlass} className="filterIcon" />
+              <input
+                type="text"
+                id="search"
+                value={search}
+                onChange={handleSearchChange}
+                placeholder="Nombre o fragancia..."
+              />
+            </div>
+            <button
+              className={`filter__limpiar-btn${anyActive ? ' filter__limpiar-btn--active' : ''}`}
+              onClick={resetFilters}
+              title="Limpiar filtros"
+            >
+              Limpiar
+            </button>
           </div>
         </div>
 
@@ -146,14 +181,29 @@ export const Filter = ({ onFilter, brands, type }) => {
 
         <div className="filterDivider" />
 
-        {/* ── Restablecer ── */}
-        <div className="filters__actions">
+        {/* ── Ordenar ── */}
+        <div className="filters__group filters__group--sort filters__actions" ref={sortRef}>
           <button
-            className={`resetFilters${anyActive ? ' resetFilters--active' : ''}`}
-            onClick={resetFilters}
+            className={`filter__sort-btn${sortValue ? ' filter__sort-btn--active' : ''}`}
+            onClick={() => setSortOpen(o => !o)}
+            aria-expanded={sortOpen}
           >
-            Restablecer filtros
+            <FontAwesomeIcon icon={faSort} />
+            <span>{sortLabel}</span>
           </button>
+          {sortOpen && (
+            <div className="filter__sort-dropdown">
+              {SORT_OPTIONS.map(opt => (
+                <button
+                  key={opt.value}
+                  className={`filter__sort-option${sortValue === opt.value ? ' filter__sort-option--active' : ''}`}
+                  onClick={() => handleSort(opt.value)}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
       </div>
